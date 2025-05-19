@@ -37,6 +37,7 @@ import java.io.StringWriter;
 
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "customdiscs";
+  public static final String LIBRARY_ID = "CdLib";
   @Getter
   private YamlLanguage language = new YamlLanguage();
   @Getter
@@ -53,6 +54,7 @@ public class CustomDiscs extends JavaPlugin {
   private TaskScheduler scheduler;
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
+  public boolean youtubeSupport = false;
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
@@ -84,6 +86,13 @@ public class CustomDiscs extends JavaPlugin {
     File musicData = new File(this.getDataFolder(), "musicdata");
     if (!(musicData.exists())) {
       if (musicData.mkdir()) info("Created music data folder");
+    }
+
+    if (getServer().getPluginManager().getPlugin(LIBRARY_ID) != null) {
+      youtubeSupport = true;
+      info(LIBRARY_ID + " installed, youtube support enabled");
+    } else {
+       getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/sub-kek/CdLib");
     }
 
     registerVoicechatHook();

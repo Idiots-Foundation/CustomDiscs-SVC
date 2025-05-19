@@ -24,8 +24,7 @@ repositories {
             includeModule("com.github.technicallycoded", "FoliaLib")
         }
     }
-    maven("https://maven.lavalink.dev/releases")
-    maven("https://maven.lavalink.dev/snapshots")
+    maven("https://repo.plasmoverse.com/releases")
     maven("https://repo.subkek.space/maven-public/") {
         name = "subkek"
     }
@@ -37,17 +36,16 @@ dependencies {
  
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
+    compileOnly(files("libs/CdLib-1.0.jar"))
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.16.1")
-    shadow("com.github.technicallycoded:FoliaLib:0.4.3")
-    shadow("dev.lavalink.youtube:common:b4f2c98ce72ff7fc2affa449456d47757352f5a5-SNAPSHOT")
-    shadow("dev.arbjerg:lavaplayer:2.2.2") {
+    shadow("com.github.technicallycoded:FoliaLib:0.4.3") {
         exclude("org.slf4j")
     }
 
-    shadow("dev.jorel:commandapi-bukkit-shade:10.0.0")
+    shadow("dev.jorel:commandapi-bukkit-shade:10.0.1")
 
     shadow(platform("net.kyori:adventure-bom:4.17.0"))
     shadow("net.kyori:adventure-api")
@@ -100,6 +98,10 @@ bukkit {
     depend = listOf(
         "voicechat",
         "ProtocolLib"
+    )
+
+    softDepend = listOf(
+        "CdLib"
     )
 }
 

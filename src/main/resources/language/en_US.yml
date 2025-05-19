@@ -14,7 +14,7 @@ language:
       disc-name-empty: 'You must specify the disc name.'
     play:
       no-permission: 'No permissions to play that disc!'
-      no-matches: 'No URL matches!'
+      no-matches: 'Video not found!'
       audio-load: 'Error loading audio!'
       while-playing: 'Error while playing disc!'
     file:

@@ -7,7 +7,6 @@ com-fasterxml-jackson-core-jackson-core = "2.15.3"
 com-fasterxml-jackson-core-jackson-databind = "2.15.3"
 com-googlecode-json-simple-json-simple = "1.1.1"
 com-googlecode-soundlibs-mp3spi = "1.9.5.4"
-com-sedmelluq-lavaplayer = "LATEST"
 commons-io-commons-io = "2.14.0"
 de-maxhenkel-voicechat-voicechat-api = "2.3.3"
 io-papermc-paper-paper-api = "LATEST"
@@ -20,7 +19,6 @@ com-fasterxml-jackson-core-jackson-core = { module = "com.fasterxml.jackson.core
 com-fasterxml-jackson-core-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "com-fasterxml-jackson-core-jackson-databind" }
 com-googlecode-json-simple-json-simple = { module = "com.googlecode.json-simple:json-simple", version.ref = "com-googlecode-json-simple-json-simple" }
 com-googlecode-soundlibs-mp3spi = { module = "com.googlecode.soundlibs:mp3spi", version.ref = "com-googlecode-soundlibs-mp3spi" }
-com-sedmelluq-lavaplayer = { module = "com.sedmelluq:lavaplayer", version.ref = "com-sedmelluq-lavaplayer" }
 commons-io-commons-io = { module = "commons-io:commons-io", version.ref = "commons-io-commons-io" }
 de-maxhenkel-voicechat-voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "de-maxhenkel-voicechat-voicechat-api" }
 io-papermc-paper-paper-api = { module = "io.papermc.paper:paper-api", version.ref = "io-papermc-paper-paper-api" }
