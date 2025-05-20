@@ -12,6 +12,7 @@ language:
       unknown-extension: 'Файл должен иметь расширение <dark_aqua>wav<white>, <dark_aqua>flac <white>или <dark_aqua>mp3<white>!'
       invalid-filename: 'Неверное имя файла!'
       disc-name-empty: 'Необходимо указать имя диска.'
+      no-youtube-support: 'Вам необходимо установить библиотеку для поддержки ютуба: <gold>https://github.com/Idiots-Foundation/lavaplayer-lib/releases'
     play:
       no-permission: 'Нет прав на воспроизведение такой пластинки'
       no-matches: 'Видео не найденно!'

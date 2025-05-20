@@ -61,7 +61,7 @@ public class JukeboxHandler implements Listener {
 
     if (isYouTubeCustomDisc) {
       if (!CustomDiscs.getPlugin().youtubeSupport) {
-        CustomDiscs.error(CustomDiscs.LIBRARY_ID + " is not installed. YouTube support impossible! https://github.com/sub-kek/CdLib");
+        CustomDiscs.error(CustomDiscs.LIBRARY_ID + " is not installed. YouTube support impossible! https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
         return;
       }
       PlayUtil.playLava(block, event.getItem());

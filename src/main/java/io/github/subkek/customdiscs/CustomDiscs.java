@@ -37,7 +37,7 @@ import java.io.StringWriter;
 
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "customdiscs";
-  public static final String LIBRARY_ID = "CdLib";
+  public static final String LIBRARY_ID = "lavaplayer-lib";
   @Getter
   private YamlLanguage language = new YamlLanguage();
   @Getter
@@ -92,7 +92,7 @@ public class CustomDiscs extends JavaPlugin {
       youtubeSupport = true;
       info(LIBRARY_ID + " installed, youtube support enabled");
     } else {
-       getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/sub-kek/CdLib");
+       getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
     }
 
     registerVoicechatHook();

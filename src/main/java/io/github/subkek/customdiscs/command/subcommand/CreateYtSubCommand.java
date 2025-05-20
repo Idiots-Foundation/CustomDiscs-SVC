@@ -58,6 +58,11 @@ public class CreateYtSubCommand extends AbstractSubCommand {
       return;
     }
 
+    if (!plugin.youtubeSupport) {
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-youtube-support"));
+      return;
+    }
+
     if (!LegacyUtil.isMusicDiscInHand(player)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
       return;

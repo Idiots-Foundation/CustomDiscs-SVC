@@ -24,8 +24,9 @@ repositories {
             includeModule("com.github.technicallycoded", "FoliaLib")
         }
     }
-    maven("https://repo.plasmoverse.com/releases")
-    maven("https://repo.dmulloy2.net/repository/public/")
+    maven("https://repo.subkek.space/maven-public") {
+        name = "subkek"
+    }
 }
 
 dependencies {
@@ -34,7 +35,7 @@ dependencies {
  
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
-    compileOnly(files("libs/CdLib-1.0.jar"))
+    compileOnly("me.yiski:lavaplayer-lib:1.0.0")
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
@@ -99,7 +100,7 @@ bukkit {
     )
 
     softDepend = listOf(
-        "CdLib"
+        "lavaplayer-lib"
     )
 }
 
