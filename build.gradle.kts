@@ -25,9 +25,7 @@ repositories {
         }
     }
     maven("https://repo.plasmoverse.com/releases")
-    maven("https://repo.subkek.space/maven-public/") {
-        name = "subkek"
-    }
+    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
