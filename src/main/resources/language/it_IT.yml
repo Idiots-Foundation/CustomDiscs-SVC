@@ -1,0 +1,70 @@
+version: 'plugin version'
+language:
+  prefix:
+    normal: '<dark_aqua>CustomDiscs <white>- '
+    debug: '<yellow>[CustomDiscs Debug] '
+    info: '<blue>[CustomDiscs Info] <reset>'
+    error: '<red>[CustomDiscs Errore] '
+  error:
+    command:
+      cant-perform: 'Non puoi eseguire quel comando!'
+      no-permission: 'Non hai il permesso per farlo!'
+      unknown-extension: 'L''estensione del file deve essere <dark_aqua>wav<white>, <dark_aqua>flac <white>oppure <dark_aqua>mp3<white>!'
+      invalid-filename: 'Nome file non valido!'
+      disc-name-empty: 'Devi specificare il nome del disco.'
+      no-youtube-support: 'Devi scaricare la libreria per il supporto YouTube: <gold>https://github.com/Idiots-Foundation/lavaplayer-lib/releases'
+    play:
+      no-permission: 'Non hai il permesso per suonare quel disco!'
+      no-matches: 'Video non trovato!'
+      audio-load: 'Errore nel caricamento dell''audio!'
+      while-playing: 'Errore durante la riproduzione del disco!'
+    file:
+      not-found: 'File non trovato!'
+  command:
+    download:
+      syntax: '<dark_aqua>/cd download <link diretto> <nome.estensione>'
+      description: '<white>Scarica un file musicale da un URL.'
+      messages:
+        downloading: '<gray>Download del file in corso...'
+        successfully: 'File scaricato con successo!'
+        create-tooltip: 'Crea disco, usando il comando {0}'
+        error:
+          while-download: 'Errore durante il download del file.'
+          file-too-large: 'Dimensione del file superiore a {0}mb.'
+    reload:
+      syntax: '<dark_aqua>/cd reload'
+      description: '<white>Ricarica i file di configurazione.'
+      messages:
+        successfully: 'Plugin ricaricato con successo.'
+    createyt:
+      syntax: '<dark_aqua>/cd createyt <url video> <nome disco>'
+      description: '<white>Crea un disco con la musica da YouTube.'
+      messages:
+        link: '<white>URL dell''audio: <dark_aqua>{0}'
+    create:
+      syntax: '<dark_aqua>/cd create <nome file> <nome disco>'
+      description: '<white>Crea un disco musicale.'
+      messages:
+        error:
+          not-holding-disc: 'Prima prendi un disco in mano!'
+        name: '<white>Nome disco: <dark_aqua>{0}'
+        file: '<white>Nome file: <dark_aqua>{0}'
+    distance:
+      syntax: '<dark_aqua>/cd distance <raggio>'
+      description: '<white>Imposta il raggio per il jukebox.'
+      messages:
+        error:
+          not-jukebox: 'Non hai cliccato su un jukebox'
+        success: 'Il raggio del jukebox è stato impostato a {0}.'
+        click: 'Clicca sul jukebox a cui vuoi impostare il raggio.'
+    help:
+      syntax: '<dark_aqua>/cd help'
+      description: '<white>Mostra l''aiuto dei comandi'
+      messages:
+        header: '<white>Dischi personalizzati'
+        format: '{0}<white>: {1}'
+        footer: 'Alcuni argomenti devono essere scritti tra virgolette "stringa"'
+  disc-name:
+    simple: '<white>Disco musicale'
+    youtube: '<white>Disco YouTube'
+  now-playing: '<gold>In riproduzione: {0}'
