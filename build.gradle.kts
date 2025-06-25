@@ -33,9 +33,9 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
  
-    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.0")
+    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.31")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
-    compileOnly("me.yiski:lavaplayer-lib:1.0.0")
+    compileOnly("me.yiski:lavaplayer-lib:1.0.3")
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
@@ -44,7 +44,7 @@ dependencies {
         exclude("org.slf4j")
     }
 
-    shadow("dev.jorel:commandapi-bukkit-shade:10.0.1")
+    shadow("dev.jorel:commandapi-bukkit-shade:10.1.0")
 
     shadow(platform("net.kyori:adventure-bom:4.17.0"))
     shadow("net.kyori:adventure-api")
