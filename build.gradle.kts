@@ -44,7 +44,7 @@ dependencies {
         exclude("org.slf4j")
     }
 
-    shadow("dev.jorel:commandapi-bukkit-shade:10.1.0")
+    shadow("dev.jorel:commandapi-bukkit-shade:10.1.1")
 
     shadow(platform("net.kyori:adventure-bom:4.17.0"))
     shadow("net.kyori:adventure-api")
