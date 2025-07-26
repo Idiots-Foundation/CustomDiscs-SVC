@@ -2,6 +2,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 
 plugins {
     id("java-library")
+    id ("com.modrinth.minotaur") version "2.+"
     id("io.github.goooler.shadow") version "8.1.8"
     id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
@@ -32,7 +33,7 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
- 
+
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.31")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
     compileOnly("me.yiski:lavaplayer-lib:1.0.3")
@@ -102,6 +103,36 @@ bukkit {
     softDepend = listOf(
         "lavaplayer-lib"
     )
+}
+
+// ./gradlew modrinth -Pmodrinth.token=token -Pmodrinth.changelog=""
+modrinth {
+    val rawToken = findProperty("modrinth.token")?.toString() ?: ""
+    val rawChangelog = findProperty("modrinth.changelog")?.toString() ?: ""
+
+    token.set(rawToken)
+    changelog.set(rawChangelog.replace("\\n", "\n"))
+    versionName.set("CustomDiscs-SVC $version")
+    projectId.set("customdiscs-svc")
+    versionNumber.set(version as String)
+    versionType.set("release")
+    gameVersions.addAll("1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20", "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19", "1.18.2", "1.18.1", "1.18", "1.17.1", "1.17", "1.16.5")
+    loaders.addAll("bukkit", "paper", "purpur", "spigot", "folia")
+    uploadFile.set(tasks.named("shadowJar"))
+    dependencies {
+        required.project("simple-voice-chat")
+    }
+}
+
+tasks.named("modrinth") {
+    doFirst {
+        if (modrinth.token.orNull.isNullOrBlank()) {
+            throw GradleException("token is empty! Use -Pmodrinth.token=...")
+        }
+        if (modrinth.changelog.orNull.isNullOrBlank()) {
+            throw GradleException("changelog is empty! Use -Pmodrinth.changelog=...")
+        }
+    }
 }
 
 java {
