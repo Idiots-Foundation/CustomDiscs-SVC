@@ -22,7 +22,7 @@ language:
       not-found: 'Файл не найден.'
   command:
     download:
-      syntax: '<dark_aqua>/cd download <ссылка> <имя.расширение>'
+      syntax: '<dark_aqua>/cd download "<ссылка>" <имя.расширение>'
       description: '<white>Загружает файл c музыкой с указанного URL.'
       messages:
         downloading: '<gray>Загрузка файла...'
@@ -37,18 +37,20 @@ language:
       messages:
         successfully: 'Плагин успешно перезагружен.'
     createyt:
-      syntax: '<dark_aqua>/cd createyt <ссылка на видео> <имя пластинки>'
+      syntax: '<dark_aqua>/cd createyt "<ссылка на видео>" "<имя пластинки>"'
       description: '<white>Создает диск с музыкой из YouTube.'
-      messages:
-        link: '<white>Ссылка на аудио: <dark_aqua>{0}'
+    createsc:
+      syntax: '<dark_aqua>/cd createsc "<ссылка на музыку>" "<имя пластинки>"'
+      description: '<white>Создает диск с музыкой из SoundCloud.'
     create:
-      syntax: '<dark_aqua>/cd create <имя файла> <имя пластинки>'
+      syntax: '<dark_aqua>/cd create <имя файла> "<имя пластинки>"'
       description: '<white>Создает диск с музыкой.'
       messages:
         error:
           not-holding-disc: 'Сначала возьмите диск в руку!'
         name: '<white>Имя диска: <dark_aqua>{0}'
         file: '<white>Имя файла: <dark_aqua>{0}'
+        link: '<white>Ссылка на аудио: <dark_aqua>{0}'
     distance:
       syntax: '<dark_aqua>/cd distance <радиус>'
       description: '<white>Устанавливает радиус для проигрывателя.'
@@ -67,4 +69,5 @@ language:
   disc-name:
     simple: '<white>Музыкальная пластинка'
     youtube: '<white>YouTube пластинка'
+    soundcloud: '<white>SoundCloud пластинка'
   now-playing: '<gold>Сейчас играет: {0}'

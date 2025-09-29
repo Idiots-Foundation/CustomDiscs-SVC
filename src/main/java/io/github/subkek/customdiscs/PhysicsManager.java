@@ -81,8 +81,10 @@ public class PhysicsManager {
       physicsJukebox.setTask(task);
       if (task.isCancelled()) return;
 
-      if (!LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock()) &&
-          !PlayerManager.getInstance().isPlaying(jukebox.getBlock())) {
+      if (!(CustomDiscs.lavaLibExist
+        ? (LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock())
+           || PlayerManager.getInstance().isPlaying(jukebox.getBlock()))
+        : PlayerManager.getInstance().isPlaying(jukebox.getBlock()))) {
 
         stop(jukebox.getBlock());
         return;

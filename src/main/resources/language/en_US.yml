@@ -22,7 +22,7 @@ language:
       not-found: 'File not found!'
   command:
     download:
-      syntax: '<dark_aqua>/cd download <direct link> <name.extension>'
+      syntax: '<dark_aqua>/cd download "<direct link>" <name.extension>'
       description: '<white>Downloads music file from URL.'
       messages:
         downloading: '<gray>Downloading file...'
@@ -37,18 +37,20 @@ language:
       messages:
         successfully: 'Plugin successfully reloaded.'
     createyt:
-      syntax: '<dark_aqua>/cd createyt <video url> <disc name>'
+      syntax: '<dark_aqua>/cd createyt "<video url>" "<disc name>"'
       description: '<white>Create disc with music from YouTube.'
-      messages:
-        link: '<white>Audio URL: <dark_aqua>{0}'
+    createsc:
+      syntax: '<dark_aqua>/cd createsc "<music url>" "<disc name>"'
+      description: '<white>Create disc with music from SoundCloud.'
     create:
-      syntax: '<dark_aqua>/cd create <file name> <disc name>'
+      syntax: '<dark_aqua>/cd create <file name> "<disc name>"'
       description: '<white>Creates music disc.'
       messages:
         error:
           not-holding-disc: 'First, take a disc in your hand!'
         name: '<white>Disc name: <dark_aqua>{0}'
         file: '<white>Filename: <dark_aqua>{0}'
+        link: '<white>Audio URL: <dark_aqua>{0}'
     distance:
       syntax: '<dark_aqua>/cd distance <radius>'
       description: '<white>Sets the radius for the jukebox.'
@@ -67,4 +69,5 @@ language:
   disc-name:
     simple: '<white>Music disc'
     youtube: '<white>YouTube disc'
+    soundcloud: '<white>SoundCloud disc'
   now-playing: '<gold>Now playing: {0}'

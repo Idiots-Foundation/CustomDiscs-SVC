@@ -34,7 +34,7 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
-    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.31")
+    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.0")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
     compileOnly("me.yiski:lavaplayer-lib:1.0.3")
 
@@ -88,6 +88,9 @@ bukkit {
             default = PermDefault.TRUE
         }
         register("$pluginId.createyt") {
+            default = PermDefault.TRUE
+        }
+        register("$pluginId.createsc") {
             default = PermDefault.TRUE
         }
         register("$pluginId.distance") {

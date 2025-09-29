@@ -42,6 +42,7 @@ public class JukeboxHandler implements Listener {
     Block block = event.getClickedBlock();
 
     if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+    if (event.getPlayer().isSneaking()) return;
     if (event.getClickedBlock() == null) return;
     if (event.getItem() == null) return;
     if (!event.getItem().hasItemMeta()) return;
@@ -50,20 +51,21 @@ public class JukeboxHandler implements Listener {
     if (LegacyUtil.isJukeboxContainsDisc(block)) return;
 
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
-    boolean isYouTubeCustomDisc = LegacyUtil.isCustomYouTubeDisc(event.getItem());
+    boolean isCustomStreamingDisc = LegacyUtil.isCustomStreamingDisc(event.getItem());
 
-    if (!isCustomDisc && !isYouTubeCustomDisc) return;
+    if (!isCustomDisc && !isCustomStreamingDisc) return;
 
     CustomDiscs.debug("Jukebox insert by Player event");
 
     if (isCustomDisc)
       PlayUtil.playStandard(block, event.getItem());
 
-    if (isYouTubeCustomDisc) {
-      if (!CustomDiscs.getPlugin().youtubeSupport) {
-        CustomDiscs.error(CustomDiscs.LIBRARY_ID + " is not installed. YouTube support impossible! https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
+    if (isCustomStreamingDisc) {
+      if (!CustomDiscs.lavaLibExist) {
+        CustomDiscs.error(CustomDiscs.LIBRARY_ID + " is not installed. Direct streaming support impossible! https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
         return;
       }
+
       PlayUtil.playLava(block, event.getItem());
     }
   }
@@ -81,12 +83,12 @@ public class JukeboxHandler implements Listener {
     if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
     Jukebox jukebox = (Jukebox) block.getState();
     if (!LegacyUtil.isCustomDisc(jukebox.getRecord()) &&
-        !LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) return;
+        !LegacyUtil.isCustomStreamingDisc(jukebox.getRecord())) return;
 
     CustomDiscs.debug("Jukebox eject by Player event");
 
     PlayerManager.getInstance().stopPlaying(block);
-    LavaPlayerManager.getInstance().stopPlaying(block);
+    if (CustomDiscs.lavaLibExist) LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -97,7 +99,7 @@ public class JukeboxHandler implements Listener {
     if (block.getType() != Material.JUKEBOX) return;
 
     PlayerManager.getInstance().stopPlaying(block);
-    LavaPlayerManager.getInstance().stopPlaying(block);
+    if (CustomDiscs.lavaLibExist) LavaPlayerManager.getInstance().stopPlaying(block);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

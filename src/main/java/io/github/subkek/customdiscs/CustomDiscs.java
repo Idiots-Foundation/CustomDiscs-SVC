@@ -54,7 +54,7 @@ public class CustomDiscs extends JavaPlugin {
   private TaskScheduler scheduler;
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
-  public boolean youtubeSupport = false;
+  public static boolean lavaLibExist = false;
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
@@ -89,7 +89,7 @@ public class CustomDiscs extends JavaPlugin {
     }
 
     if (getServer().getPluginManager().getPlugin(LIBRARY_ID) != null) {
-      youtubeSupport = true;
+      lavaLibExist = true;
       info(LIBRARY_ID + " installed, youtube support enabled");
     } else {
        getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
@@ -112,7 +112,7 @@ public class CustomDiscs extends JavaPlugin {
           if (!jukebox.getRecord().hasItemMeta()) return;
 
           if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
-              LegacyUtil.isCustomYouTubeDisc(jukebox.getRecord())) {
+              LegacyUtil.isCustomStreamingDisc(jukebox.getRecord())) {
             event.setCancelled(true);
 
             PhysicsManager.getInstance().start(jukebox);
@@ -126,7 +126,7 @@ public class CustomDiscs extends JavaPlugin {
   public void onDisable() {
     CommandAPI.onDisable();
 
-    LavaPlayerManager.getInstance().stopPlayingAll();
+    if (lavaLibExist) LavaPlayerManager.getInstance().stopPlayingAll();
     PlayerManager.getInstance().stopPlayingAll();
 
     cDData.stopAutosave();

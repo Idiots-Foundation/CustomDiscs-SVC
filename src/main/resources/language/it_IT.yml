@@ -22,7 +22,7 @@ language:
       not-found: 'File non trovato!'
   command:
     download:
-      syntax: '<dark_aqua>/cd download <link diretto> <nome.estensione>'
+      syntax: '<dark_aqua>/cd download "<link diretto>" <nome.estensione>'
       description: '<white>Scarica un file musicale da un URL.'
       messages:
         downloading: '<gray>Download del file in corso...'
@@ -37,18 +37,20 @@ language:
       messages:
         successfully: 'Plugin ricaricato con successo.'
     createyt:
-      syntax: '<dark_aqua>/cd createyt <url video> <nome disco>'
+      syntax: '<dark_aqua>/cd createyt "<url video>" "<nome disco>"'
       description: '<white>Crea un disco con la musica da YouTube.'
-      messages:
-        link: '<white>URL dell''audio: <dark_aqua>{0}'
+    createsc:
+      syntax: '<dark_aqua>/cd createsc "<url musica>" "<nome disco>"'
+      description: '<white>Crea un disco con la musica da SoundCloud.'
     create:
-      syntax: '<dark_aqua>/cd create <nome file> <nome disco>'
+      syntax: '<dark_aqua>/cd create <nome file> "<nome disco>"'
       description: '<white>Crea un disco musicale.'
       messages:
         error:
           not-holding-disc: 'Prima prendi un disco in mano!'
         name: '<white>Nome disco: <dark_aqua>{0}'
         file: '<white>Nome file: <dark_aqua>{0}'
+        link: '<white>URL dell''audio: <dark_aqua>{0}'
     distance:
       syntax: '<dark_aqua>/cd distance <raggio>'
       description: '<white>Imposta il raggio per il jukebox.'
@@ -67,4 +69,5 @@ language:
   disc-name:
     simple: '<white>Disco musicale'
     youtube: '<white>Disco YouTube'
+    soundcloud: '<white>Disco SoundCloud'
   now-playing: '<gold>In riproduzione: {0}'

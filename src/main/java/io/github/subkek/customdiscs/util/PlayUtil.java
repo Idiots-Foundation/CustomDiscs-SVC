@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -40,8 +41,14 @@ public class PlayUtil {
 
     ItemMeta discMeta = LegacyUtil.getItemMeta(disc);
 
-    String soundLink = discMeta.getPersistentDataContainer()
-        .get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
+    PersistentDataContainer container = discMeta.getPersistentDataContainer();
+
+    String soundLink;
+    if (container.has(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType())) {
+      soundLink = container.get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
+  } else {
+      soundLink = container.get(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType());
+  }
 
     String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
     songName = songName.replace("§7", "<gray>");

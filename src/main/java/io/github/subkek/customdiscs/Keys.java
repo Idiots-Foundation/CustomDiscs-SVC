@@ -8,6 +8,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class Keys {
   public static final Key<String> CUSTOM_DISC = new Key<>("customdisc", PersistentDataType.STRING);
   public static final Key<String> YOUTUBE_DISC = new Key<>("customdiscyt", PersistentDataType.STRING);
+  public static final Key<String> SOUNDCLOUD_DISC = new Key<>("customdiscsc", PersistentDataType.STRING);
 
   @Getter
   public static class Key<T> {

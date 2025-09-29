@@ -20,11 +20,11 @@ import org.bukkit.persistence.PersistentDataContainer;
 
 import java.util.List;
 
-public class CreateYtSubCommand extends AbstractSubCommand {
+public class CreateScSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
-  public CreateYtSubCommand() {
-    super("createyt");
+  public CreateScSubCommand() {
+    super("createsc");
 
     this.withFullDescription(getDescription());
     this.withUsage(getUsage());
@@ -38,17 +38,17 @@ public class CreateYtSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.createyt.description");
+    return plugin.getLanguage().string("command.createsc.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.createyt.syntax");
+    return plugin.getLanguage().string("command.createsc.syntax");
   }
 
   @Override
   public boolean hasPermission(CommandSender sender) {
-    return sender.hasPermission("customdiscs.createyt");
+    return sender.hasPermission("customdiscs.createsc");
   }
 
   @Override
@@ -80,7 +80,7 @@ public class CreateYtSubCommand extends AbstractSubCommand {
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
-        plugin.getLanguage().component("disc-name.youtube")));
+        plugin.getLanguage().component("disc-name.soundcloud")));
     final TextComponent customLoreSong = Component.text()
         .decoration(TextDecoration.ITALIC, false)
         .content(customName)
@@ -88,19 +88,19 @@ public class CreateYtSubCommand extends AbstractSubCommand {
         .build();
     meta.addItemFlags(ItemFlag.values());
     meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
-    if (plugin.getCDConfig().isUseCustomModelDataYoutube())
-      meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataYoutube());
+    if (plugin.getCDConfig().isUseCustomModelDataSoundCloud())
+      meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataSoundCloud());
 
-    String youtubeUrl = getArgumentValue(arguments, "url", String.class);
+    String soundcloudUrl = getArgumentValue(arguments, "url", String.class);
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
     if (data.has(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType()))
       data.remove(Keys.CUSTOM_DISC.getKey());
-    data.set(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType(), youtubeUrl);
+    data.set(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType(), soundcloudUrl);
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.link", youtubeUrl));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.link", soundcloudUrl));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
 

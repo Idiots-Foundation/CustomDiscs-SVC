@@ -32,7 +32,7 @@ public class HopperHandler implements Listener {
     if (LegacyUtil.isJukeboxContainsDisc(block)) return;
 
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
-    boolean isYouTubeCustomDisc = LegacyUtil.isCustomYouTubeDisc(event.getItem());
+    boolean isYouTubeCustomDisc = LegacyUtil.isCustomStreamingDisc(event.getItem());
 
     if (!isCustomDisc && !isYouTubeCustomDisc) return;
 
@@ -51,7 +51,7 @@ public class HopperHandler implements Listener {
     Block block = event.getSource().getLocation().getBlock();
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (!event.getItem().hasItemMeta()) return;
-    if (!LegacyUtil.isCustomDisc(event.getItem()) && !LegacyUtil.isCustomYouTubeDisc(event.getItem())) return;
+    if (!LegacyUtil.isCustomDisc(event.getItem()) && !LegacyUtil.isCustomStreamingDisc(event.getItem())) return;
 
     event.setCancelled(PlayerManager.getInstance().isPlaying(block) ||
         LavaPlayerManager.getInstance().isPlaying(block));
@@ -64,8 +64,10 @@ public class HopperHandler implements Listener {
     if (!event.getSourceBlock().getType().equals(Material.JUKEBOX)) return;
     Block block = event.getSourceBlock();
 
-    if (!LavaPlayerManager.getInstance().isPlaying(block)
-        && !PlayerManager.getInstance().isPlaying(block)) return;
+    if (!(CustomDiscs.lavaLibExist
+        ? (LavaPlayerManager.getInstance().isPlaying(block)
+           || PlayerManager.getInstance().isPlaying(block))
+        : PlayerManager.getInstance().isPlaying(block))) return;
 
     PhysicsManager.NeedUpdate needUpdate = PhysicsManager.getInstance().isNeedUpdate(block);
 

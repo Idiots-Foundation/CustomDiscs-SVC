@@ -131,6 +131,8 @@ public class CDConfig {
   private int customModelData = 0;
   private boolean useCustomModelDataYoutube = false;
   private int customModelDataYoutube = 0;
+  private boolean useCustomModelDataSoundCloud = false;
+  private int customModelDataSoundCloud = 0;
   private int distanceCommandMaxDistance = 64;
 
   private void commandSettings() {
@@ -140,6 +142,8 @@ public class CDConfig {
     customModelData = getInt("command.create.custom-model-data.value", customModelData);
     useCustomModelDataYoutube = getBoolean("command.createyt.custom-model-data.enable", useCustomModelDataYoutube);
     customModelDataYoutube = getInt("command.createyt.custom-model-data.value", customModelDataYoutube);
+    useCustomModelDataSoundCloud = getBoolean("command.createsc.custom-model-data.enable", useCustomModelDataSoundCloud);
+    customModelDataSoundCloud = getInt("command.createsc.custom-model-data.value", customModelDataSoundCloud);
     distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
   }
 
