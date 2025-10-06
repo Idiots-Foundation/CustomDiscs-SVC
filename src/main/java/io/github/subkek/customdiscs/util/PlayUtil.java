@@ -5,13 +5,14 @@ import io.github.subkek.customdiscs.Keys;
 import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 
 import java.nio.file.Path;
-import java.util.Objects;
+import java.util.List;
 
 public class PlayUtil {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
@@ -27,10 +28,7 @@ public class PlayUtil {
     Path soundFilePath = Path.of(plugin.getDataFolder().getPath(), "musicdata", soundFileName);
 
     if (soundFilePath.toFile().exists()) {
-      String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
-      songName = songName.replace("§7", "<gray>");
-
-      Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
+      Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", getSongName(discMeta));
 
       PlayerManager.getInstance().play(soundFilePath, block, customActionBarSongPlaying);
     }
@@ -46,15 +44,20 @@ public class PlayUtil {
     String soundLink;
     if (container.has(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType())) {
       soundLink = container.get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
-  } else {
+    } else {
       soundLink = container.get(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType());
-  }
+    }
 
-    String songName = Objects.requireNonNull(discMeta.getLore()).get(0);
-    songName = songName.replace("§7", "<gray>");
-
-    Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", songName);
+    Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", getSongName(discMeta));
 
     LavaPlayerManager.getInstance().play(block, soundLink, customActionBarSongPlaying);
+  }
+
+  private static Component getSongName(ItemMeta discMeta) {
+    List<Component> lore = discMeta.lore();
+    if (lore == null || lore.isEmpty())
+      return Component.text("Unknown").color(NamedTextColor.GRAY);
+
+    return lore.get(0);
   }
 }

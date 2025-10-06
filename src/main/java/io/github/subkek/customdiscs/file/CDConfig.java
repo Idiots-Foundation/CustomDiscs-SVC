@@ -15,7 +15,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
-
 @Getter
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
@@ -163,6 +162,8 @@ public class CDConfig {
   private boolean youtubeOauth2 = false;
   private String youtubePoToken = "";
   private String youtubePoVisitorData = "";
+  private String youtubeRemoteServer = "";
+  private String youtubeRemoteServerPassword = "";
 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
@@ -176,6 +177,14 @@ public class CDConfig {
         If you have oauth2 enabled, leave these fields blank.
         This may help if the plugin is not working properly.
         https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken""");
+
+    youtubeRemoteServer = getString("providers.youtube.remote-server.url", youtubeRemoteServer);
+    youtubeRemoteServerPassword = getString("providers.youtube.remote-server.password", youtubeRemoteServerPassword);
+
+    setComment("providers.youtube.remote-server", """
+        A method for obtaining streaming via a remote server that emulates a web client.
+        Make sure Oauth2 was enabled!
+        https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-remote-cipher-server""");
   }
 
   private void debug(@NotNull String message, Object... format) {

@@ -82,7 +82,7 @@ public class PlayerManager {
 
     for (ServerPlayer serverPlayer : discPlayer.playersInRange) {
       Player bukkitPlayer = (Player) serverPlayer.getPlayer();
-      plugin.getAudience().sender(bukkitPlayer).sendActionBar(actionbarComponent);
+      bukkitPlayer.sendActionBar(actionbarComponent);
     }
   }
 

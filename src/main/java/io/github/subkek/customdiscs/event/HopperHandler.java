@@ -66,7 +66,7 @@ public class HopperHandler implements Listener {
 
     if (!(CustomDiscs.lavaLibExist
         ? (LavaPlayerManager.getInstance().isPlaying(block)
-           || PlayerManager.getInstance().isPlaying(block))
+        || PlayerManager.getInstance().isPlaying(block))
         : PlayerManager.getInstance().isPlaying(block))) return;
 
     PhysicsManager.NeedUpdate needUpdate = PhysicsManager.getInstance().isNeedUpdate(block);

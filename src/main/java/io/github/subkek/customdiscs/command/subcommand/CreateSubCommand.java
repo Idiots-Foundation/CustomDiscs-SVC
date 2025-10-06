@@ -8,9 +8,7 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.Keys;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
 import io.github.subkek.customdiscs.util.LegacyUtil;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.NamespacedKey;
@@ -20,7 +18,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
 import java.util.Arrays;
@@ -111,22 +108,23 @@ public class CreateSubCommand extends AbstractSubCommand {
 
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
-    meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
-        plugin.getLanguage().component("disc-name.simple")));
-    final TextComponent customLoreSong = Component.text()
+    meta.displayName(plugin.getLanguage().component("disc-name.simple")
+        .decoration(TextDecoration.ITALIC, false));
+
+    final Component customLoreSong = Component.text(customName)
         .decoration(TextDecoration.ITALIC, false)
-        .content(customName)
-        .color(NamedTextColor.GRAY)
-        .build();
+        .color(NamedTextColor.GRAY);
+
     meta.addItemFlags(ItemFlag.values());
-    meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
-    if (plugin.getCDConfig().isUseCustomModelData())
-      meta.setCustomModelData(plugin.getCDConfig().getCustomModelData());
+    meta.lore(List.of(customLoreSong));
+
+    if (plugin.getCDConfig().isUseCustomModelDataYoutube())
+      meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataYoutube());
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
-    NamespacedKey discYtMeta = Keys.YOUTUBE_DISC.getKey();
-    if (data.has(discYtMeta, PersistentDataType.STRING))
-      data.remove(Keys.YOUTUBE_DISC.getKey());
+    for (NamespacedKey key : data.getKeys()) {
+      data.remove(key);
+    }
     data.set(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType(), filename);
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
@@ -134,7 +132,6 @@ public class CreateSubCommand extends AbstractSubCommand {
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.file", filename));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
-
 
   @Override
   public void execute(CommandSender sender, CommandArguments arguments) {

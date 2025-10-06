@@ -10,7 +10,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
@@ -23,7 +22,6 @@ import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import io.github.subkek.customdiscs.util.TaskScheduler;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
@@ -39,17 +37,15 @@ public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "customdiscs";
   public static final String LIBRARY_ID = "lavaplayer-lib";
   @Getter
-  private YamlLanguage language = new YamlLanguage();
+  private final YamlLanguage language = new YamlLanguage();
   @Getter
-  private CDConfig cDConfig = new CDConfig(
+  private final CDConfig cDConfig = new CDConfig(
       new File(getDataFolder().getPath(), "config.yml"));
   @Getter
-  private CDData cDData = new CDData(
+  private final CDData cDData = new CDData(
       new File(getDataFolder().getPath(), "data.yml"));
   @Getter
-  private FoliaLib foliaLib = new FoliaLib(this);
-  @Getter
-  private BukkitAudiences audience;
+  private final FoliaLib foliaLib = new FoliaLib(this);
   @Getter
   private TaskScheduler scheduler;
   public int discsPlayed = 0;
@@ -61,20 +57,13 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   @Override
-  public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true).skipReloadDatapacks(true));
-  }
-
-  @Override
   public void onEnable() {
     CommandAPI.onEnable();
 
     scheduler = new TaskScheduler(1);
     scheduler.setLogger(CustomDiscs::error);
 
-    audience = BukkitAudiences.create(this);
-
-    if (getDataFolder().mkdir()) info("Created plugin data folder");
+    if (getDataFolder().mkdir()) CustomDiscs.info("Created plugin data folder");
 
     cDConfig.init();
     language.init();
@@ -85,14 +74,14 @@ public class CustomDiscs extends JavaPlugin {
 
     File musicData = new File(this.getDataFolder(), "musicdata");
     if (!(musicData.exists())) {
-      if (musicData.mkdir()) info("Created music data folder");
+      if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
     }
 
     if (getServer().getPluginManager().getPlugin(LIBRARY_ID) != null) {
       lavaLibExist = true;
-      info(LIBRARY_ID + " installed, youtube support enabled");
+      CustomDiscs.info("{0} installed, youtube support enabled", LIBRARY_ID);
     } else {
-       getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
+      CustomDiscs.warn("{0} not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases", LIBRARY_ID);
     }
 
     registerVoicechatHook();
@@ -147,9 +136,9 @@ public class CustomDiscs extends JavaPlugin {
     if (service != null) {
       service.registerPlugin(CDVoiceAddon.getInstance());
       voicechatAddonRegistered = true;
-      info("Successfully enabled voicechat hook");
+      CustomDiscs.info("Successfully enabled voicechat hook");
     } else {
-      error("Failed to enable voicechat hook");
+      CustomDiscs.error("Failed to enable voicechat hook");
     }
   }
 
@@ -176,7 +165,7 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   public static void sendMessage(CommandSender sender, Component component) {
-    getPlugin().getAudience().sender(sender).sendMessage(component);
+    sender.sendMessage(component);
   }
 
   public static void debug(@NotNull String message, Object... format) {
@@ -206,7 +195,7 @@ public class CustomDiscs extends JavaPlugin {
     );
   }
 
-  public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
+  private static String getStackTraceString(Throwable e) {
     String stackTrace = "";
 
     if (e != null) {
@@ -216,6 +205,28 @@ public class CustomDiscs extends JavaPlugin {
       stackTrace = sw.getBuffer().toString();
     }
 
+    return stackTrace;
+  }
+
+  public static void warn(@NotNull String message, @Nullable Throwable e, Object... format) {
+    sendMessage(
+        getPlugin().getServer().getConsoleSender(),
+        getPlugin().getLanguage().deserialize(
+            Formatter.format(
+                "{0}{1}{2}",
+                getPlugin().getLanguage().string("prefix.warn"),
+                Formatter.format(message, format),
+                getStackTraceString(e)
+            )
+        )
+    );
+  }
+
+  public static void warn(@NotNull String message, Object... format) {
+    warn(message, null, format);
+  }
+
+  public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
     sendMessage(
         getPlugin().getServer().getConsoleSender(),
         getPlugin().getLanguage().deserialize(
@@ -223,7 +234,7 @@ public class CustomDiscs extends JavaPlugin {
                 "{0}{1}{2}",
                 getPlugin().getLanguage().string("prefix.error"),
                 Formatter.format(message, format),
-                stackTrace
+                getStackTraceString(e)
             )
         )
     );

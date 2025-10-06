@@ -23,8 +23,8 @@ public class LegacyUtil {
   public static boolean isCustomStreamingDisc(@NotNull ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
         .has(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType()) ||
-           getItemMeta(item).getPersistentDataContainer()
-        .has(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType());
+        getItemMeta(item).getPersistentDataContainer()
+            .has(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType());
   }
 
   public static boolean isMusicDiscInHand(Player player) {

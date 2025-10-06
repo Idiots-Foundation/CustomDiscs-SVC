@@ -37,7 +37,7 @@ public class PhysicsManager {
     UUID uuid = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
     PhysicsJukebox physicsJukebox = jukeboxMap.get(uuid);
     if (physicsJukebox == null) {
-      CustomDiscs.debug("PhysicsManager return needUpdate false because ParticleJukebox is null");
+      CustomDiscs.debug("PhysicsManager return needUpdate false because PhysicsJukebox is null");
       return new NeedUpdate(true, false);
     }
     return new NeedUpdate(false, physicsJukebox.isNeedUpdate());
@@ -81,11 +81,8 @@ public class PhysicsManager {
       physicsJukebox.setTask(task);
       if (task.isCancelled()) return;
 
-      if (!(CustomDiscs.lavaLibExist
-        ? (LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock())
-           || PlayerManager.getInstance().isPlaying(jukebox.getBlock()))
-        : PlayerManager.getInstance().isPlaying(jukebox.getBlock()))) {
-
+      if ((CustomDiscs.lavaLibExist && !LavaPlayerManager.getInstance().isPlaying(jukebox.getBlock()))
+          && !PlayerManager.getInstance().isPlaying(jukebox.getBlock())) {
         stop(jukebox.getBlock());
         return;
       }

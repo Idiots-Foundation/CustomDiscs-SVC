@@ -84,6 +84,12 @@ public class YamlLanguage {
     return miniMessage.deserialize(getFormattedString(key, replace));
   }
 
+  public Component component(String key, Component replacement) {
+    return miniMessage.deserialize(getFormattedString(key))
+        .append(Component.space())
+        .append(replacement);
+  }
+
   public Component PComponent(String key, Object... replace) {
     return miniMessage.deserialize(string("prefix.normal") + getFormattedString(key, replace));
   }

@@ -6,11 +6,10 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.Keys;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
 import io.github.subkek.customdiscs.util.LegacyUtil;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -79,23 +78,25 @@ public class CreateYtSubCommand extends AbstractSubCommand {
 
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
-    meta.setDisplayName(BukkitComponentSerializer.legacy().serialize(
-        plugin.getLanguage().component("disc-name.youtube")));
-    final TextComponent customLoreSong = Component.text()
+    meta.displayName(plugin.getLanguage().component("disc-name.youtube")
+        .decoration(TextDecoration.ITALIC, false));
+
+    final Component customLoreSong = Component.text(customName)
         .decoration(TextDecoration.ITALIC, false)
-        .content(customName)
-        .color(NamedTextColor.GRAY)
-        .build();
+        .color(NamedTextColor.GRAY);
+
     meta.addItemFlags(ItemFlag.values());
-    meta.setLore(List.of(BukkitComponentSerializer.legacy().serialize(customLoreSong)));
+    meta.lore(List.of(customLoreSong));
+
     if (plugin.getCDConfig().isUseCustomModelDataYoutube())
       meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataYoutube());
 
     String youtubeUrl = getArgumentValue(arguments, "url", String.class);
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
-    if (data.has(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType()))
-      data.remove(Keys.CUSTOM_DISC.getKey());
+    for (NamespacedKey key : data.getKeys()) {
+      data.remove(key);
+    }
     data.set(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType(), youtubeUrl);
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);

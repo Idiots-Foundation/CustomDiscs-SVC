@@ -4,7 +4,8 @@ language:
     normal: '<dark_aqua>CustomDiscs <white>- '
     debug: '<yellow>[CustomDiscs Debug] '
     info: '<blue>[CustomDiscs Info] <reset>'
-    error: '<red>[CustomDiscs Errore] '
+    warn: '<yellow>[CustomDiscs Warn] <reset>'
+    error: '<red>[CustomDiscs Error] '
   error:
     command:
       cant-perform: 'Non puoi eseguire quel comando!'
@@ -70,4 +71,4 @@ language:
     simple: '<white>Disco musicale'
     youtube: '<white>Disco YouTube'
     soundcloud: '<white>Disco SoundCloud'
-  now-playing: '<gold>In riproduzione: {0}'
+  now-playing: '<gold>In riproduzione:'

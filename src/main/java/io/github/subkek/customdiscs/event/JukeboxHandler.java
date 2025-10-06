@@ -62,7 +62,7 @@ public class JukeboxHandler implements Listener {
 
     if (isCustomStreamingDisc) {
       if (!CustomDiscs.lavaLibExist) {
-        CustomDiscs.error(CustomDiscs.LIBRARY_ID + " is not installed. Direct streaming support impossible! https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
+        CustomDiscs.warn("{0} is not installed. Direct streaming support impossible! https://github.com/Idiots-Foundation/lavaplayer-lib/releases", CustomDiscs.LIBRARY_ID);
         return;
       }
 

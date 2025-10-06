@@ -4,6 +4,7 @@ language:
     normal: '<dark_aqua>CustomDiscs <white>- '
     debug: '<yellow>[CustomDiscs Debug] '
     info: '<blue>[CustomDiscs Info] <reset>'
+    warn: '<yellow>[CustomDiscs Warn] <reset>'
     error: '<red>[CustomDiscs Error] '
   error:
     command:
@@ -70,4 +71,4 @@ language:
     simple: '<white>Music disc'
     youtube: '<white>YouTube disc'
     soundcloud: '<white>SoundCloud disc'
-  now-playing: '<gold>Now playing: {0}'
+  now-playing: '<gold>Now playing:'
