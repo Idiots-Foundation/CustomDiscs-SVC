@@ -70,4 +70,4 @@ language:
     simple: '<white>Disco musicale'
     youtube: '<white>Disco YouTube'
     soundcloud: '<white>Disco SoundCloud'
-  now-playing: '<gold>In riproduzione: {0}'
+  now-playing: '<gold>In riproduzione:'

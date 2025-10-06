@@ -10,7 +10,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import io.github.subkek.customdiscs.command.CustomDiscsCommand;
 import io.github.subkek.customdiscs.event.HopperHandler;
 import io.github.subkek.customdiscs.event.JukeboxHandler;
@@ -23,7 +22,6 @@ import io.github.subkek.customdiscs.util.Formatter;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import io.github.subkek.customdiscs.util.TaskScheduler;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
@@ -39,17 +37,15 @@ public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "customdiscs";
   public static final String LIBRARY_ID = "lavaplayer-lib";
   @Getter
-  private YamlLanguage language = new YamlLanguage();
+  private final YamlLanguage language = new YamlLanguage();
   @Getter
-  private CDConfig cDConfig = new CDConfig(
-      new File(getDataFolder().getPath(), "config.yml"));
+  private final CDConfig cDConfig = new CDConfig(
+          new File(getDataFolder().getPath(), "config.yml"));
   @Getter
-  private CDData cDData = new CDData(
-      new File(getDataFolder().getPath(), "data.yml"));
+  private final CDData cDData = new CDData(
+          new File(getDataFolder().getPath(), "data.yml"));
   @Getter
-  private FoliaLib foliaLib = new FoliaLib(this);
-  @Getter
-  private BukkitAudiences audience;
+  private final FoliaLib foliaLib = new FoliaLib(this);
   @Getter
   private TaskScheduler scheduler;
   public int discsPlayed = 0;
@@ -61,18 +57,11 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   @Override
-  public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true).skipReloadDatapacks(true));
-  }
-
-  @Override
   public void onEnable() {
     CommandAPI.onEnable();
 
     scheduler = new TaskScheduler(1);
     scheduler.setLogger(CustomDiscs::error);
-
-    audience = BukkitAudiences.create(this);
 
     if (getDataFolder().mkdir()) info("Created plugin data folder");
 
@@ -92,7 +81,7 @@ public class CustomDiscs extends JavaPlugin {
       lavaLibExist = true;
       info(LIBRARY_ID + " installed, youtube support enabled");
     } else {
-       getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
+      getLogger().warning(LIBRARY_ID + " not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases");
     }
 
     registerVoicechatHook();
@@ -112,7 +101,7 @@ public class CustomDiscs extends JavaPlugin {
           if (!jukebox.getRecord().hasItemMeta()) return;
 
           if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
-              LegacyUtil.isCustomStreamingDisc(jukebox.getRecord())) {
+                  LegacyUtil.isCustomStreamingDisc(jukebox.getRecord())) {
             event.setCancelled(true);
 
             PhysicsManager.getInstance().start(jukebox);
@@ -176,33 +165,33 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   public static void sendMessage(CommandSender sender, Component component) {
-    getPlugin().getAudience().sender(sender).sendMessage(component);
+    sender.sendMessage(component);
   }
 
   public static void debug(@NotNull String message, Object... format) {
     if (!getPlugin().getCDConfig().isDebug()) return;
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}",
-                getPlugin().getLanguage().string("prefix.debug"),
-                Formatter.format(message, format)
+            getPlugin().getServer().getConsoleSender(),
+            getPlugin().getLanguage().deserialize(
+                    Formatter.format(
+                            "{0}{1}",
+                            getPlugin().getLanguage().string("prefix.debug"),
+                            Formatter.format(message, format)
+                    )
             )
-        )
     );
   }
 
   public static void info(@NotNull String message, Object... format) {
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}",
-                getPlugin().getLanguage().string("prefix.info"),
-                Formatter.format(message, format)
+            getPlugin().getServer().getConsoleSender(),
+            getPlugin().getLanguage().deserialize(
+                    Formatter.format(
+                            "{0}{1}",
+                            getPlugin().getLanguage().string("prefix.info"),
+                            Formatter.format(message, format)
+                    )
             )
-        )
     );
   }
 
@@ -217,15 +206,15 @@ public class CustomDiscs extends JavaPlugin {
     }
 
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}{2}",
-                getPlugin().getLanguage().string("prefix.error"),
-                Formatter.format(message, format),
-                stackTrace
+            getPlugin().getServer().getConsoleSender(),
+            getPlugin().getLanguage().deserialize(
+                    Formatter.format(
+                            "{0}{1}{2}",
+                            getPlugin().getLanguage().string("prefix.error"),
+                            Formatter.format(message, format),
+                            stackTrace
+                    )
             )
-        )
     );
   }
 

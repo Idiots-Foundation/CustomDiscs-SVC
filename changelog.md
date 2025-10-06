@@ -1,0 +1,8 @@
+- Adds support for Minecraft 1.21.9
+- Drops support for Minecraft 1.20.5 and below
+- Migrate from spigotAPI to paperAPI
+- Added support for streaming YouTube videos via yt-chiper. More details in the config
+- Added SoundCloud support
+- CommandAPI is now required as an [installed plugin](https://modrinth.com/plugin/commandapi)
+- Fixed bugs with lavaplayer-lib
+- Fixed bug with [phantom sounds](https://discord.com/channels/1180878491055554633/1216018026500194434/1421002225282449419)

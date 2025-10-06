@@ -29,7 +29,7 @@ public class YamlLanguage {
 
       if (!languageFile.exists()) {
         InputStream inputStream = plugin.getClass().getClassLoader().getResourceAsStream(Formatter.format("language/{0}.yml",
-            languageExists(plugin.getCDConfig().getLocale()) ? plugin.getCDConfig().getLocale() : Language.ENGLISH.getLabel()
+                languageExists(plugin.getCDConfig().getLocale()) ? plugin.getCDConfig().getLocale() : Language.ENGLISH.getLabel()
         ));
         Files.copy(inputStream, languageFile.toPath());
         isNewFile = true;
@@ -44,9 +44,9 @@ public class YamlLanguage {
 
       if (!language.getString("version").equals(plugin.getDescription().getVersion()) || plugin.getCDConfig().isDebug()) {
         File oldLanguageFile = new File(languageFolder.getPath(), Formatter.format(
-            "{0}-{1}.backup",
-            languageFile.getName(),
-            new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date())
+                "{0}-{1}.backup",
+                languageFile.getName(),
+                new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date())
         ));
         if (oldLanguageFile.exists()) oldLanguageFile.delete();
         Files.copy(languageFile.toPath(), oldLanguageFile.toPath());
@@ -77,11 +77,17 @@ public class YamlLanguage {
 
   private String getFormattedString(String key, Object... replace) {
     return Formatter.format(language.getString(
-        Formatter.format("language.{0}", key), Formatter.format("<{0}>", key)), replace);
+            Formatter.format("language.{0}", key), Formatter.format("<{0}>", key)), replace);
   }
 
   public Component component(String key, Object... replace) {
     return miniMessage.deserialize(getFormattedString(key, replace));
+  }
+
+  public Component component(String key, Component replacement) {
+    return miniMessage.deserialize(getFormattedString(key))
+            .append(Component.space())
+            .append(replacement);
   }
 
   public Component PComponent(String key, Object... replace) {

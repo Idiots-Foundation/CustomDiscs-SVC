@@ -70,4 +70,4 @@ language:
     simple: '<white>Music disc'
     youtube: '<white>YouTube disc'
     soundcloud: '<white>SoundCloud disc'
-  now-playing: '<gold>Now playing: {0}'
+  now-playing: '<gold>Now playing:'

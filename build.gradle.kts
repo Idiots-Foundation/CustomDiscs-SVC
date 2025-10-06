@@ -25,18 +25,22 @@ repositories {
             includeModule("com.github.technicallycoded", "FoliaLib")
         }
     }
+    maven("https://repo.papermc.io/repository/maven-public/") {
+        name = "papermc"
+    }
     maven("https://repo.subkek.space/maven-public") {
         name = "subkek"
     }
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
     //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.0")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
-    compileOnly("me.yiski:lavaplayer-lib:1.0.3")
+    compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
+    compileOnly("dev.jorel:commandapi-paper-core:11.0.0")
+    compileOnly("me.yiski:lavaplayer-lib:1.0.6")
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
     shadow("org.jflac:jflac-codec:1.5.2")
@@ -45,12 +49,8 @@ dependencies {
         exclude("org.slf4j")
     }
 
-    shadow("dev.jorel:commandapi-bukkit-shade:10.1.2")
-
-    shadow(platform("net.kyori:adventure-bom:4.17.0"))
-    shadow("net.kyori:adventure-api")
-    shadow("net.kyori:adventure-text-minimessage")
-    shadow("net.kyori:adventure-platform-bukkit:4.3.4")
+//    shadow("net.kyori:adventure-api:4.9.2")
+//    shadow("net.kyori:adventure-text-minimessage:4.12.0")
 
     shadow("org.yaml:snakeyaml:2.2")
     shadow ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
@@ -70,7 +70,7 @@ bukkit {
 
     authors = listOf("subkek")
     website = "https://discord.gg/eRvwvmEXWz"
-    apiVersion = "1.16"
+    apiVersion = "1.21"
 
     foliaSupported = true
 
@@ -100,7 +100,8 @@ bukkit {
 
     depend = listOf(
         "voicechat",
-        "ProtocolLib"
+        "ProtocolLib",
+        "CommandAPI"
     )
 
     softDepend = listOf(
@@ -108,32 +109,32 @@ bukkit {
     )
 }
 
-// ./gradlew modrinth -Pmodrinth.token=token -Pmodrinth.changelog=""
+// ./gradlew modrinth -Pmodrinth.token=token
 modrinth {
     val rawToken = findProperty("modrinth.token")?.toString() ?: ""
-    val rawChangelog = findProperty("modrinth.changelog")?.toString() ?: ""
 
     token.set(rawToken)
-    changelog.set(rawChangelog.replace("\\n", "\n"))
+    changelog.set(rootProject.file("changelog.md").readText())
     versionName.set("CustomDiscs-SVC $version")
     projectId.set("customdiscs-svc")
     versionNumber.set(version as String)
     versionType.set("release")
-    gameVersions.addAll("1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20", "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19", "1.18.2", "1.18.1", "1.18", "1.17.1", "1.17", "1.16.5")
+    gameVersions.addAll("1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6")
     loaders.addAll("bukkit", "paper", "purpur", "spigot", "folia")
     uploadFile.set(tasks.named("shadowJar"))
     dependencies {
-        required.project("simple-voice-chat")
+        required.project("simple-voice-chat", "commandapi")
     }
 }
 
 tasks.named("modrinth") {
+    val changelogFile = project.file("changelog.md")
     doFirst {
         if (modrinth.token.orNull.isNullOrBlank()) {
             throw GradleException("token is empty! Use -Pmodrinth.token=...")
         }
-        if (modrinth.changelog.orNull.isNullOrBlank()) {
-            throw GradleException("changelog is empty! Use -Pmodrinth.changelog=...")
+        if (!changelogFile.exists() && changelogFile.length() == 0L) {
+            throw GradleException("changelog is empty!")
         }
     }
 }
@@ -177,7 +178,7 @@ tasks.shadowJar {
     relocate("org.hamcrest")
     relocate("org.junit")
     relocate("net.sourceforge.jaad.aac")
-    relocate("net.kyori")
+//    relocate("net.kyori")
     relocate("net.iharder")
     relocate("com.tcoded")
     relocate("com.grack")
@@ -185,5 +186,5 @@ tasks.shadowJar {
     relocate("org.intellij")
     relocate("org.jetbrains")
     relocate("com.sedmelluq")
-    relocate("dev.jorel.commandapi")
+//    relocate("dev.jorel.commandapi")
 }

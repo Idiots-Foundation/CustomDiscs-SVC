@@ -70,4 +70,4 @@ language:
     simple: '<white>Музыкальная пластинка'
     youtube: '<white>YouTube пластинка'
     soundcloud: '<white>SoundCloud пластинка'
-  now-playing: '<gold>Сейчас играет: {0}'
+  now-playing: '<gold>Сейчас играет:'

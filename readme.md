@@ -23,6 +23,7 @@ locale: 'en_US'
 /cd - Help for CustomDiscs
 /cd download <direct link> <name.extension> - Downloads music file from URL.
 /cd create <file name> "<disc name>" - Creates music disc.
-/cd createyt <video url> "<disc name>" - Create disc with music from YouTube.
+/cd createyt "<video url>" "<disc name>" - Create disc with music from YouTube.
+/cd createsc "<sound url>" "<disc name>" - Create disc with music from SoundCloud.
 /cd reload - Reloads configuration file.
 ```
