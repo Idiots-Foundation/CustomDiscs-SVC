@@ -73,9 +73,16 @@ public class CreateSubCommand extends AbstractSubCommand {
       return;
     }
 
-    if (!LegacyUtil.isMusicDiscInHand(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
-      return;
+    ItemStack disc;
+    if (plugin.getCDConfig().getDiscRequired()) {
+        if (!LegacyUtil.isMusicDiscInHand(player)) {
+            CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
+            return;
+        }
+        disc = new ItemStack(player.getInventory().getItemInMainHand());
+    } else {
+        // Give a new default disc (y'all can change the type if you want a different disc)
+        disc = new ItemStack(org.bukkit.Material.MUSIC_DISC_13);
     }
 
     String filename = getArgumentValue(arguments, "filename", String.class);
@@ -104,8 +111,6 @@ public class CreateSubCommand extends AbstractSubCommand {
     }
 
     //Sets the lore of the item to the quotes from the command.
-    ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
-
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.displayName(plugin.getLanguage().component("disc-name.simple")
@@ -127,8 +132,14 @@ public class CreateSubCommand extends AbstractSubCommand {
     }
     data.set(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType(), filename);
 
-    player.getInventory().getItemInMainHand().setItemMeta(meta);
+    disc.setItemMeta(meta);
 
+    if (plugin.getCDConfig().getDiscRequired()) {
+        player.getInventory().getItemInMainHand().setItemMeta(meta);
+    } else {
+        // Give the new disc to the player
+        player.getInventory().addItem(disc);
+    }
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.file", filename));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
