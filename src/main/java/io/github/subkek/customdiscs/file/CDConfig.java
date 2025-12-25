@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -32,7 +33,7 @@ public class CDConfig {
       }
     }
 
-    configVersion = getString("info.version", "1.2", "Don't change this value");
+    configVersion = getString("info.version", "1.3", "Don't change this value");
     setComment("info",
         "CustomDiscs Configuration",
         "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
@@ -45,6 +46,10 @@ public class CDConfig {
 
     if (configVersion.equals("1.1")) {
       migrateV1_1toV1_2();
+    }
+
+    if (configVersion.equals("1.2")) {
+      migrateV1_2toV1_3();
     }
 
     for (Method method : this.getClass().getDeclaredMethods()) {
@@ -126,24 +131,28 @@ public class CDConfig {
   }
 
   private int maxDownloadSize = 50;
-  private boolean useCustomModelData = false;
-  private int customModelData = 0;
-  private boolean useCustomModelDataYoutube = false;
-  private int customModelDataYoutube = 0;
-  private boolean useCustomModelDataSoundCloud = false;
-  private int customModelDataSoundCloud = 0;
+  private int localCustomModelData = 0;
+  private List<String> remoteTabComplete = List.of("https://www.youtube.com/watch?v=", "https://soundcloud.com/");
+  private int remoteCustomModelDataYoutube = 0;
+  private List<String> remoteFilterYoutube = List.of("https://www.youtube.com/watch?v=", "https://youtu.be/");
+  private int remoteCustomModelDataSoundcloud = 0;
+  private List<String> remoteFilterSoundcloud = List.of("https://soundcloud.com/");
   private int distanceCommandMaxDistance = 64;
 
   private void commandSettings() {
     maxDownloadSize = getInt("command.download.max-size", maxDownloadSize,
-        "The maximum download size in megabytes.");
-    useCustomModelData = getBoolean("command.create.custom-model-data.enable", useCustomModelData);
-    customModelData = getInt("command.create.custom-model-data.value", customModelData);
-    useCustomModelDataYoutube = getBoolean("command.createyt.custom-model-data.enable", useCustomModelDataYoutube);
-    customModelDataYoutube = getInt("command.createyt.custom-model-data.value", customModelDataYoutube);
-    useCustomModelDataSoundCloud = getBoolean("command.createsc.custom-model-data.enable", useCustomModelDataSoundCloud);
-    customModelDataSoundCloud = getInt("command.createsc.custom-model-data.value", customModelDataSoundCloud);
+            "The maximum download size in megabytes.");
+    localCustomModelData = getInt("command.create.local.custom-model", localCustomModelData);
+    remoteTabComplete = getStringList("command.create.remote.tabcomplete", remoteTabComplete);
+    remoteCustomModelDataYoutube = getInt("command.create.remote.youtube.custom-model", remoteCustomModelDataYoutube);
+    remoteFilterYoutube = getStringList("command.create.remote.youtube.filter", remoteFilterYoutube);
+    remoteCustomModelDataSoundcloud = getInt("command.create.remote.soundcloud.custom-model", remoteCustomModelDataSoundcloud);
+    remoteFilterSoundcloud = getStringList("command.create.remote.soundcloud.filter", remoteFilterSoundcloud);
     distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
+
+    setComment("command.create.remote.tabcomplete", """
+        tabcomplete — Displaying hints when entering remote command
+        filter — Filter for applying custom-model-data to remote disk""");
   }
 
   private int musicDiscDistance = 64;
@@ -245,5 +254,13 @@ public class CDConfig {
     debug("Config migrating from v1.1 to v1.2");
     removeValue("providers.youtube.po-token.auto");
     setConfigVersion("1.2");
+  }
+
+  private void migrateV1_2toV1_3() {
+    debug("Config migrating from v1.2 to v1.3");
+    removeValue("command.create.custom-model-data");
+    removeValue("command.createyt");
+    removeValue("command.createsc");
+    setConfigVersion("1.3");
   }
 }

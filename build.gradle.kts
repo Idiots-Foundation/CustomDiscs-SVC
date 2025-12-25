@@ -35,7 +35,6 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT")
-    //compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.0")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
@@ -43,14 +42,12 @@ dependencies {
     compileOnly("me.yiski:lavaplayer-lib:1.0.6")
 
     shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
+    shadow("com.googlecode.json-simple:json-simple:1.1.1")
     shadow("org.jflac:jflac-codec:1.5.2")
     shadow("commons-io:commons-io:2.16.1")
     shadow("com.github.technicallycoded:FoliaLib:0.4.3") {
         exclude("org.slf4j")
     }
-
-//    shadow("net.kyori:adventure-api:4.9.2")
-//    shadow("net.kyori:adventure-text-minimessage:4.12.0")
 
     shadow("org.yaml:snakeyaml:2.2")
     shadow ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
@@ -85,13 +82,19 @@ bukkit {
             default = PermDefault.TRUE
         }
         register("$pluginId.create") {
+          default = PermDefault.TRUE
+        }
+        register("$pluginId.create.local") {
             default = PermDefault.TRUE
         }
-        register("$pluginId.createyt") {
-            default = PermDefault.TRUE
+        register("$pluginId.create.remote") {
+          default = PermDefault.TRUE
         }
-        register("$pluginId.createsc") {
-            default = PermDefault.TRUE
+        register("$pluginId.create.remote.youtube") {
+          default = PermDefault.TRUE
+        }
+        register("$pluginId.create.remote.soundcloud") {
+          default = PermDefault.TRUE
         }
         register("$pluginId.distance") {
             default = PermDefault.TRUE
@@ -102,10 +105,6 @@ bukkit {
         "voicechat",
         "ProtocolLib",
         "CommandAPI"
-    )
-
-    softDepend = listOf(
-        "lavaplayer-lib"
     )
 }
 
@@ -119,8 +118,8 @@ modrinth {
     projectId.set("customdiscs-svc")
     versionNumber.set(version as String)
     versionType.set("release")
-    gameVersions.addAll("1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6")
-    loaders.addAll("bukkit", "paper", "purpur", "spigot", "folia")
+    gameVersions.addAll("1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6")
+    loaders.addAll("bukkit", "paper", "purpur", "folia")
     uploadFile.set(tasks.named("shadowJar"))
     dependencies {
         required.project("simple-voice-chat", "commandapi")
@@ -140,8 +139,8 @@ tasks.named("modrinth") {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     disableAutoTargetJvm()
 }
 
@@ -178,7 +177,6 @@ tasks.shadowJar {
     relocate("org.hamcrest")
     relocate("org.junit")
     relocate("net.sourceforge.jaad.aac")
-//    relocate("net.kyori")
     relocate("net.iharder")
     relocate("com.tcoded")
     relocate("com.grack")
@@ -186,5 +184,4 @@ tasks.shadowJar {
     relocate("org.intellij")
     relocate("org.jetbrains")
     relocate("com.sedmelluq")
-//    relocate("dev.jorel.commandapi")
 }

@@ -1,11 +1,13 @@
 package io.github.subkek.customdiscs.event;
 
 import io.github.subkek.customdiscs.CustomDiscs;
+import io.github.subkek.customdiscs.Keys;
 import io.github.subkek.customdiscs.LavaPlayerManager;
 import io.github.subkek.customdiscs.PlayerManager;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import io.github.subkek.customdiscs.util.PlayUtil;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
 import org.bukkit.entity.Player;
@@ -17,6 +19,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 
 public class JukeboxHandler implements Listener {
   private static ItemStack getItemStack(PlayerInteractEvent event, Player player) {
@@ -49,6 +53,27 @@ public class JukeboxHandler implements Listener {
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (LegacyUtil.isJukeboxContainsDisc(block)) return;
+
+    //TODO remove in future versions
+    ItemMeta meta = event.getItem().getItemMeta();
+    PersistentDataContainer data = meta.getPersistentDataContainer();
+
+    if (data.has(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType())) {
+      String url = data.get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
+      for (NamespacedKey key : data.getKeys()) {
+        data.remove(key);
+      }
+      data.set(Keys.REMOTE_DISC.getKey(), Keys.REMOTE_DISC.getDataType(), url);
+      event.getItem().setItemMeta(meta);
+    } else if (data.has(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType())) {
+      String url = data.get(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType());
+      for (NamespacedKey key : data.getKeys()) {
+        data.remove(key);
+      }
+      data.set(Keys.REMOTE_DISC.getKey(), Keys.REMOTE_DISC.getDataType(), url);
+      event.getItem().setItemMeta(meta);
+    }
+    // --------------------------------
 
     boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
     boolean isCustomStreamingDisc = LegacyUtil.isCustomStreamingDisc(event.getItem());

@@ -6,6 +6,9 @@ language:
     info: '<blue>[CustomDiscs Info] <reset>'
     warn: '<yellow>[CustomDiscs Warn] <reset>'
     error: '<red>[CustomDiscs Error] '
+  plugin:
+    messages:
+      update-available: '<white>Nuova versione disponibile: <click:open_url:{0}{1}><hover:show_text:"<dark_aqua>{0}{1}<br><white>Clicca per aprire"><aqua>{1}</hover></click>'
   error:
     command:
       cant-perform: 'Non puoi eseguire quel comando!'

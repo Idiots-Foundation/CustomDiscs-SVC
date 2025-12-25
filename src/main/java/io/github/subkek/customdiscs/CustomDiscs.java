@@ -17,17 +17,26 @@ import io.github.subkek.customdiscs.event.PlayerHandler;
 import io.github.subkek.customdiscs.file.CDConfig;
 import io.github.subkek.customdiscs.file.CDData;
 import io.github.subkek.customdiscs.language.YamlLanguage;
+import io.github.subkek.customdiscs.library.AssetsDownloader;
 import io.github.subkek.customdiscs.metrics.BStatsLink;
 import io.github.subkek.customdiscs.util.Formatter;
+import io.github.subkek.customdiscs.util.HTTPRequestUtils;
 import io.github.subkek.customdiscs.util.LegacyUtil;
 import io.github.subkek.customdiscs.util.TaskScheduler;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -70,6 +79,7 @@ public class CustomDiscs extends JavaPlugin {
     cDData.load();
     cDData.startAutosave();
 
+    AssetsDownloader.loadLibraries(getDataFolder());
     linkBStats();
 
     File musicData = new File(this.getDataFolder(), "musicdata");
@@ -77,10 +87,11 @@ public class CustomDiscs extends JavaPlugin {
       if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
     }
 
-    if (getServer().getPluginManager().getPlugin(LIBRARY_ID) != null) {
+    try {
+      Class.forName("io.github.subkek.lavaplayer.libs.dev.lavalink.youtube.YoutubeAudioSourceManager");
       lavaLibExist = true;
       CustomDiscs.info("{0} installed, youtube support enabled", LIBRARY_ID);
-    } else {
+    } catch (ClassNotFoundException e) {
       CustomDiscs.warn("{0} not installed, youtube support disabled: https://github.com/Idiots-Foundation/lavaplayer-lib/releases", LIBRARY_ID);
     }
 
@@ -88,6 +99,8 @@ public class CustomDiscs extends JavaPlugin {
 
     registerEvents();
     registerCommands();
+
+    foliaLib.getScheduler().runAsync(task -> checkUpdate());
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -139,6 +152,35 @@ public class CustomDiscs extends JavaPlugin {
       CustomDiscs.info("Successfully enabled voicechat hook");
     } else {
       CustomDiscs.error("Failed to enable voicechat hook");
+    }
+  }
+
+  private void checkUpdate() {
+    String url = "https://modrinth.com/plugin/customdiscs-svc/version/";
+
+    try {
+      String version = (String) ((JSONObject)
+          ((JSONArray) new JSONParser().parse(
+              HTTPRequestUtils.getTextResponse(
+                  "https://api.modrinth.com/v2/project/customdiscs-svc/version"
+              )
+          )).get(0)
+      ).get("version_number");
+
+      if (!version.equals(getPlugin().getPluginMeta().getVersion())) {
+        warn("New version available: {0}{1}", url, version);
+
+        getServer().getPluginManager().registerEvents(new Listener() {
+          @EventHandler
+          public void onPlayerJoin(PlayerJoinEvent event) {
+            Player player = event.getPlayer();
+            if (player.isOp() || player.hasPermission("customdiscs.reload")) {
+              sendMessage(player, getLanguage().PComponent("plugin.messages.update-available", url, version));
+            }
+          }
+        }, this);
+      }
+    } catch (Exception ignore) {
     }
   }
 

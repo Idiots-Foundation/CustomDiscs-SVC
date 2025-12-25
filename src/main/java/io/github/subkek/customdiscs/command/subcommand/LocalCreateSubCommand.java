@@ -1,5 +1,7 @@
 package io.github.subkek.customdiscs.command.subcommand;
 
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.CustomDiscs;
@@ -17,19 +19,33 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
-public class CreateYtSubCommand extends AbstractSubCommand {
+public class LocalCreateSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
-  public CreateYtSubCommand() {
-    super("createyt");
+  public LocalCreateSubCommand() {
+    super("local");
 
     this.withFullDescription(getDescription());
     this.withUsage(getUsage());
 
-    this.withArguments(new TextArgument("url"));
-    this.withArguments(new TextArgument("song_name"));
+    this.withArguments(new StringArgument("filename").replaceSuggestions(ArgumentSuggestions.stringCollection((sender) -> {
+      File musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
+      if (!musicDataFolder.isDirectory()) {
+        return List.of();
+      }
+
+      File[] files = musicDataFolder.listFiles();
+      if (files == null) {
+        return List.of();
+      }
+
+      return Arrays.stream(files).filter(file -> !file.isDirectory()).map(File::getName).toList();
+    })));
+    this.withArguments(new TextArgument("song_name").replaceSuggestions(quotedArgument(null)));
 
     this.executesPlayer(this::executePlayer);
     this.executes(this::execute);
@@ -37,26 +53,21 @@ public class CreateYtSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.createyt.description");
+    return plugin.getLanguage().string("command.create.local.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.createyt.syntax");
+    return plugin.getLanguage().string("command.create.local.syntax");
   }
 
   @Override
   public boolean hasPermission(CommandSender sender) {
-    return sender.hasPermission("customdiscs.createyt");
+    return sender.hasPermission("customdiscs.create.local");
   }
 
   @Override
   public void executePlayer(Player player, CommandArguments arguments) {
-    if (!CustomDiscs.lavaLibExist) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-youtube-support"));
-      return;
-    }
-
     if (!hasPermission(player)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
@@ -67,6 +78,12 @@ public class CreateYtSubCommand extends AbstractSubCommand {
       return;
     }
 
+    String filename = getArgumentValue(arguments, "filename", String.class);
+    if (filename.contains("../")) {
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.invalid-filename"));
+      return;
+    }
+
     String customName = getArgumentValue(arguments, "song_name", String.class);
 
     if (customName.isEmpty()) {
@@ -74,39 +91,61 @@ public class CreateYtSubCommand extends AbstractSubCommand {
       return;
     }
 
+    File getDirectory = new File(CustomDiscs.getPlugin().getDataFolder(), "musicdata");
+    File songFile = new File(getDirectory.getPath(), filename);
+    if (songFile.exists()) {
+      if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
+        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.unknown-extension"));
+        return;
+      }
+    } else {
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.file.not-found"));
+      return;
+    }
+
+    //Sets the lore of the item to the quotes from the command.
     ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
 
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
-    meta.displayName(plugin.getLanguage().component("disc-name.youtube")
-        .decoration(TextDecoration.ITALIC, false));
+    meta.displayName(plugin.getLanguage().component("disc-name.simple")
+      .decoration(TextDecoration.ITALIC, false));
 
     final Component customLoreSong = Component.text(customName)
-        .decoration(TextDecoration.ITALIC, false)
-        .color(NamedTextColor.GRAY);
+      .decoration(TextDecoration.ITALIC, false)
+      .color(NamedTextColor.GRAY);
 
     meta.addItemFlags(ItemFlag.values());
     meta.lore(List.of(customLoreSong));
 
-    if (plugin.getCDConfig().isUseCustomModelDataYoutube())
-      meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataYoutube());
-
-    String youtubeUrl = getArgumentValue(arguments, "url", String.class);
+    int modelData = plugin.getCDConfig().getLocalCustomModelData();
+    if (modelData > 0)
+      meta.setCustomModelData(modelData);
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
     for (NamespacedKey key : data.getKeys()) {
       data.remove(key);
     }
-    data.set(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType(), youtubeUrl);
+    data.set(Keys.CUSTOM_DISC.getKey(), Keys.CUSTOM_DISC.getDataType(), filename);
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.link", youtubeUrl));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.file", filename));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
+
 
   @Override
   public void execute(CommandSender sender, CommandArguments arguments) {
     CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.cant-perform"));
+  }
+
+  private String getFileExtension(String s) {
+    int index = s.lastIndexOf(".");
+    if (index > 0) {
+      return s.substring(index + 1);
+    } else {
+      return "";
+    }
   }
 }

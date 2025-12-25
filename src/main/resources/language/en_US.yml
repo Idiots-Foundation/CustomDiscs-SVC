@@ -6,6 +6,9 @@ language:
     info: '<blue>[CustomDiscs Info] <reset>'
     warn: '<yellow>[CustomDiscs Warn] <reset>'
     error: '<red>[CustomDiscs Error] '
+  plugin:
+    messages:
+      update-available: '<white>New version available: <click:open_url:{0}{1}><hover:show_text:"<dark_aqua>{0}{1}<br><white>Click to open"><aqua>{1}</hover></click>'
   error:
     command:
       cant-perform: 'You can''t execute that command!'
@@ -37,15 +40,15 @@ language:
       description: '<white>Reloads configuration files.'
       messages:
         successfully: 'Plugin successfully reloaded.'
-    createyt:
-      syntax: '<dark_aqua>/cd createyt "<video url>" "<disc name>"'
-      description: '<white>Create disc with music from YouTube.'
-    createsc:
-      syntax: '<dark_aqua>/cd createsc "<music url>" "<disc name>"'
-      description: '<white>Create disc with music from SoundCloud.'
     create:
-      syntax: '<dark_aqua>/cd create <file name> "<disc name>"'
+      syntax: '<dark_aqua>/cd create <local|remote>'
       description: '<white>Creates music disc.'
+      local:
+        syntax: '<dark_aqua>/cd create local <file name> \"<disc name>\"'
+        description: '<white>Creates a disc with previously downloaded music.'
+      remote:
+        syntax: '<dark_aqua>/cd create remote \"<url>\" <disc name>'
+        description: '<white>Creates a disc with music from various services (YouTube, SoundCloud).'
       messages:
         error:
           not-holding-disc: 'First, take a disc in your hand!'

@@ -7,7 +7,18 @@ import org.bukkit.persistence.PersistentDataType;
 @Getter
 public class Keys {
   public static final Key<String> CUSTOM_DISC = new Key<>("customdisc", PersistentDataType.STRING);
+  public static final Key<String> REMOTE_DISC = new Key<>("remote-customdisc", PersistentDataType.STRING);
+  /**
+   * @deprecated All discs that rely on streaming platforms will be removed in future versions.
+   * Use {@link #REMOTE_DISC} instead.
+   */
+  @Deprecated
   public static final Key<String> YOUTUBE_DISC = new Key<>("customdiscyt", PersistentDataType.STRING);
+  /**
+   * @deprecated All discs that rely on streaming platforms will be removed in future versions.
+   * Use {@link #REMOTE_DISC} instead.
+   */
+  @Deprecated
   public static final Key<String> SOUNDCLOUD_DISC = new Key<>("customdiscsc", PersistentDataType.STRING);
 
   @Getter

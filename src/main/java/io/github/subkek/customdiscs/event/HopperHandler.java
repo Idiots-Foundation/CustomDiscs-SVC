@@ -64,10 +64,10 @@ public class HopperHandler implements Listener {
     if (!event.getSourceBlock().getType().equals(Material.JUKEBOX)) return;
     Block block = event.getSourceBlock();
 
-    if (!(CustomDiscs.lavaLibExist
-        ? (LavaPlayerManager.getInstance().isPlaying(block)
-        || PlayerManager.getInstance().isPlaying(block))
-        : PlayerManager.getInstance().isPlaying(block))) return;
+    if ((CustomDiscs.lavaLibExist && !LavaPlayerManager.getInstance().isPlaying(block))
+        && !PlayerManager.getInstance().isPlaying(block)) {
+      return;
+    }
 
     PhysicsManager.NeedUpdate needUpdate = PhysicsManager.getInstance().isNeedUpdate(block);
 

@@ -1,10 +1,15 @@
 package io.github.subkek.customdiscs.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.subkek.customdiscs.util.Formatter;
+import io.github.subkek.customdiscs.util.RemoteServices;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public abstract class AbstractSubCommand extends CommandAPICommand {
   public AbstractSubCommand(String commandName) {
@@ -20,6 +25,22 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
     return value;
   }
 
+  protected ArgumentSuggestions<CommandSender> quotedArgument(@Nullable List<String> suggestions) {
+    return ArgumentSuggestions.stringCollection(info -> {
+      String arg = info.currentArg().trim();
+
+      if (arg.isEmpty()) return List.of("\"");
+
+      if (suggestions != null && arg.equals("\""))
+        return suggestions.stream().map(s -> "\"" + s + "\"").toList();
+
+      if (arg.startsWith("\"") && !arg.endsWith("\""))
+        return List.of(arg + "\"");
+
+      return List.of();
+    });
+  }
+
   public void execute(CommandSender sender, CommandArguments arguments) {
   }
 
@@ -30,5 +51,11 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
 
   public abstract String getSyntax();
 
-  public abstract boolean hasPermission(CommandSender sender);
+  public boolean hasPermission(CommandSender sender) {
+    return false;
+  }
+
+  public boolean hasPermission(CommandSender sender, RemoteServices service) {
+    return hasPermission(sender);
+  }
 }

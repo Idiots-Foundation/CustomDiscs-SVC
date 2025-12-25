@@ -6,6 +6,7 @@ import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.Keys;
 import io.github.subkek.customdiscs.command.AbstractSubCommand;
 import io.github.subkek.customdiscs.util.LegacyUtil;
+import io.github.subkek.customdiscs.util.RemoteServices;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -19,35 +20,37 @@ import org.bukkit.persistence.PersistentDataContainer;
 
 import java.util.List;
 
-public class CreateScSubCommand extends AbstractSubCommand {
+
+public class RemoteCreateSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
-  public CreateScSubCommand() {
-    super("createsc");
+  public RemoteCreateSubCommand() {
+    super("remote");
 
-    this.withFullDescription(getDescription());
-    this.withUsage(getUsage());
+    this.withPermission(getDescription());
+    this.withUsage(getSyntax());
 
-    this.withArguments(new TextArgument("url"));
-    this.withArguments(new TextArgument("song_name"));
-
+    this.withArguments(new TextArgument("url")
+      .replaceSuggestions(quotedArgument(plugin.getCDConfig().getRemoteTabComplete())));
+    this.withArguments(new TextArgument("song_name")
+        .replaceSuggestions(quotedArgument(null)));
     this.executesPlayer(this::executePlayer);
     this.executes(this::execute);
   }
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.createsc.description");
+    return plugin.getLanguage().string("command.create.remote.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.createsc.syntax");
+    return plugin.getLanguage().string("command.create.remote.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
-    return sender.hasPermission("customdiscs.createsc");
+  public boolean hasPermission(CommandSender sender, RemoteServices service) {
+    return sender.hasPermission("customdiscs.create.remote." + service.getId());
   }
 
   @Override
@@ -57,7 +60,10 @@ public class CreateScSubCommand extends AbstractSubCommand {
       return;
     }
 
-    if (!hasPermission(player)) {
+    String url = getArgumentValue(arguments, "url", String.class);
+    RemoteServices service = RemoteServices.fromUrl(url);
+
+    if (!hasPermission(player, service)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
     }
@@ -78,30 +84,29 @@ public class CreateScSubCommand extends AbstractSubCommand {
 
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
-    meta.displayName(plugin.getLanguage().component("disc-name.soundcloud")
-        .decoration(TextDecoration.ITALIC, false));
+    meta.displayName(plugin.getLanguage().component("disc-name." + service.getId())
+      .decoration(TextDecoration.ITALIC, false));
 
     final Component customLoreSong = Component.text(customName)
-        .decoration(TextDecoration.ITALIC, false)
-        .color(NamedTextColor.GRAY);
+      .decoration(TextDecoration.ITALIC, false)
+      .color(NamedTextColor.GRAY);
 
     meta.addItemFlags(ItemFlag.values());
     meta.lore(List.of(customLoreSong));
 
-    if (plugin.getCDConfig().isUseCustomModelDataYoutube())
-      meta.setCustomModelData(plugin.getCDConfig().getCustomModelDataYoutube());
-
-    String soundcloudUrl = getArgumentValue(arguments, "url", String.class);
+    int modelData = service.getCustomModelData();
+    if (modelData > 0)
+      meta.setCustomModelData(modelData);
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
     for (NamespacedKey key : data.getKeys()) {
       data.remove(key);
     }
-    data.set(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType(), soundcloudUrl);
+    data.set(Keys.REMOTE_DISC.getKey(), Keys.REMOTE_DISC.getDataType(), url);
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.link", soundcloudUrl));
+    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.link", url));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
   }
 

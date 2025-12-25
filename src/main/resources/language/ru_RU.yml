@@ -6,6 +6,9 @@ language:
     info: '<blue>[CustomDiscs Info] <reset>'
     warn: '<yellow>[CustomDiscs Warn] <reset>'
     error: '<red>[CustomDiscs Error] '
+  plugin:
+    messages:
+      update-available: '<white>Доступна новая версия: <click:open_url:{0}{1}><hover:show_text:"<dark_aqua>{0}{1}<br><white>Нажмите чтоб открыть"><aqua>{1}</hover></click>'
   error:
     command:
       cant-perform: 'Вы не можете выполнять эту команду!'
@@ -37,15 +40,15 @@ language:
       description: '<white>Перезагружает конфигурационные файлы.'
       messages:
         successfully: 'Плагин успешно перезагружен.'
-    createyt:
-      syntax: '<dark_aqua>/cd createyt "<ссылка на видео>" "<имя пластинки>"'
-      description: '<white>Создает диск с музыкой из YouTube.'
-    createsc:
-      syntax: '<dark_aqua>/cd createsc "<ссылка на музыку>" "<имя пластинки>"'
-      description: '<white>Создает диск с музыкой из SoundCloud.'
     create:
-      syntax: '<dark_aqua>/cd create <имя файла> "<имя пластинки>"'
+      syntax: '<dark_aqua>/cd create <local|remote>'
       description: '<white>Создает диск с музыкой.'
+      local:
+        syntax: '<dark_aqua>/cd create local <имя файла> "<имя пластинки>"'
+        description: '<white>Создает диск с ранее скачанной музыкой'
+      remote:
+        syntax: '<dark_aqua>/cd create remote <ссылка> <имя пластинки>'
+        description: '<white>Создает диск с музыкой с разных сервисов (YouTube, SoundCloud).'
       messages:
         error:
           not-holding-disc: 'Сначала возьмите диск в руку!'

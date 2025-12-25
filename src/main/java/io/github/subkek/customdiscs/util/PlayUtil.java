@@ -9,7 +9,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -39,14 +38,8 @@ public class PlayUtil {
 
     ItemMeta discMeta = LegacyUtil.getItemMeta(disc);
 
-    PersistentDataContainer container = discMeta.getPersistentDataContainer();
-
-    String soundLink;
-    if (container.has(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType())) {
-      soundLink = container.get(Keys.YOUTUBE_DISC.getKey(), Keys.YOUTUBE_DISC.getDataType());
-    } else {
-      soundLink = container.get(Keys.SOUNDCLOUD_DISC.getKey(), Keys.SOUNDCLOUD_DISC.getDataType());
-    }
+    String soundLink = discMeta.getPersistentDataContainer()
+      .get(Keys.REMOTE_DISC.getKey(), Keys.REMOTE_DISC.getDataType());
 
     Component customActionBarSongPlaying = plugin.getLanguage().component("now-playing", getSongName(discMeta));
 
@@ -58,6 +51,6 @@ public class PlayUtil {
     if (lore == null || lore.isEmpty())
       return Component.text("Unknown").color(NamedTextColor.GRAY);
 
-    return lore.get(0);
+    return lore.getFirst();
   }
 }
