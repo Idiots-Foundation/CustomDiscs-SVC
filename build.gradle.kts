@@ -1,14 +1,14 @@
-import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default as PermDefault
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     id("java-library")
     id ("com.modrinth.minotaur") version "2.+"
-    id("io.github.goooler.shadow") version "8.1.8"
-    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+    id("com.gradleup.shadow") version "9.3.0"
+    id("de.eldoria.plugin-yml.paper") version "0.8.0"
 }
 
 allprojects {
-    group = "io.github.subkek"
+    group = "space.subkek"
     version = properties["plugin_version"]!!
 }
 
@@ -38,13 +38,11 @@ dependencies {
 
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.0")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
-    compileOnly("dev.jorel:commandapi-paper-core:11.0.0")
-    compileOnly("me.yiski:lavaplayer-lib:1.0.6")
+    compileOnly("dev.jorel:commandapi-paper-core:11.1.0")
+    compileOnly("me.yiski:lavaplayer-bundle:1.0.7")
 
-    shadow("com.googlecode.soundlibs:mp3spi:1.9.5.4")
-    shadow("com.googlecode.json-simple:json-simple:1.1.1")
-    shadow("org.jflac:jflac-codec:1.5.2")
-    shadow("commons-io:commons-io:2.16.1")
+    shadow("commons-io:commons-io:2.21.0")
+    shadow("org.bstats:bstats-bukkit:3.1.0")
     shadow("com.github.technicallycoded:FoliaLib:0.4.3") {
         exclude("org.slf4j")
     }
@@ -60,12 +58,13 @@ dependencies {
 
 val pluginId = properties["plugin_id"]
 
-bukkit {
+paper {
     name = rootProject.name
     version = rootProject.version as String
-    main = "io.github.subkek.customdiscs.CustomDiscs"
+    main = "space.subkek.customdiscs.CustomDiscs"
+    loader = "space.subkek.customdiscs.CustomDiscsLoader"
 
-    authors = listOf("subkek")
+    authors = listOf("subkek", "yiski")
     website = "https://discord.gg/eRvwvmEXWz"
     apiVersion = "1.21"
 
@@ -73,39 +72,39 @@ bukkit {
 
     permissions {
         register("$pluginId.help") {
-            default = PermDefault.TRUE
+            default = BukkitPluginDescription.Permission.Default.FALSE
         }
         register("$pluginId.reload") {
-            default = PermDefault.OP
+            default = BukkitPluginDescription.Permission.Default.OP
         }
         register("$pluginId.download") {
-            default = PermDefault.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create") {
-          default = PermDefault.TRUE
+          default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.local") {
-            default = PermDefault.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote") {
-          default = PermDefault.TRUE
+          default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote.youtube") {
-          default = PermDefault.TRUE
+          default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote.soundcloud") {
-          default = PermDefault.TRUE
+          default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.distance") {
-            default = PermDefault.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
     }
 
-    depend = listOf(
-        "voicechat",
-        "ProtocolLib",
-        "CommandAPI"
-    )
+    serverDependencies {
+        register("voicechat")
+        register("ProtocolLib")
+        register("CommandAPI")
+    }
 }
 
 // ./gradlew modrinth -Pmodrinth.token=token
@@ -119,7 +118,7 @@ modrinth {
     versionNumber.set(version as String)
     versionType.set("release")
     gameVersions.addAll("1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6")
-    loaders.addAll("bukkit", "paper", "purpur", "folia")
+    loaders.addAll("paper", "purpur", "folia")
     uploadFile.set(tasks.named("shadowJar"))
     dependencies {
         required.project("simple-voice-chat", "commandapi")
@@ -158,9 +157,7 @@ tasks.shadowJar {
     configurations = listOf(project.configurations.shadow.get())
     mergeServiceFiles()
 
-    fun relocate(pkg: String) = relocate(pkg, "${rootProject.group}.customdiscs.libs.$pkg") {
-        exclude("com/sedmelluq/discord/lavaplayer/natives/**")
-    }
+    fun relocate(pkg: String) = relocate(pkg, "${rootProject.group}.customdiscs.libs.$pkg")
 
     relocate("org.apache")
     relocate("org.jsoup")
@@ -168,7 +165,6 @@ tasks.shadowJar {
     relocate("org.yaml.snakeyaml")
     relocate("org.simpleyaml")
     relocate("org.jflac")
-    relocate("org.json")
     relocate("org.tritonus")
     relocate("mozilla")
     relocate("junit")
@@ -183,5 +179,5 @@ tasks.shadowJar {
     relocate("dev.lavalink")
     relocate("org.intellij")
     relocate("org.jetbrains")
-    relocate("com.sedmelluq")
+    relocate("org.bstats")
 }
