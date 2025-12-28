@@ -1,5 +1,6 @@
 package io.github.subkek.customdiscs.library;
 
+import io.github.subkek.customdiscs.CustomDiscs;
 import io.github.subkek.customdiscs.util.HTTPRequestUtils;
 import org.json.simple.JSONObject;
 
@@ -45,6 +46,7 @@ public class LibraryDownloadManager {
         String url = (String) details.get("url");
         File jarFile = new File(libsFolder, jarName);
         current += 1.0;
+        CustomDiscs.info("Downloading library \"{0}\"", jarName);
         if (HTTPRequestUtils.download(jarFile, url)) {
           progressListener.accept(true, jarName, (current / total) * 100);
         } else {

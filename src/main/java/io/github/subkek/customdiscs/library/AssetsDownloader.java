@@ -52,9 +52,9 @@ public class AssetsDownloader {
         if (!hash.equals(oldHash) || !plugin.getDescription().getVersion().equals(oldVersion)) {
           downloadManager.downloadLibraries((result, jarName, percentage) -> {
             if (result) {
-              CustomDiscs.info("Downloaded library \"{0}\"", jarName);
+              CustomDiscs.debug("Download complete \"{0}\"", jarName);
             } else {
-              CustomDiscs.error("Unable to download library \"{0}\"", jarName);
+              CustomDiscs.debug("Unable to download \"{0}\"", jarName);
             }
           });
         }
