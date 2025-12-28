@@ -4,5 +4,10 @@
     "lavaplayer-lib-1.0.6.jar": {
       "url": "https://repo.subkek.space/maven-public/me/yiski/lavaplayer-lib/1.0.6/lavaplayer-lib-1.0.6.jar"
     }
+  },
+  "deps": {
+    "https://repo.subkek.space/maven-public/": [
+      "me.yiski:lavaplayer-bundle:1.0.7"
+    ]
   }
 }
