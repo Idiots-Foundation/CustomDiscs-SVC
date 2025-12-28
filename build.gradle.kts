@@ -72,7 +72,7 @@ paper {
 
     permissions {
         register("$pluginId.help") {
-            default = BukkitPluginDescription.Permission.Default.FALSE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.reload") {
             default = BukkitPluginDescription.Permission.Default.OP
