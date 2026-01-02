@@ -15,12 +15,12 @@ public class LegacyUtil {
     return jukebox.getRecord().getType() != Material.AIR;
   }
 
-  public static boolean isCustomDisc(@NotNull ItemStack item) {
+  public static boolean isLocalDisc(@NotNull ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
         .has(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
   }
 
-  public static boolean isCustomStreamingDisc(@NotNull ItemStack item) {
+  public static boolean isRemoteDisc(@NotNull ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
         .has(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType());
   }

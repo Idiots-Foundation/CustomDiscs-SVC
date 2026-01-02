@@ -1,8 +1,9 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
+import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
     id("java-library")
-    id ("com.modrinth.minotaur") version "2.+"
+    id("com.modrinth.minotaur") version "2.+"
     id("com.gradleup.shadow") version "9.3.0"
     id("de.eldoria.plugin-yml.paper") version "0.8.0"
 }
@@ -48,8 +49,8 @@ dependencies {
     }
 
     shadow("org.yaml:snakeyaml:2.2")
-    shadow ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
-        exclude(group="org.yaml", module="snakeyaml")
+    shadow("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
+        exclude(group = "org.yaml", module = "snakeyaml")
     }
 
     compileOnly("org.projectlombok:lombok:1.18.36")
@@ -81,19 +82,19 @@ paper {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create") {
-          default = BukkitPluginDescription.Permission.Default.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.local") {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote") {
-          default = BukkitPluginDescription.Permission.Default.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote.youtube") {
-          default = BukkitPluginDescription.Permission.Default.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote.soundcloud") {
-          default = BukkitPluginDescription.Permission.Default.TRUE
+            default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.distance") {
             default = BukkitPluginDescription.Permission.Default.TRUE
@@ -101,9 +102,9 @@ paper {
     }
 
     serverDependencies {
-        register("voicechat")
-        register("ProtocolLib")
-        register("CommandAPI")
+        register("voicechat") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
+        register("ProtocolLib") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
+        register("CommandAPI") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
     }
 }
 
@@ -117,7 +118,21 @@ modrinth {
     projectId.set("customdiscs-svc")
     versionNumber.set(version as String)
     versionType.set("release")
-    gameVersions.addAll("1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6")
+    gameVersions.addAll(
+        "1.21.11",
+        "1.21.10",
+        "1.21.9",
+        "1.21.8",
+        "1.21.7",
+        "1.21.6",
+        "1.21.5",
+        "1.21.4",
+        "1.21.3",
+        "1.21.2",
+        "1.21.1",
+        "1.21",
+        "1.20.6"
+    )
     loaders.addAll("paper", "purpur", "folia")
     uploadFile.set(tasks.named("shadowJar"))
     dependencies {

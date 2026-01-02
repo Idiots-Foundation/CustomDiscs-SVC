@@ -30,8 +30,8 @@ public class HopperHandler implements Listener {
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (LegacyUtil.isJukeboxContainsDisc(block)) return;
 
-    boolean isCustomDisc = LegacyUtil.isCustomDisc(event.getItem());
-    boolean isYouTubeCustomDisc = LegacyUtil.isCustomStreamingDisc(event.getItem());
+    boolean isCustomDisc = LegacyUtil.isLocalDisc(event.getItem());
+    boolean isYouTubeCustomDisc = LegacyUtil.isRemoteDisc(event.getItem());
 
     if (!isCustomDisc && !isYouTubeCustomDisc) return;
 
@@ -50,11 +50,11 @@ public class HopperHandler implements Listener {
     Block block = event.getSource().getLocation().getBlock();
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (!event.getItem().hasItemMeta()) return;
-    if (!LegacyUtil.isCustomDisc(event.getItem()) && !LegacyUtil.isCustomStreamingDisc(event.getItem())) return;
+    if (!LegacyUtil.isLocalDisc(event.getItem()) && !LegacyUtil.isRemoteDisc(event.getItem())) return;
 
     event.setCancelled(LavaPlayerManager.getInstance().isPlaying(block));
 
-    if (!event.isCancelled()) CustomDiscs.debug("Jukebox eject by hopper event");
+    CustomDiscs.debug("Jukebox eject by hopper event");
   }
 
   @EventHandler

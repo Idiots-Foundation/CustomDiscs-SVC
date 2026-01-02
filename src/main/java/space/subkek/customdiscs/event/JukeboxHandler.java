@@ -74,8 +74,8 @@ public class JukeboxHandler implements Listener {
     }
     // --------------------------------
 
-    boolean isLocalDisc = LegacyUtil.isCustomDisc(event.getItem());
-    boolean isRemoteDisc = LegacyUtil.isCustomStreamingDisc(event.getItem());
+    boolean isLocalDisc = LegacyUtil.isLocalDisc(event.getItem());
+    boolean isRemoteDisc = LegacyUtil.isRemoteDisc(event.getItem());
 
     if (!isLocalDisc && !isRemoteDisc) return;
 
@@ -101,8 +101,8 @@ public class JukeboxHandler implements Listener {
     ItemStack itemInvolvedInEvent = getItemStack(event, player);
     if (player.isSneaking() && !itemInvolvedInEvent.getType().equals(Material.AIR)) return;
     Jukebox jukebox = (Jukebox) block.getState();
-    if (!LegacyUtil.isCustomDisc(jukebox.getRecord()) &&
-        !LegacyUtil.isCustomStreamingDisc(jukebox.getRecord())) return;
+    if (!LegacyUtil.isLocalDisc(jukebox.getRecord()) &&
+        !LegacyUtil.isRemoteDisc(jukebox.getRecord())) return;
 
     CustomDiscs.debug("Jukebox eject by Player event");
 

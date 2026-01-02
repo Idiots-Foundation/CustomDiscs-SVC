@@ -112,8 +112,8 @@ public class CustomDiscs extends JavaPlugin {
 
           if (!jukebox.getRecord().hasItemMeta()) return;
 
-          if (LegacyUtil.isCustomDisc(jukebox.getRecord()) ||
-              LegacyUtil.isCustomStreamingDisc(jukebox.getRecord())) {
+          if (LegacyUtil.isLocalDisc(jukebox.getRecord()) ||
+              LegacyUtil.isRemoteDisc(jukebox.getRecord())) {
             event.setCancelled(true);
 
             PhysicsManager.getInstance().start(jukebox);
@@ -125,10 +125,9 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    if (libsLoaded) {
-      CommandAPI.onDisable();
-      LavaPlayerManager.getInstance().stopPlayingAll();
-    }
+    if (!libsLoaded) return;
+    CommandAPI.onDisable();
+    LavaPlayerManager.getInstance().stopPlayingAll();
 
     cDData.stopAutosave();
     cDData.save();
