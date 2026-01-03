@@ -13,7 +13,7 @@ info:
   version: '1.4'
 global:
   # Language of the plugin
-  # Supported: ru_RU, en_US
+  # Supported: ru_RU, en_US, tr_TR
   # Unknown languages will be replaced with en_US
   locale: en_US
   debug: false
