@@ -26,7 +26,7 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
   public RemoteCreateSubCommand() {
     super("remote");
 
-    this.withPermission(getDescription());
+    this.withFullDescription(getDescription());
     this.withUsage(getSyntax());
 
     this.withArguments(new TextArgument("url")
