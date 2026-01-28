@@ -4,6 +4,11 @@ plugins {
 
 version = properties["api_version"]!!
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 dependencies {
     compileOnly(libs.paper.api)
     compileOnly(libs.voicechat.api)

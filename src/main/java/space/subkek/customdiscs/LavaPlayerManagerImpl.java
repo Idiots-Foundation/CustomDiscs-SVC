@@ -118,7 +118,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     return new YoutubeAudioSourceManager(options, clients);
   }
 
-  private void save() {
+  private synchronized void save() {
     for (AudioSourceManager manager : lavaPlayerManager.getSourceManagers()) {
       if (!(manager instanceof YoutubeAudioSourceManager)) continue;
 
@@ -212,15 +212,21 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     stopPlaying(uuid);
   }
 
-  private void stopPlaying(UUID uuid) {
+  private synchronized void stopPlaying(UUID uuid) {
     LavaPlayer lavaPlayer = playerMap.remove(uuid);
     if (lavaPlayer != null && lavaPlayer.isRunning) {
       CustomDiscs.debug("Stopping LavaPlayer: {0}", uuid);
 
-      if (plugin.isEnabled()) {
-        CustomDiscStopPlayingEvent event = new CustomDiscStopPlayingEvent(lavaPlayer.block, lavaPlayer.identifier);
-        plugin.getServer().getPluginManager().callEvent(event);
-      }
+      CompletableFuture<Void> eventFuture = new CompletableFuture<>();
+      plugin.getSchedulers().async.runNow(task -> {
+        try {
+          CustomDiscStopPlayingEvent event = new CustomDiscStopPlayingEvent(lavaPlayer.block, lavaPlayer.identifier);
+          plugin.getServer().getPluginManager().callEvent(event);
+        } finally {
+          eventFuture.complete(null);
+        }
+      });
+      eventFuture.join();
 
       lavaPlayer.stop();
     } else {
@@ -228,7 +234,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     }
   }
 
-  public void stopPlayingAll() {
+  public synchronized void stopPlayingAll() {
     Set.copyOf(playerMap.keySet()).forEach(this::stopPlaying);
   }
 
@@ -361,7 +367,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
         for (ServerPlayer serverPlayer : playersInRangeAtStart) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
           CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.while-playing"));
-          CustomDiscs.error("LavaPlayer {0} got exception:", e, uuid);
+          CustomDiscs.error("LavaPlayer {0} got exception: ", e, uuid);
         }
       }
     }

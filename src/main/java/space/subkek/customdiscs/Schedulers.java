@@ -51,10 +51,6 @@ public class Schedulers {
       this.original = original;
     }
 
-    public void execute(@NotNull Runnable run) {
-      original.execute(plugin, run);
-    }
-
     public void cancelTasks() {
       original.cancelTasks(plugin);
     }
@@ -64,14 +60,6 @@ public class Schedulers {
     private final RegionScheduler original;
     private Region(RegionScheduler original) {
       this.original = original;
-    }
-
-    public void execute(@NotNull World world, int chunkX, int chunkZ, @NotNull Runnable run) {
-      original.execute(plugin, world, chunkX, chunkZ, run);
-    }
-
-    public void execute(@NotNull Location location, @NotNull Runnable run) {
-      original.execute(plugin, location, run);
     }
 
     public @NotNull ScheduledTask runAtFixedRate(@NotNull Location location, @NotNull Consumer<ScheduledTask> task, long initialDelayTicks, long periodTicks) {
