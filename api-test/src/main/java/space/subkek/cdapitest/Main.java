@@ -2,24 +2,33 @@ package space.subkek.cdapitest;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import de.maxhenkel.voicechat.api.ServerPlayer;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import space.subkek.customdiscs.api.CustomDiscsAPI;
+import space.subkek.customdiscs.api.LavaPlayerManager;
 import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
 import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
 import space.subkek.customdiscs.api.event.CustomDiscStopPlayingEvent;
 
-@SuppressWarnings("UnstableApiUsage")
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class Main extends JavaPlugin implements Listener {
   private String lastIdentifier = null;
   private CustomDiscsAPI api;
@@ -69,9 +78,14 @@ public class Main extends JavaPlugin implements Listener {
   @EventHandler
   public void discStopped(CustomDiscStopPlayingEvent event) {
     broadcast(String.format("<red>Disc stopped at %s, jukebox destroyed: %b", event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
-    api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock()).forEach(sp -> {
+    Collection<ServerPlayer> sps = api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock());
+    if (sps == null) {
+      broadcast("<red>WTF!? Players is null");
+      return;
+    }
+    sps.forEach(sp -> {
       Player player = (Player) sp.getPlayer();
-      if (player.isOnline()) player.sendMessage(MINIMESSAGE.deserialize("<orange>Wow disc is stopped."));
+      if (player.isOnline()) player.sendMessage(MINIMESSAGE.deserialize("<gold>Wow disc is stopped."));
     });
   }
 
@@ -88,5 +102,26 @@ public class Main extends JavaPlugin implements Listener {
     Player player = event.getPlayer();
     String inserter = player != null ? player.getName() : "Hopper";
     broadcast(String.format("<yellow>Disc %s ejected by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
+  }
+
+  private final Set<Chunk> chunks = ConcurrentHashMap.newKeySet();
+  @EventHandler
+  public void worldLoadEvent(ChunkLoadEvent event) {
+    //noinspection PointlessBooleanExpression
+    if (!false) return;
+
+    if (event.getChunk().getX() != 0 || event.getChunk().getZ() != 0) return;
+
+    World world = event.getWorld();
+    LavaPlayerManager lpm = api.getLavaPlayerManager();
+
+    if (chunks.add(event.getChunk())) {
+      getServer().getRegionScheduler().runAtFixedRate(this, world, 0, 0, task -> {
+        Block block = world.getBlockAt(0, 64, 0);
+
+        if (!lpm.isPlaying(block))
+          api.getLavaPlayerManager().play(block, "plugins/CustomDiscs/musicdata/lp.mp3", MINIMESSAGE.deserialize("<gold>LP3she4ka for you"));
+      }, 20, 20);
+    }
   }
 }

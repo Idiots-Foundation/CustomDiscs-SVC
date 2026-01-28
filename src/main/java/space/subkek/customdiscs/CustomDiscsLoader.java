@@ -55,7 +55,7 @@ public class CustomDiscsLoader implements PluginLoader {
         List<String> dependencies = data.get("dependencies");
 
         if (repositories == null || dependencies == null) {
-          throw new RuntimeException("Missing 'repositories' or 'dependencies' section in dependencies.json!");
+          throw new RuntimeException(String.format("Missing 'repositories' or 'dependencies' section in %s!", RESOURCE_NAME));
         }
 
         MavenLibraryResolver resolver = new MavenLibraryResolver();

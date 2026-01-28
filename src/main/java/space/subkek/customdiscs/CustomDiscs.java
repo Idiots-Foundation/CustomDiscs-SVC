@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.google.gson.JsonParser;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
 import lombok.Getter;
@@ -39,7 +40,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "customdiscs";
 
@@ -158,7 +158,7 @@ public class CustomDiscs extends JavaPlugin {
     try {
       String response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
 
-      String version = com.google.gson.JsonParser.parseString(response)
+      String version = JsonParser.parseString(response)
           .getAsJsonArray()
           .get(0)
           .getAsJsonObject()

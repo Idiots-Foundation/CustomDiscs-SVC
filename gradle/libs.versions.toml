@@ -13,7 +13,7 @@ commons-io = "2.21.0"
 bstats = "3.1.0"
 snakeyaml = "2.5"
 simple-yaml = "1.8.4"
-lombok = "1.18.36"
+lombok = "1.18.42"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

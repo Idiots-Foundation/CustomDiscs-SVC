@@ -13,6 +13,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import de.maxhenkel.voicechat.api.Position;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
@@ -39,17 +40,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class LavaPlayerManagerImpl implements LavaPlayerManager {
+  private static LavaPlayerManagerImpl instance;
+
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new ConcurrentHashMap<>();
   private final File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
-
-  private static LavaPlayerManagerImpl instance;
+  private final ExecutorService eventExecutor = Executors.newSingleThreadExecutor(r -> new Thread(r, "LavaPlayerEventThread"));
 
   public synchronized static LavaPlayerManagerImpl getInstance() {
     if (instance == null) return instance = new LavaPlayerManagerImpl();
@@ -160,18 +160,19 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   @Override
   public void play(@NotNull Block block, @NotNull String identifier, Component actionbarComponent) {
     UUID uuid = LegacyUtil.getBlockUUID(block);
-    CustomDiscs.debug("Starting LavaPlayer: {0}", uuid);
     if (playerMap.containsKey(uuid)) return;
+    CustomDiscs.debug("Starting LavaPlayer: {0}", uuid);
 
     VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
+    Position audioPosition = api.createPosition(
+        block.getLocation().getX() + 0.5d,
+        block.getLocation().getY() + 0.5d,
+        block.getLocation().getZ() + 0.5d
+    );
     LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(
         UUID.randomUUID(),
         api.fromServerLevel(block.getWorld()),
-        api.createPosition(
-            block.getLocation().getX() + 0.5d,
-            block.getLocation().getY() + 0.5d,
-            block.getLocation().getZ() + 0.5d
-        )
+        audioPosition
     );
     if (audioChannel == null) return;
     audioChannel.setCategory(CDVoiceAddon.MUSIC_DISC_CATEGORY);
@@ -179,11 +180,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
     Collection<ServerPlayer> players = api.getPlayersInRange(
         api.fromServerLevel(block.getWorld()),
-        api.createPosition(
-            block.getLocation().getX() + 0.5d,
-            block.getLocation().getY() + 0.5d,
-            block.getLocation().getZ() + 0.5d
-        ),
+        audioPosition,
         plugin.getCDData().getJukeboxDistance(block)
     );
 
@@ -218,7 +215,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       CustomDiscs.debug("Stopping LavaPlayer: {0}", uuid);
 
       CompletableFuture<Void> eventFuture = new CompletableFuture<>();
-      plugin.getSchedulers().async.runNow(task -> {
+      eventExecutor.execute(() -> {
         try {
           CustomDiscStopPlayingEvent event = new CustomDiscStopPlayingEvent(lavaPlayer.block, lavaPlayer.identifier);
           plugin.getServer().getPluginManager().callEvent(event);
@@ -226,7 +223,11 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
           eventFuture.complete(null);
         }
       });
-      eventFuture.join();
+      try {
+        eventFuture.get(2, TimeUnit.SECONDS);
+      } catch (ExecutionException | InterruptedException | TimeoutException e) {
+        CustomDiscs.error("Event timed out for LavaPlayer {0}", uuid);
+      }
 
       lavaPlayer.stop();
       playerMap.remove(uuid);
@@ -248,13 +249,13 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   @Override
   public @Nullable LocationalAudioChannel getAudioChannel(@NotNull Block block) {
     LavaPlayer lavaPlayer = playerMap.get(LegacyUtil.getBlockUUID(block));
-    return lavaPlayer.audioChannel;
+    return lavaPlayer == null ? null : lavaPlayer.audioChannel;
   }
 
   @Override
   public @Nullable Collection<ServerPlayer> getPlayersInRangeAtStart(@NotNull Block block) {
     LavaPlayer lavaPlayer = playerMap.get(LegacyUtil.getBlockUUID(block));
-    return lavaPlayer.playersInRangeAtStart;
+    return lavaPlayer == null ? null : lavaPlayer.playersInRangeAtStart;
   }
 
   private class LavaPlayer {
@@ -290,10 +291,6 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     private void threadTask() {
       try {
         audioPlayer = lavaPlayerManager.createPlayer();
-        audioPlayer.addListener(rawEvent -> {
-          if (!(rawEvent instanceof TrackExceptionEvent event)) return;
-
-        });
 
         lavaPlayerManager.loadItem(identifier, new AudioLoadResultHandler() {
           @Override
@@ -331,7 +328,16 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
           }
         });
 
-        AudioTrack audioTrack = trackFuture.get();
+
+        AudioTrack audioTrack;
+        try {
+          audioTrack = trackFuture.get(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          audioTrack = null;
+          lavaPlayerThread.interrupt();
+          CustomDiscs.debug("LavaPlayer {0} got interrupt while loading", uuid);
+        }
+
         if (audioTrack == null) {
           CustomDiscs.debug("LavaPlayer {0} expected track is null. Stopping...", uuid);
           if (isRunning) stopPlaying(uuid);
