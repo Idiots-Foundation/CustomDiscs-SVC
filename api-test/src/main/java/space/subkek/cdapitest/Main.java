@@ -68,7 +68,11 @@ public class Main extends JavaPlugin implements Listener {
 
   @EventHandler
   public void discStopped(CustomDiscStopPlayingEvent event) {
-    broadcast(String.format("Disc stopped at %s, jukebox destroyed: %b", event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
+    broadcast(String.format("<red>Disc stopped at %s, jukebox destroyed: %b", event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
+    api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock()).forEach(sp -> {
+      Player player = (Player) sp.getPlayer();
+      if (player.isOnline()) player.sendMessage(MINIMESSAGE.deserialize("<orange>Wow disc is stopped."));
+    });
   }
 
   @EventHandler
@@ -76,13 +80,13 @@ public class Main extends JavaPlugin implements Listener {
     Player player = event.getPlayer();
     String inserter = player != null ? player.getName() : "Hopper or Dropper";
     lastIdentifier = event.getDiscEntry().getIdentifier();
-    broadcast(String.format("Disc %s inserted by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
+    broadcast(String.format("<green>Disc %s inserted by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 
   @EventHandler
   public void discEjected(CustomDiscEjectEvent event) {
     Player player = event.getPlayer();
     String inserter = player != null ? player.getName() : "Hopper";
-    broadcast(String.format("Disc %s ejected by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
+    broadcast(String.format("<yellow>Disc %s ejected by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 }

@@ -213,7 +213,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   }
 
   private synchronized void stopPlaying(UUID uuid) {
-    LavaPlayer lavaPlayer = playerMap.remove(uuid);
+    LavaPlayer lavaPlayer = playerMap.get(uuid);
     if (lavaPlayer != null && lavaPlayer.isRunning) {
       CustomDiscs.debug("Stopping LavaPlayer: {0}", uuid);
 
@@ -229,6 +229,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       eventFuture.join();
 
       lavaPlayer.stop();
+      playerMap.remove(uuid);
     } else {
       CustomDiscs.debug("LavaPlayer {0} already stopped", uuid);
     }
