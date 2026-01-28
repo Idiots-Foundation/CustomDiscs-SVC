@@ -1,5 +1,7 @@
 package space.subkek.customdiscs;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
@@ -7,106 +9,68 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.NotNull;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import space.subkek.customdiscs.util.HTTPRequestUtils;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CustomDiscsLoader implements PluginLoader {
-  private static final String LIBS_DATA_URL = "https://raw.githubusercontent.com/Idiots-Foundation/CustomDiscs-SVC/refs/heads/master/libs.json";
+  private static final String RESOURCE_NAME = "/deps.json";
+  private static final String MAVEN_CENTRAL = "maven-central";
+
+  // From paper's original MavenLibraryResolver
+  private static String getDefaultMavenCentralMirror() {
+    String central = System.getenv("PAPER_DEFAULT_CENTRAL_REPOSITORY");
+    if (central == null) {
+      central = System.getProperty("org.bukkit.plugin.java.LibraryLoader.centralURL");
+    }
+    if (central == null) {
+      central = "https://maven-central.storage-download.googleapis.com/maven2";
+    }
+    return central;
+  }
 
   @Override
   public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
     System.setProperty("customdiscs.loader.success", "false");
 
-    JSONObject data = HTTPRequestUtils.getJSONResponse(LIBS_DATA_URL);
-    JSONObject remoteDeps = null;
-    if (data != null) remoteDeps = (JSONObject) data.get("deps");
+    Gson gson = new Gson();
+    try (InputStream is = getClass().getResourceAsStream(RESOURCE_NAME)) {
+      if (is == null) throw new FileNotFoundException(String.format("Resource not found: %s", RESOURCE_NAME));
 
-    JSONObject cache = loadCache(classpathBuilder);
-    JSONObject cachedDeps = null;
-    if (cache != null) cachedDeps = (JSONObject) cache.get("deps");
+      try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+        Type type = new TypeToken<Map<String, List<String>>>() {
+        }.getType();
+        Map<String, List<String>> data = gson.fromJson(isr, type);
 
-    JSONObject deps;
-    if (remoteDeps != null) {
-      deps = remoteDeps;
-      if (!remoteDeps.equals(cachedDeps)) {
-        saveCache(classpathBuilder, data);
+        if (data == null) throw new RuntimeException(String.format("%s is empty", RESOURCE_NAME));
+
+        List<String> repositories = data.get("repositories");
+        List<String> dependencies = data.get("dependencies");
+
+        if (repositories == null || dependencies == null) {
+          throw new RuntimeException("Missing 'repositories' or 'dependencies' section in dependencies.json!");
+        }
+
+        MavenLibraryResolver resolver = new MavenLibraryResolver();
+        repositories.forEach(url -> {
+          String finalURL = url.equals(MAVEN_CENTRAL) ? getDefaultMavenCentralMirror() : url;
+          String repoID = String.format("repo-%d", Math.abs(finalURL.hashCode()));
+
+          resolver.addRepository(new RemoteRepository.Builder(repoID, "default", finalURL).build());
+        });
+        dependencies.forEach(dependency -> resolver.addDependency(new Dependency(new DefaultArtifact(dependency), null)));
+        classpathBuilder.addLibrary(resolver);
+        System.setProperty("customdiscs.loader.success", "true");
       }
-    } else if (cachedDeps != null) {
-      deps = cachedDeps;
-      classpathBuilder.getContext().getLogger().warn("Failed to fetch remote deps. Using cached deps.");
-    } else {
-      classpathBuilder.getContext().getLogger().error("Failed to load deps: no remote and no cached deps provided.");
-      return;
-    }
-
-    Set<String> repositories = new HashSet<>();
-    Set<String> dependencies = new HashSet<>();
-    for (Object key : deps.keySet()) {
-      repositories.add((String) key);
-      JSONArray repoDeps = (JSONArray) deps.get(key);
-      for (Object dep : repoDeps) {
-        dependencies.add((String) dep);
-      }
-    }
-
-    MavenLibraryResolver resolver = new MavenLibraryResolver();
-    repositories.forEach(repository -> resolver.addRepository(new RemoteRepository.Builder(null, "default", repository).build()));
-    dependencies.forEach(dependency -> resolver.addDependency(new Dependency(new DefaultArtifact(dependency), null)));
-    classpathBuilder.addLibrary(resolver);
-
-    System.setProperty("customdiscs.loader.success", "true");
-  }
-
-  private File getCacheFile(PluginClasspathBuilder classpathBuilder) {
-    File dataDirectory = classpathBuilder.getContext().getDataDirectory().toFile();
-    //noinspection ResultOfMethodCallIgnored
-    dataDirectory.mkdirs();
-    File cache = new File(dataDirectory, "cache.json");
-    if (!cache.exists()) {
-      try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(Files.newOutputStream(cache.toPath()), StandardCharsets.UTF_8))) {
-        pw.println("{}");
-        pw.flush();
-      } catch (Throwable e) {
-        classpathBuilder.getContext().getLogger().error("Failed to create caches.json.", e);
-        return null;
-      }
-    }
-    return cache;
-  }
-
-  private JSONObject loadCache(PluginClasspathBuilder classpathBuilder) {
-    File cache = getCacheFile(classpathBuilder);
-    if (cache == null) return null;
-
-    try (FileInputStream fis = new FileInputStream(cache);
-         InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8)) {
-      return (JSONObject) new JSONParser().parse(isr);
-    } catch (Throwable e) {
-      classpathBuilder.getContext().getLogger().error("Invalid caches.json. It will be reset.", e);
-      return new JSONObject();
-    }
-  }
-
-  private void saveCache(PluginClasspathBuilder classpathBuilder, JSONObject cacheJson) {
-    File cache = getCacheFile(classpathBuilder);
-    if (cache == null) return;
-
-    try (FileOutputStream fos = new FileOutputStream(cache);
-         OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-         PrintWriter pw = new PrintWriter(osw)) {
-      pw.println(cacheJson.toJSONString());
-      pw.flush();
-    } catch (Throwable e) {
-      classpathBuilder.getContext().getLogger().error("Failed to save caches.json.", e);
+    } catch (IOException e) {
+      throw new RuntimeException(String.format("Failed to process %s", RESOURCE_NAME), e);
     }
   }
 }

@@ -1,0 +1,15 @@
+{
+  "repositories": [
+    "maven-central",
+    "https://maven.lavalink.dev/snapshots/",
+    "https://maven.lavalink.dev/releases/",
+    "https://jitpack.io/"
+  ],
+  "dependencies": [
+    "${lavaplayer}",
+    "${lavaplayer_youtube}",
+    "${commons_io}",
+    "${snakeyaml}",
+    "${simple_yaml}"
+  ]
+}

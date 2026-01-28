@@ -1,9 +1,5 @@
 package space.subkek.customdiscs.util;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,18 +10,6 @@ import java.util.stream.Collectors;
 
 public class HTTPRequestUtils {
   private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0";
-
-  public static JSONObject getJSONResponse(String link) {
-    try {
-      String response = getTextResponse(link, true);
-      if (response != null) {
-        return (JSONObject) new JSONParser().parse(response);
-      }
-      return null;
-    } catch (ParseException e) {
-      return null;
-    }
-  }
 
   public static String getTextResponse(String link) {
     return getTextResponse(link, false);

@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import space.subkek.customdiscs.CustomDiscs;
+import space.subkek.customdiscs.util.LegacyUtil;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class PlayerHandler implements Listener {
 
     event.setCancelled(true);
 
-    UUID blockUUID = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+    UUID blockUUID = LegacyUtil.getBlockUUID(block);
     int distance = playersSelecting.remove(playerUUID);
     plugin.getCDData().getJukeboxDistanceMap().put(blockUUID, distance);
 

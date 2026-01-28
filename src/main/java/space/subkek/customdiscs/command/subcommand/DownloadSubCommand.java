@@ -50,7 +50,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
       return;
     }
 
-    plugin.getFoliaLib().getScheduler().runAsync(task -> {
+    plugin.getSchedulers().async.runNow(task -> {
       try {
         URL fileURL = new URL(getArgumentValue(arguments, "url", String.class));
         String filename = getArgumentValue(arguments, "filename", String.class);

@@ -1,12 +1,13 @@
 package space.subkek.customdiscs.file;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.block.Block;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 import space.subkek.customdiscs.CustomDiscs;
-import space.subkek.customdiscs.util.TaskScheduler;
+import space.subkek.customdiscs.util.LegacyUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class CDData {
   private final YamlFile yaml = new YamlFile();
   private final File dataFile;
 
-  private TaskScheduler.Task autosaveTask;
+  private ScheduledTask autosaveTask;
 
   private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
 
@@ -49,7 +50,7 @@ public class CDData {
 
   public void startAutosave() {
     if (autosaveTask != null) throw new IllegalStateException("Autosave data task already exists");
-    autosaveTask = CustomDiscs.getPlugin().getScheduler().runAtFixedRate(
+    autosaveTask = CustomDiscs.getPlugin().getSchedulers().async.runAtFixedRate(
         task -> save(),
         60, 60,
         TimeUnit.SECONDS
@@ -62,7 +63,7 @@ public class CDData {
   }
 
   public int getJukeboxDistance(Block block) {
-    UUID blockUUID = UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
+    UUID blockUUID = LegacyUtil.getBlockUUID(block);
     return jukeboxDistanceMap.containsKey(blockUUID) ?
         jukeboxDistanceMap.get(blockUUID) : CustomDiscs.getPlugin().getCDConfig().getMusicDiscDistance();
   }

@@ -7,7 +7,6 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
 import lombok.Getter;
@@ -21,12 +20,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.command.CustomDiscsCommand;
 import space.subkek.customdiscs.event.HopperHandler;
 import space.subkek.customdiscs.event.JukeboxHandler;
@@ -36,8 +34,6 @@ import space.subkek.customdiscs.file.CDData;
 import space.subkek.customdiscs.language.YamlLanguage;
 import space.subkek.customdiscs.util.Formatter;
 import space.subkek.customdiscs.util.HTTPRequestUtils;
-import space.subkek.customdiscs.util.LegacyUtil;
-import space.subkek.customdiscs.util.TaskScheduler;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -46,24 +42,35 @@ import java.io.StringWriter;
 @SuppressWarnings("UnstableApiUsage")
 public class CustomDiscs extends JavaPlugin {
   public static final String PLUGIN_ID = "customdiscs";
+
   @Getter
   private final YamlLanguage language = new YamlLanguage();
   @Getter
+  private final File musicData = new File(this.getDataFolder(), "musicdata");
+  @Getter
   private final CDConfig cDConfig = new CDConfig(
-      new File(getDataFolder().getPath(), "config.yml"));
+      new File(getDataFolder(), "config.yml"));
   @Getter
   private final CDData cDData = new CDData(
-      new File(getDataFolder().getPath(), "data.yml"));
-  @Getter
-  private final FoliaLib foliaLib = new FoliaLib(this);
-  @Getter
-  private TaskScheduler scheduler;
+      new File(getDataFolder(), "data.yml"));
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
   private boolean libsLoaded = false;
+  @Getter
+  private final Schedulers schedulers = new Schedulers(this);
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
+  }
+
+  @Override
+  public void onLoad() {
+    getServer().getServicesManager().register(
+        CustomDiscsAPI.class,
+        new CustomDiscsAPIImpl(),
+        this,
+        ServicePriority.Normal
+    );
   }
 
   @Override
@@ -77,9 +84,6 @@ public class CustomDiscs extends JavaPlugin {
 
     CommandAPI.onEnable();
 
-    scheduler = new TaskScheduler(1);
-    scheduler.setLogger(CustomDiscs::error);
-
     if (getDataFolder().mkdir()) getSLF4JLogger().info("Created plugin data folder");
 
     cDConfig.init();
@@ -89,7 +93,6 @@ public class CustomDiscs extends JavaPlugin {
 
     linkBStats();
 
-    File musicData = new File(this.getDataFolder(), "musicdata");
     if (!(musicData.exists())) {
       if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
     }
@@ -99,7 +102,7 @@ public class CustomDiscs extends JavaPlugin {
     registerEvents();
     registerCommands();
 
-    foliaLib.getScheduler().runAsync(task -> checkUpdate());
+    schedulers.async.runNow(task -> startingChecks());
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -109,14 +112,10 @@ public class CustomDiscs extends JavaPlugin {
 
         if (packet.getIntegers().read(0).equals(1010)) {
           Jukebox jukebox = (Jukebox) packet.getBlockPositionModifier().read(0).toLocation(event.getPlayer().getWorld()).getBlock().getState();
-
-          if (!jukebox.getRecord().hasItemMeta()) return;
-
-          if (LegacyUtil.isLocalDisc(jukebox.getRecord()) ||
-              LegacyUtil.isRemoteDisc(jukebox.getRecord())) {
+          if (LavaPlayerManagerImpl.getInstance().isPlaying(jukebox.getBlock())) {
             event.setCancelled(true);
-
-            PhysicsManager.getInstance().start(jukebox);
+            jukebox.stopPlaying();
+            ParticleManager.start(jukebox.getBlock());
           }
         }
       }
@@ -127,7 +126,7 @@ public class CustomDiscs extends JavaPlugin {
   public void onDisable() {
     if (!libsLoaded) return;
     CommandAPI.onDisable();
-    LavaPlayerManager.getInstance().stopPlayingAll();
+    LavaPlayerManagerImpl.getInstance().stopPlayingAll();
 
     cDData.stopAutosave();
     cDData.save();
@@ -137,8 +136,8 @@ public class CustomDiscs extends JavaPlugin {
       CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 
-    scheduler.shutdown();
-    foliaLib.getScheduler().cancelAllTasks();
+    schedulers.async.cancelTasks();
+    schedulers.global.cancelTasks();
   }
 
   private void registerVoicechatHook() {
@@ -153,17 +152,18 @@ public class CustomDiscs extends JavaPlugin {
     }
   }
 
-  private void checkUpdate() {
+  private void startingChecks() {
     String url = "https://modrinth.com/plugin/customdiscs-svc/version/";
 
     try {
-      String version = (String) ((JSONObject)
-          ((JSONArray) new JSONParser().parse(
-              HTTPRequestUtils.getTextResponse(
-                  "https://api.modrinth.com/v2/project/customdiscs-svc/version"
-              )
-          )).getFirst()
-      ).get("version_number");
+      String response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
+
+      String version = com.google.gson.JsonParser.parseString(response)
+          .getAsJsonArray()
+          .get(0)
+          .getAsJsonObject()
+          .get("version_number")
+          .getAsString();
 
       if (!version.equals(getPlugin().getPluginMeta().getVersion())) {
         warn("New version available: {0}{1}", url, version);
@@ -178,7 +178,7 @@ public class CustomDiscs extends JavaPlugin {
           }
         }, this);
       }
-    } catch (Exception ignore) {
+    } catch (Throwable ignore) {
     }
   }
 
@@ -189,8 +189,7 @@ public class CustomDiscs extends JavaPlugin {
   private void registerEvents() {
     getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
     getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
-    if (getCDConfig().isAllowHoppers())
-      getServer().getPluginManager().registerEvents(HopperHandler.getInstance(), this);
+    getServer().getPluginManager().registerEvents(new HopperHandler(), this);
   }
 
   private void linkBStats() {

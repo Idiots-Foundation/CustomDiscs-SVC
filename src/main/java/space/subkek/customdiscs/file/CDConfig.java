@@ -154,7 +154,7 @@ public class CDConfig {
 
   private int musicDiscDistance = 64;
   private float musicDiscVolume = 1f;
-  private boolean allowHoppers = true;
+  private boolean allowHoppers = false;
 
   private void discSettings() {
     musicDiscDistance = getInt("disc.distance", musicDiscDistance,
@@ -162,7 +162,7 @@ public class CDConfig {
     musicDiscVolume = Float.parseFloat(getString("disc.volume", String.valueOf(musicDiscVolume),
         "The master volume of music discs from 0-1.", "You can set values like 0.5 for 50% volume."
     ));
-    allowHoppers = getBoolean("disc.allow-hoppers", allowHoppers);
+    allowHoppers = getBoolean("disc.allow-hoppers", allowHoppers, "Please ensure that in the config/paper-world-defaults.yaml the value hopper.disable-move-event is false");
   }
 
   private boolean youtubeOauth2 = false;

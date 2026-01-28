@@ -46,7 +46,7 @@ public class YamlLanguage {
         File oldLanguageFile = new File(languageFolder.getPath(), Formatter.format(
             "{0}-{1}.backup",
             languageFile.getName(),
-            new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date())
+            new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date())
         ));
         if (oldLanguageFile.exists()) oldLanguageFile.delete();
         Files.copy(languageFile.toPath(), oldLanguageFile.toPath());
@@ -64,10 +64,7 @@ public class YamlLanguage {
         Object newLanguage = language.getMapValues(true).get("language");
 
         if (oldLanguage.equals(newLanguage)) {
-          CustomDiscs.debug("Ich habe es geschafft! Die Variablen sind identisch.");
           oldLanguageFile.delete();
-        } else {
-          CustomDiscs.debug("Nein, das ist nicht gut.");
         }
       }
     } catch (Throwable e) {
