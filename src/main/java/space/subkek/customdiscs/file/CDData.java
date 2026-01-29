@@ -39,7 +39,7 @@ public class CDData {
 
   public void save() {
     jukeboxDistanceMap.forEach((uuid, distance) ->
-        yaml.set("jukebox.distance." + uuid, distance));
+      yaml.set("jukebox.distance." + uuid, distance));
 
     try {
       yaml.save(dataFile);
@@ -51,9 +51,9 @@ public class CDData {
   public void startAutosave() {
     if (autosaveTask != null) throw new IllegalStateException("Autosave data task already exists");
     autosaveTask = CustomDiscs.getPlugin().getSchedulers().async.runAtFixedRate(
-        task -> save(),
-        60, 60,
-        TimeUnit.SECONDS
+      task -> save(),
+      60, 60,
+      TimeUnit.SECONDS
     );
   }
 
@@ -65,7 +65,7 @@ public class CDData {
   public int getJukeboxDistance(Block block) {
     UUID blockUUID = LegacyUtil.getBlockUUID(block);
     return jukeboxDistanceMap.containsKey(blockUUID) ?
-        jukeboxDistanceMap.get(blockUUID) : CustomDiscs.getPlugin().getCDConfig().getMusicDiscDistance();
+      jukeboxDistanceMap.get(blockUUID) : CustomDiscs.getPlugin().getCDConfig().getMusicDiscDistance();
   }
 
   private void loadJukeboxDistances() {

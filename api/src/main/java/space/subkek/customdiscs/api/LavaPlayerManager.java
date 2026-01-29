@@ -25,7 +25,7 @@ public interface LavaPlayerManager {
    * @param block              The block (typically a jukebox) acting as the audio source.
    * @param indetifier         The source identifier (URL, file path, or unique ID) used to load the audio.
    * @param actionbarComponent An optional {@link Component} to display to nearby players
-   * upon successful playback initialization.
+   *                           upon successful playback initialization.
    */
   void play(@NotNull Block block, @NotNull String indetifier, @Nullable Component actionbarComponent);
 

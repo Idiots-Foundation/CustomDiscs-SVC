@@ -1,7 +1,6 @@
 package space.subkek.customdiscs.file;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -16,14 +15,17 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
 @SuppressWarnings("unused")
 public class CDConfig {
   private final YamlFile yaml = new YamlFile();
   private final File configFile;
   private String configVersion;
 
-  public void init() {
+  public CDConfig(File configFile) {
+    this.configFile = configFile;
+  }
+
+  public void load() {
     if (configFile.exists()) {
       try {
         yaml.load(configFile);
@@ -34,8 +36,8 @@ public class CDConfig {
 
     configVersion = getString("info.version", "1.4", "Don't change this value");
     setComment("info",
-        "CustomDiscs Configuration",
-        "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
+      "CustomDiscs Configuration",
+      "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
     debug = getBoolean("global.debug", false);
 
     switch (configVersion) {
@@ -51,8 +53,8 @@ public class CDConfig {
 
     for (Method method : this.getClass().getDeclaredMethods()) {
       if (Modifier.isPrivate(method.getModifiers()) &&
-          method.getReturnType().equals(Void.TYPE) &&
-          method.getName().endsWith("Settings")
+        method.getReturnType().equals(Void.TYPE) &&
+        method.getName().endsWith("Settings")
       ) {
         try {
           method.invoke(this);
@@ -116,12 +118,12 @@ public class CDConfig {
 
   private void globalSettings() {
     locale = getString("global.locale", locale, "Language of the plugin",
-        Formatter.format(
-            """
-                Supported: {0}
-                Unknown languages will be replaced with {1}""",
-            Language.getAllSeparatedComma(), Language.ENGLISH.getLabel()
-        )
+      Formatter.format(
+        """
+          Supported: {0}
+          Unknown languages will be replaced with {1}""",
+        Language.getAllSeparatedComma(), Language.ENGLISH.getLabel()
+      )
     );
     if (!Language.isExists(locale)) locale = Language.ENGLISH.getLabel();
     debug = getBoolean("global.debug", debug);
@@ -138,7 +140,7 @@ public class CDConfig {
 
   private void commandSettings() {
     maxDownloadSize = getInt("command.download.max-size", maxDownloadSize,
-        "The maximum download size in megabytes.");
+      "The maximum download size in megabytes.");
     localCustomModelData = getInt("command.create.local.custom-model", localCustomModelData);
     remoteTabComplete = getStringList("command.create.remote.tabcomplete", remoteTabComplete);
     remoteCustomModelDataYoutube = getInt("command.create.remote.youtube.custom-model", remoteCustomModelDataYoutube);
@@ -148,8 +150,8 @@ public class CDConfig {
     distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
 
     setComment("command.create.remote.tabcomplete", """
-        tabcomplete — Displaying hints when entering remote command
-        filter — Filter for applying custom-model-data to remote disk""");
+      tabcomplete — Displaying hints when entering remote command
+      filter — Filter for applying custom-model-data to remote disk""");
   }
 
   private int musicDiscDistance = 64;
@@ -158,9 +160,9 @@ public class CDConfig {
 
   private void discSettings() {
     musicDiscDistance = getInt("disc.distance", musicDiscDistance,
-        "The distance from which music discs can be heard in blocks.");
+      "The distance from which music discs can be heard in blocks.");
     musicDiscVolume = Float.parseFloat(getString("disc.volume", String.valueOf(musicDiscVolume),
-        "The master volume of music discs from 0-1.", "You can set values like 0.5 for 50% volume."
+      "The master volume of music discs from 0-1.", "You can set values like 0.5 for 50% volume."
     ));
     allowHoppers = getBoolean("disc.allow-hoppers", allowHoppers, "Please ensure that in the config/paper-world-defaults.yaml the value hopper.disable-move-event is false");
   }
@@ -173,36 +175,36 @@ public class CDConfig {
 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
-        This may help if the plugin is not working properly.
-        When you first play the disc after the server starts, you will see an authorization request in the console. Use a secondary account for security purposes.""");
+      This may help if the plugin is not working properly.
+      When you first play the disc after the server starts, you will see an authorization request in the console. Use a secondary account for security purposes.""");
 
     youtubePoToken = getString("providers.youtube.po-token.token", youtubePoToken);
     youtubePoVisitorData = getString("providers.youtube.po-token.visitor-data", youtubePoVisitorData);
 
     setComment("providers.youtube.po-token", """
-        If you have oauth2 enabled, leave these fields blank.
-        This may help if the plugin is not working properly.
-        https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken""");
+      If you have oauth2 enabled, leave these fields blank.
+      This may help if the plugin is not working properly.
+      https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-potoken""");
 
     youtubeRemoteServer = getString("providers.youtube.remote-server.url", youtubeRemoteServer);
     youtubeRemoteServerPassword = getString("providers.youtube.remote-server.password", youtubeRemoteServerPassword);
 
     setComment("providers.youtube.remote-server", """
-        A method for obtaining streaming via a remote server that emulates a web client.
-        Make sure Oauth2 was enabled!
-        https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-remote-cipher-server""");
+      A method for obtaining streaming via a remote server that emulates a web client.
+      Make sure Oauth2 was enabled!
+      https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-remote-cipher-server""");
   }
 
   private void debug(@NotNull String message, Object... format) {
     if (!debug) return;
     CustomDiscs.sendMessage(
-        CustomDiscs.getPlugin().getServer().getConsoleSender(),
-        CustomDiscs.getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "<yellow>[CustomDiscs Debug] {0}",
-                Formatter.format(message, format)
-            )
+      CustomDiscs.getPlugin().getServer().getConsoleSender(),
+      CustomDiscs.getPlugin().getLanguage().deserialize(
+        Formatter.format(
+          "<yellow>[CustomDiscs Debug] {0}",
+          Formatter.format(message, format)
         )
+      )
     );
   }
 
@@ -262,7 +264,7 @@ public class CDConfig {
   }
 
   private void migrateTo1_4() {
-    debug("Config migrating from v1.2 to v1.3");
+    debug("Config migrating from v1.3 to v1.4");
     removeValue("debug");
     setConfigVersion("1.4");
   }

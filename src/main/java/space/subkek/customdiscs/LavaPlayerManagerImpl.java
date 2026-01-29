@@ -4,7 +4,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.event.TrackExceptionEvent;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
@@ -41,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private static LavaPlayerManagerImpl instance;
@@ -49,7 +49,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
   private final Map<UUID, LavaPlayer> playerMap = new ConcurrentHashMap<>();
   private final File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
-  private final ExecutorService eventExecutor = Executors.newSingleThreadExecutor(r -> new Thread(r, "LavaPlayerEventThread"));
+  private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "LavaPlayerExecutorThread"));
 
   public synchronized static LavaPlayerManagerImpl getInstance() {
     if (instance == null) return instance = new LavaPlayerManagerImpl();
@@ -64,26 +64,26 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
   private void registerYoutube() {
     YoutubeSourceOptions options = new YoutubeSourceOptions()
-        .setAllowSearch(false);
+      .setAllowSearch(false);
 
     if (!plugin.getCDConfig().getYoutubeRemoteServer().isBlank()) {
       String pass = plugin.getCDConfig().getYoutubeRemoteServerPassword();
       CustomDiscs.debug("Setting YouTube remote-cipher");
       options.setRemoteCipher(
-          plugin.getCDConfig().getYoutubeRemoteServer(),
-          pass.isBlank() ? null : pass,
-          null
+        plugin.getCDConfig().getYoutubeRemoteServer(),
+        pass.isBlank() ? null : pass,
+        null
       );
     }
 
     YoutubeAudioSourceManager source = getYoutubeAudioSourceManager(options);
 
     if (!plugin.getCDConfig().getYoutubePoToken().isBlank() &&
-        !plugin.getCDConfig().getYoutubePoVisitorData().isBlank()) {
+      !plugin.getCDConfig().getYoutubePoVisitorData().isBlank()) {
 
       Web.setPoTokenAndVisitorData(
-          plugin.getCDConfig().getYoutubePoToken(),
-          plugin.getCDConfig().getYoutubePoVisitorData()
+        plugin.getCDConfig().getYoutubePoToken(),
+        plugin.getCDConfig().getYoutubePoVisitorData()
       );
 
     } else if (plugin.getCDConfig().isYoutubeOauth2()) {
@@ -111,8 +111,8 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
   private static YoutubeAudioSourceManager getYoutubeAudioSourceManager(YoutubeSourceOptions options) {
     Client[] clients = {
-        new TvHtml5Embedded(),
-        new Web()
+      new TvHtml5Embedded(),
+      new Web()
     };
 
     return new YoutubeAudioSourceManager(options, clients);
@@ -142,10 +142,11 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
   private void listenForTokenChange(YoutubeAudioSourceManager source) {
     final String currentToken = source.getOauth2RefreshToken() != null
-        ? source.getOauth2RefreshToken()
-        : "null";
+      ? source.getOauth2RefreshToken()
+      : "null";
 
-    CustomDiscs.getPlugin().getSchedulers().async.runAtFixedRate(task -> {
+    AtomicReference<ScheduledFuture<?>> futureRef = new AtomicReference<>();
+    ScheduledFuture<?> future = executor.scheduleAtFixedRate(() -> {
       CustomDiscs.debug("Trying to handle token change.");
 
       String newToken = source.getOauth2RefreshToken();
@@ -153,8 +154,9 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       if (currentToken.equals(newToken)) return;
 
       save();
-      task.cancel();
+      futureRef.get().cancel(false);
     }, 4, 4, TimeUnit.SECONDS);
+    futureRef.set(future);
   }
 
   @Override
@@ -165,31 +167,31 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
     VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
     Position audioPosition = api.createPosition(
-        block.getLocation().getX() + 0.5d,
-        block.getLocation().getY() + 0.5d,
-        block.getLocation().getZ() + 0.5d
+      block.getLocation().getX() + 0.5d,
+      block.getLocation().getY() + 0.5d,
+      block.getLocation().getZ() + 0.5d
     );
     LocationalAudioChannel audioChannel = api.createLocationalAudioChannel(
-        UUID.randomUUID(),
-        api.fromServerLevel(block.getWorld()),
-        audioPosition
+      UUID.randomUUID(),
+      api.fromServerLevel(block.getWorld()),
+      audioPosition
     );
     if (audioChannel == null) return;
     audioChannel.setCategory(CDVoiceAddon.MUSIC_DISC_CATEGORY);
     audioChannel.setDistance(plugin.getCDData().getJukeboxDistance(block));
 
     Collection<ServerPlayer> players = api.getPlayersInRange(
-        api.fromServerLevel(block.getWorld()),
-        audioPosition,
-        plugin.getCDData().getJukeboxDistance(block)
+      api.fromServerLevel(block.getWorld()),
+      audioPosition,
+      plugin.getCDData().getJukeboxDistance(block)
     );
 
     LavaPlayer lavaPlayer = new LavaPlayer(
-        block,
-        identifier,
-        audioChannel,
-        uuid,
-        players
+      block,
+      identifier,
+      audioChannel,
+      uuid,
+      players
     );
     playerMap.put(uuid, lavaPlayer);
 
@@ -215,7 +217,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       CustomDiscs.debug("Stopping LavaPlayer: {0}", uuid);
 
       CompletableFuture<Void> eventFuture = new CompletableFuture<>();
-      eventExecutor.execute(() -> {
+      executor.execute(() -> {
         try {
           CustomDiscStopPlayingEvent event = new CustomDiscStopPlayingEvent(lavaPlayer.block, lavaPlayer.identifier);
           plugin.getServer().getPluginManager().callEvent(event);

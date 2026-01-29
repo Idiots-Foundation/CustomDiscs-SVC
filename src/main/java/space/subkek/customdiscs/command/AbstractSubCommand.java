@@ -20,7 +20,7 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
     T value;
     if ((value = arguments.getByClass(nodeName, argumentType)) == null)
       throw new IllegalArgumentException(Formatter.format(
-          "Couldn't find argument {0} with name", nodeName
+        "Couldn't find argument {0} with name", nodeName
       ));
     return value;
   }

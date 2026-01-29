@@ -1,10 +1,14 @@
 # Custom discs for SVC Addon
 
 ## Special thanks
+
 [Navoei CustomDiscs](https://github.com/Navoei/CustomDiscs) | [henkelmax AudioPlayer](https://github.com/henkelmax/audio-player) | [sedmelluq lavaplayer](https://github.com/sedmelluq/lavaplayer)
 
-Create music discs using mp3, wav and flac files, and play audio from YouTube. Enhance and create a unique atmosphere in your game world.
+Create music discs using mp3, wav and flac files, and play audio from YouTube. Enhance and create a unique atmosphere in
+your game world.
+
 ## Configuration
+
 ```yaml
 # CustomDiscs Configuration
 # Join our Discord for support: https://discord.gg/eRvwvmEXWz
@@ -66,7 +70,9 @@ providers:
       url: ''
       password: ''
 ```
+
 ## Commands
+
 ```
 /cd help: Shows command help
 /cd reload: Reloads configuration files.

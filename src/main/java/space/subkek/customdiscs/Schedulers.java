@@ -5,7 +5,6 @@ import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.RegionScheduler;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -28,6 +27,7 @@ public class Schedulers {
 
   public class Async {
     private final AsyncScheduler original;
+
     private Async(AsyncScheduler original) {
       this.original = original;
     }
@@ -47,6 +47,7 @@ public class Schedulers {
 
   public class Global {
     private final GlobalRegionScheduler original;
+
     private Global(GlobalRegionScheduler original) {
       this.original = original;
     }
@@ -58,6 +59,7 @@ public class Schedulers {
 
   public class Region {
     private final RegionScheduler original;
+
     private Region(RegionScheduler original) {
       this.original = original;
     }

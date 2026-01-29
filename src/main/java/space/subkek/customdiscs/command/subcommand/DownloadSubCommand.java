@@ -61,7 +61,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
         }
 
         if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") &&
-            !getFileExtension(filename).equals("flac")) {
+          !getFileExtension(filename).equals("flac")) {
           CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.unknown-extension"));
           return;
         }
@@ -76,7 +76,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
           long size = connection.getContentLengthLong() / 1048576;
           if (size > plugin.getCDConfig().getMaxDownloadSize()) {
             CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.error.file-too-large",
-                String.valueOf(plugin.getCDConfig().getMaxDownloadSize())));
+              String.valueOf(plugin.getCDConfig().getMaxDownloadSize())));
             return;
           }
         }
@@ -85,7 +85,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
 
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.successfully"));
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.create-tooltip",
-            plugin.getLanguage().string("command.create.syntax")));
+          plugin.getLanguage().string("command.create.syntax")));
       } catch (Throwable e) {
         CustomDiscs.error("Error while download music: ", e);
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.error.while-download"));

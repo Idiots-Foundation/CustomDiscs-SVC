@@ -25,6 +25,7 @@ import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
 import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
 import space.subkek.customdiscs.api.event.CustomDiscStopPlayingEvent;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,27 +41,27 @@ public class Main extends JavaPlugin implements Listener {
     getServer().getPluginManager().registerEvents(this, this);
 
     LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("cdapitest")
-        .requires(ctx -> ctx.getSender() instanceof Player)
-        .then(Commands.literal("playlast").executes(ctx -> {
-          Player player = (Player) ctx.getSource().getSender();
+      .requires(ctx -> ctx.getSender() instanceof Player)
+      .then(Commands.literal("playlast").executes(ctx -> {
+        Player player = (Player) ctx.getSource().getSender();
 
-          if (lastIdentifier == null) {
-            player.sendPlainMessage("No played discs before");
-            return Command.SINGLE_SUCCESS;
-          }
-          player.sendPlainMessage(String.format("Starting last LavaPlayer at %s", player.getLocation()));
-          api.getLavaPlayerManager().play(player.getLocation().getBlock(), lastIdentifier, MINIMESSAGE.deserialize("LAST IDENTIFIER"));
-
+        if (lastIdentifier == null) {
+          player.sendPlainMessage("No played discs before");
           return Command.SINGLE_SUCCESS;
-        }))
-        .then(Commands.literal("stopall").executes(ctx -> {
-          CommandSender sender = ctx.getSource().getSender();
+        }
+        player.sendPlainMessage(String.format("Starting last LavaPlayer at %s", player.getLocation()));
+        api.getLavaPlayerManager().play(player.getLocation().getBlock(), lastIdentifier, MINIMESSAGE.deserialize("LAST IDENTIFIER"));
 
-          sender.sendPlainMessage("Stopping all LavaPlayers on the server");
-          api.getLavaPlayerManager().stopPlayingAll();
+        return Command.SINGLE_SUCCESS;
+      }))
+      .then(Commands.literal("stopall").executes(ctx -> {
+        CommandSender sender = ctx.getSource().getSender();
 
-          return Command.SINGLE_SUCCESS;
-        }));
+        sender.sendPlainMessage("Stopping all LavaPlayers on the server");
+        api.getLavaPlayerManager().stopPlayingAll();
+
+        return Command.SINGLE_SUCCESS;
+      }));
 
     this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(root.build()));
   }
@@ -104,7 +105,9 @@ public class Main extends JavaPlugin implements Listener {
     broadcast(String.format("<yellow>Disc %s ejected by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 
+  // Example of 24/7 lobby music in every world
   private final Set<Chunk> chunks = ConcurrentHashMap.newKeySet();
+
   @EventHandler
   public void worldLoadEvent(ChunkLoadEvent event) {
     //noinspection PointlessBooleanExpression
@@ -115,12 +118,15 @@ public class Main extends JavaPlugin implements Listener {
     World world = event.getWorld();
     LavaPlayerManager lpm = api.getLavaPlayerManager();
 
+    File musicFile = new File("plugins/CustomDiscs/musicdata/", "lp.mp3");
+    if (!musicFile.exists()) return;
+
     if (chunks.add(event.getChunk())) {
       getServer().getRegionScheduler().runAtFixedRate(this, world, 0, 0, task -> {
         Block block = world.getBlockAt(0, 64, 0);
 
         if (!lpm.isPlaying(block))
-          api.getLavaPlayerManager().play(block, "plugins/CustomDiscs/musicdata/lp.mp3", MINIMESSAGE.deserialize("<gold>LP3she4ka for you"));
+          api.getLavaPlayerManager().play(block, musicFile.getPath(), MINIMESSAGE.deserialize("<gold>LP3she4ka for you"));
       }, 20, 20);
     }
   }

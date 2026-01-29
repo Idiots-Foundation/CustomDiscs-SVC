@@ -35,7 +35,7 @@ public class PlayerHandler implements Listener {
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) {
       CustomDiscs.sendMessage(event.getPlayer(),
-          plugin.getLanguage().PComponent("command.distance.messages.error.not-jukebox"));
+        plugin.getLanguage().PComponent("command.distance.messages.error.not-jukebox"));
       playersSelecting.remove(playerUUID);
       return;
     }

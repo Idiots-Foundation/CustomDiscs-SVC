@@ -41,10 +41,10 @@ public class CDVoiceAddon implements VoicechatPlugin {
   public void registerEvents(EventRegistration registration) {
     registration.registerEvent(VoicechatServerStartedEvent.class, event -> {
       musicDiscsCategory = voicechatApi.volumeCategoryBuilder()
-          .setId(MUSIC_DISC_CATEGORY)
-          .setName("Music Discs")
-          .setIcon(getMusicDiscIcon())
-          .build();
+        .setId(MUSIC_DISC_CATEGORY)
+        .setName("Music Discs")
+        .setIcon(getMusicDiscIcon())
+        .build();
       voicechatApi.registerVolumeCategory(musicDiscsCategory);
     });
   }

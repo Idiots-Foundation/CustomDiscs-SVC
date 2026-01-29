@@ -40,7 +40,7 @@ public class CustomDiscsCommand extends CommandAPICommand {
 
     if (subCommand == null)
       throw new IllegalArgumentException(Formatter.format(
-          "Command with name {0} doesn't exists!", "help"
+        "Command with name {0} doesn't exists!", "help"
       ));
 
     return subCommand;

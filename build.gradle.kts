@@ -15,8 +15,7 @@ allprojects {
     version = properties["plugin_version"]!!
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
         disableAutoTargetJvm()
     }
 }
@@ -34,7 +33,6 @@ dependencies {
     implementation(libs.lavaplayer.youtube)
 
     implementation(libs.commons.io)
-    implementation(libs.snakeyaml)
     implementation(libs.simple.yaml)
 
     compileOnly(libs.lombok)
@@ -144,7 +142,8 @@ tasks.processResources {
 
     catalog.libraryAliases.forEach { alias ->
         val lib = catalog.findLibrary(alias).get().get()
-        val coords = "${lib.module.group}:${lib.module.name}:${lib.versionConstraint.requiredVersion}"
+        val coords =
+            "${lib.module.group}:${lib.module.name}:${lib.versionConstraint.requiredVersion}"
 
         props[alias.replace(".", "_")] = coords
     }

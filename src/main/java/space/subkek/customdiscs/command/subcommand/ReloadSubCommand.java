@@ -39,8 +39,8 @@ public class ReloadSubCommand extends AbstractSubCommand {
       return;
     }
 
-    plugin.getCDConfig().init();
-    plugin.getLanguage().init();
+    plugin.getCDConfig().load();
+    plugin.getLanguage().load();
     CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.reload.messages.successfully"));
   }
 }

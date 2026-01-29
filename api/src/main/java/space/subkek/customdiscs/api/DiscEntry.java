@@ -24,7 +24,7 @@ public class DiscEntry {
    * @param name       The display name of the track (e.g., used for action bars or tooltips).
    * @param identifier The source identifier (URL, file path, or unique ID) used to load the audio.
    * @param local      {@code true} if the source is stored on the local filesystem,
-   * {@code false} if it is a remote resource.
+   *                   {@code false} if it is a remote resource.
    */
   public DiscEntry(ItemStack disc, Component name, String identifier, boolean local) {
     this.disc = disc;

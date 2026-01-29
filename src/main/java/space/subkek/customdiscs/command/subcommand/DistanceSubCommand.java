@@ -18,7 +18,7 @@ public class DistanceSubCommand extends AbstractSubCommand {
     this.withUsage(getSyntax());
 
     this.withArguments(new IntegerArgument("radius", 0,
-        plugin.getCDConfig().getDistanceCommandMaxDistance()));
+      plugin.getCDConfig().getDistanceCommandMaxDistance()));
 
     this.executesPlayer(this::executePlayer);
     this.executes(this::execute);
@@ -47,7 +47,7 @@ public class DistanceSubCommand extends AbstractSubCommand {
     }
 
     PlayerHandler.getInstance().getPlayersSelecting().put(player.getUniqueId(),
-        getArgumentValue(arguments, "radius", Integer.class));
+      getArgumentValue(arguments, "radius", Integer.class));
 
     CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.distance.messages.click"));
   }

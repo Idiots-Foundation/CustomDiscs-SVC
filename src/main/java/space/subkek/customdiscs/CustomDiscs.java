@@ -49,10 +49,10 @@ public class CustomDiscs extends JavaPlugin {
   private final File musicData = new File(this.getDataFolder(), "musicdata");
   @Getter
   private final CDConfig cDConfig = new CDConfig(
-      new File(getDataFolder(), "config.yml"));
+    new File(getDataFolder(), "config.yml"));
   @Getter
   private final CDData cDData = new CDData(
-      new File(getDataFolder(), "data.yml"));
+    new File(getDataFolder(), "data.yml"));
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
   private boolean libsLoaded = false;
@@ -66,10 +66,10 @@ public class CustomDiscs extends JavaPlugin {
   @Override
   public void onLoad() {
     getServer().getServicesManager().register(
-        CustomDiscsAPI.class,
-        new CustomDiscsAPIImpl(),
-        this,
-        ServicePriority.Normal
+      CustomDiscsAPI.class,
+      new CustomDiscsAPIImpl(),
+      this,
+      ServicePriority.Normal
     );
   }
 
@@ -86,8 +86,8 @@ public class CustomDiscs extends JavaPlugin {
 
     if (getDataFolder().mkdir()) getSLF4JLogger().info("Created plugin data folder");
 
-    cDConfig.init();
-    language.init();
+    cDConfig.load();
+    language.load();
     cDData.load();
     cDData.startAutosave();
 
@@ -159,11 +159,11 @@ public class CustomDiscs extends JavaPlugin {
       String response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
 
       String version = JsonParser.parseString(response)
-          .getAsJsonArray()
-          .get(0)
-          .getAsJsonObject()
-          .get("version_number")
-          .getAsString();
+        .getAsJsonArray()
+        .get(0)
+        .getAsJsonObject()
+        .get("version_number")
+        .getAsString();
 
       if (!version.equals(getPlugin().getPluginMeta().getVersion())) {
         warn("New version available: {0}{1}", url, version);
@@ -210,27 +210,27 @@ public class CustomDiscs extends JavaPlugin {
   public static void debug(@NotNull String message, Object... format) {
     if (!getPlugin().getCDConfig().isDebug()) return;
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}",
-                getPlugin().getLanguage().string("prefix.debug"),
-                Formatter.format(message, format)
-            )
+      getPlugin().getServer().getConsoleSender(),
+      getPlugin().getLanguage().deserialize(
+        Formatter.format(
+          "{0}{1}",
+          getPlugin().getLanguage().string("prefix.debug"),
+          Formatter.format(message, format)
         )
+      )
     );
   }
 
   public static void info(@NotNull String message, Object... format) {
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}",
-                getPlugin().getLanguage().string("prefix.info"),
-                Formatter.format(message, format)
-            )
+      getPlugin().getServer().getConsoleSender(),
+      getPlugin().getLanguage().deserialize(
+        Formatter.format(
+          "{0}{1}",
+          getPlugin().getLanguage().string("prefix.info"),
+          Formatter.format(message, format)
         )
+      )
     );
   }
 
@@ -249,15 +249,15 @@ public class CustomDiscs extends JavaPlugin {
 
   public static void warn(@NotNull String message, @Nullable Throwable e, Object... format) {
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}{2}",
-                getPlugin().getLanguage().string("prefix.warn"),
-                Formatter.format(message, format),
-                getStackTraceString(e)
-            )
+      getPlugin().getServer().getConsoleSender(),
+      getPlugin().getLanguage().deserialize(
+        Formatter.format(
+          "{0}{1}{2}",
+          getPlugin().getLanguage().string("prefix.warn"),
+          Formatter.format(message, format),
+          getStackTraceString(e)
         )
+      )
     );
   }
 
@@ -267,15 +267,15 @@ public class CustomDiscs extends JavaPlugin {
 
   public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
     sendMessage(
-        getPlugin().getServer().getConsoleSender(),
-        getPlugin().getLanguage().deserialize(
-            Formatter.format(
-                "{0}{1}{2}",
-                getPlugin().getLanguage().string("prefix.error"),
-                Formatter.format(message, format),
-                getStackTraceString(e)
-            )
+      getPlugin().getServer().getConsoleSender(),
+      getPlugin().getLanguage().deserialize(
+        Formatter.format(
+          "{0}{1}{2}",
+          getPlugin().getLanguage().string("prefix.error"),
+          Formatter.format(message, format),
+          getStackTraceString(e)
         )
+      )
     );
   }
 

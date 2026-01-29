@@ -12,7 +12,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.Keys;
-import space.subkek.customdiscs.LavaPlayerManagerImpl;
 import space.subkek.customdiscs.api.DiscEntry;
 
 import java.io.File;
@@ -27,12 +26,12 @@ public class LegacyUtil {
 
   private static boolean isLocalDisc(@NotNull ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
-        .has(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
+      .has(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
   }
 
   private static boolean isRemoteDisc(@NotNull ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
-        .has(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType());
+      .has(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType());
   }
 
   public static boolean isCustomDisc(@NotNull ItemStack item) {
@@ -71,10 +70,10 @@ public class LegacyUtil {
       return true;
     }
 
-    Keys.Key<String>[] legacyRemoteKeys = new Keys.Key[] {
-        Keys.LEGACY_REMOTE_DISC,
-        Keys.LEGACY_YOUTUBE_DISC,
-        Keys.LEGACY_SOUNDCLOUD_DISC
+    Keys.Key<String>[] legacyRemoteKeys = new Keys.Key[]{
+      Keys.LEGACY_REMOTE_DISC,
+      Keys.LEGACY_YOUTUBE_DISC,
+      Keys.LEGACY_SOUNDCLOUD_DISC
     };
 
     for (Keys.Key<String> key : legacyRemoteKeys) {

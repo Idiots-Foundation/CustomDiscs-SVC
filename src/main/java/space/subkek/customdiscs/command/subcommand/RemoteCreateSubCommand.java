@@ -30,9 +30,9 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
     this.withUsage(getSyntax());
 
     this.withArguments(new TextArgument("url")
-        .replaceSuggestions(quotedArgument(plugin.getCDConfig().getRemoteTabComplete())));
+      .replaceSuggestions(quotedArgument(plugin.getCDConfig().getRemoteTabComplete())));
     this.withArguments(new TextArgument("song_name")
-        .replaceSuggestions(quotedArgument(null)));
+      .replaceSuggestions(quotedArgument(null)));
     this.executesPlayer(this::executePlayer);
     this.executes(this::execute);
   }
@@ -79,11 +79,11 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.displayName(plugin.getLanguage().component("disc-name." + service.getId())
-        .decoration(TextDecoration.ITALIC, false));
+      .decoration(TextDecoration.ITALIC, false));
 
     final Component customLoreSong = Component.text(customName)
-        .decoration(TextDecoration.ITALIC, false)
-        .color(NamedTextColor.GRAY);
+      .decoration(TextDecoration.ITALIC, false)
+      .color(NamedTextColor.GRAY);
 
     meta.addItemFlags(ItemFlag.values());
     meta.lore(List.of(customLoreSong));

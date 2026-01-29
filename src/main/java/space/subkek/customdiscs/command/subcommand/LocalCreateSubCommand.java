@@ -109,11 +109,11 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.displayName(plugin.getLanguage().component("disc-name.simple")
-        .decoration(TextDecoration.ITALIC, false));
+      .decoration(TextDecoration.ITALIC, false));
 
     final Component customLoreSong = Component.text(customName)
-        .decoration(TextDecoration.ITALIC, false)
-        .color(NamedTextColor.GRAY);
+      .decoration(TextDecoration.ITALIC, false)
+      .color(NamedTextColor.GRAY);
 
     meta.addItemFlags(ItemFlag.values());
     meta.lore(List.of(customLoreSong));

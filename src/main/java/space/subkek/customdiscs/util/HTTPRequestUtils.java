@@ -21,7 +21,7 @@ public class HTTPRequestUtils {
 
       String delimiter = joinLines ? "" : "\n";
       try (BufferedReader reader = new BufferedReader(
-          new InputStreamReader(connection.getInputStream()))) {
+        new InputStreamReader(connection.getInputStream()))) {
         return reader.lines().collect(Collectors.joining(delimiter));
       }
     } catch (IOException e) {

@@ -5,8 +5,6 @@ import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.LavaPlayerManagerImpl;
 import space.subkek.customdiscs.api.DiscEntry;
 
-import java.io.File;
-
 public class PlayUtil {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
 

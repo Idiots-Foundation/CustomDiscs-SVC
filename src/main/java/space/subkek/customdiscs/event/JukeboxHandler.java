@@ -15,8 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.LavaPlayerManagerImpl;
 import space.subkek.customdiscs.api.DiscEntry;
-import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
 import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
+import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
 import space.subkek.customdiscs.util.LegacyUtil;
 import space.subkek.customdiscs.util.PlayUtil;
 
