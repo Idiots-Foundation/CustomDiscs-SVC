@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.simpleyaml.configuration.file.YamlFile;
 import space.subkek.customdiscs.CustomDiscs;
-import space.subkek.customdiscs.util.Formatter;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,14 +74,17 @@ public class YamlLanguage {
 
   private void saveResourceSafely(String resourcePath, File outFile) throws IOException {
     try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
-      if (in == null) throw new IOException("Resource not found: " + resourcePath);
+      if (in == null) throw new IOException("Resource not found: %s".formatted(resourcePath));
       Files.copy(in, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
   }
 
   private String getFormattedString(String key, Object... replace) {
-    return Formatter.format(language.getString(
-      Formatter.format("language.{0}", key), Formatter.format("<{0}>", key)), replace);
+    String result = language.getString("language.%s".formatted(key), "<%s>".formatted(key));
+    for (int i = 0; i < replace.length; i++) {
+      result = result.replace("{%d}".formatted(i), (String) replace[i]);
+    }
+    return result;
   }
 
   public Component component(String key, Object... replace) {
@@ -99,16 +101,12 @@ public class YamlLanguage {
     return MINIMESSAGE.deserialize(string("prefix.normal") + getFormattedString(key, replace));
   }
 
-  public Component deserialize(String message, Object... replace) {
-    return MINIMESSAGE.deserialize(Formatter.format(message, replace));
-  }
-
   public String string(String key, Object... replace) {
     return getFormattedString(key, replace);
   }
 
   public boolean languageExists(String label) {
-    InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(Formatter.format("language{0}{1}.yml", File.separator, label));
+    InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("language/%s.yml".formatted(label));
     return !Objects.isNull(inputStream);
   }
 }

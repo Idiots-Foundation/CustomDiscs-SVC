@@ -29,6 +29,6 @@ public enum RemoteServices {
     if (CustomDiscs.getPlugin().getCDConfig().getRemoteFilterSoundcloud().stream().anyMatch(url::contains))
       return SOUNDCLOUD;
 
-    throw new IllegalArgumentException("Unknown remote service for URL: " + url);
+    throw new IllegalArgumentException("Unknown remote service for URL: %s".formatted(url));
   }
 }

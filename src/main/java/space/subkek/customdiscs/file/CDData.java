@@ -39,7 +39,7 @@ public class CDData {
 
   public void save() {
     jukeboxDistanceMap.forEach((uuid, distance) ->
-      yaml.set("jukebox.distance." + uuid, distance));
+      yaml.set("jukebox.distance.%s".formatted(uuid), distance));
 
     try {
       yaml.save(dataFile);

@@ -5,7 +5,6 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import space.subkek.customdiscs.command.subcommand.*;
-import space.subkek.customdiscs.util.Formatter;
 
 public class CustomDiscsCommand extends CommandAPICommand {
   public CustomDiscsCommand() {
@@ -24,11 +23,11 @@ public class CustomDiscsCommand extends CommandAPICommand {
   }
 
   public void execute(CommandSender sender, CommandArguments arguments) {
-    findSubCommand().execute(sender, arguments);
+    findHelpCommand().execute(sender, arguments);
   }
 
   @NotNull
-  private AbstractSubCommand findSubCommand() {
+  private AbstractSubCommand findHelpCommand() {
     AbstractSubCommand subCommand = null;
 
     for (CommandAPICommand caSubCommand : getSubcommands()) {
@@ -39,9 +38,7 @@ public class CustomDiscsCommand extends CommandAPICommand {
     }
 
     if (subCommand == null)
-      throw new IllegalArgumentException(Formatter.format(
-        "Command with name {0} doesn't exists!", "help"
-      ));
+      throw new IllegalStateException("Command help doesn't exists");
 
     return subCommand;
   }

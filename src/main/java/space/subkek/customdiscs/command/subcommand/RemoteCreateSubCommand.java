@@ -49,7 +49,7 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
 
   @Override
   public boolean hasPermission(CommandSender sender, RemoteServices service) {
-    return sender.hasPermission("customdiscs.create.remote." + service.getId());
+    return sender.hasPermission("customdiscs.create.remote.%s".formatted(service.getId()));
   }
 
   @Override
@@ -78,7 +78,7 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
 
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
-    meta.displayName(plugin.getLanguage().component("disc-name." + service.getId())
+    meta.displayName(plugin.getLanguage().component("disc-name.%s".formatted(service.getId()))
       .decoration(TextDecoration.ITALIC, false));
 
     final Component customLoreSong = Component.text(customName)

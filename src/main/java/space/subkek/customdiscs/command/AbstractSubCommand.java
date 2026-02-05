@@ -6,7 +6,6 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-import space.subkek.customdiscs.util.Formatter;
 import space.subkek.customdiscs.util.RemoteServices;
 
 import java.util.List;
@@ -19,9 +18,7 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
   protected <T> T getArgumentValue(CommandArguments arguments, String nodeName, Class<T> argumentType) {
     T value;
     if ((value = arguments.getByClass(nodeName, argumentType)) == null)
-      throw new IllegalArgumentException(Formatter.format(
-        "Couldn't find argument {0} with name", nodeName
-      ));
+      throw new IllegalArgumentException("Couldn't find argument %s".formatted(nodeName));
     return value;
   }
 
@@ -31,11 +28,17 @@ public abstract class AbstractSubCommand extends CommandAPICommand {
 
       if (arg.isEmpty()) return List.of("\"");
 
-      if (suggestions != null && arg.equals("\""))
-        return suggestions.stream().map(s -> "\"" + s + "\"").toList();
+      if (suggestions != null && arg.equals("\"")) {
+        String query = arg.substring(1).toLowerCase();
+
+        return suggestions.stream()
+          .filter(s -> s.toLowerCase().startsWith(query))
+          .map("\"%s\""::formatted)
+          .toList();
+      }
 
       if (arg.startsWith("\"") && !arg.endsWith("\""))
-        return List.of(arg + "\"");
+        return List.of("%s\"".formatted(arg));
 
       return List.of();
     });
