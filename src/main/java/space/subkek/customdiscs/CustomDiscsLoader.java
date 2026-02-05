@@ -43,26 +43,26 @@ public class CustomDiscsLoader implements PluginLoader {
 
     Gson gson = new Gson();
     try (InputStream is = getClass().getResourceAsStream(RESOURCE_NAME)) {
-      if (is == null) throw new FileNotFoundException(String.format("Resource not found: %s", RESOURCE_NAME));
+      if (is == null) throw new FileNotFoundException("Resource not found: %s".formatted(RESOURCE_NAME));
 
       try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
         Type type = new TypeToken<Map<String, List<String>>>() {
         }.getType();
         Map<String, List<String>> data = gson.fromJson(isr, type);
 
-        if (data == null) throw new RuntimeException(String.format("%s is empty", RESOURCE_NAME));
+        if (data == null) throw new RuntimeException("%s is empty".formatted(RESOURCE_NAME));
 
         List<String> repositories = data.get("repositories");
         List<String> dependencies = data.get("dependencies");
 
         if (repositories == null || dependencies == null) {
-          throw new RuntimeException(String.format("Missing 'repositories' or 'dependencies' section in %s!", RESOURCE_NAME));
+          throw new RuntimeException("Missing 'repositories' or 'dependencies' section in %s!".formatted(RESOURCE_NAME));
         }
 
         MavenLibraryResolver resolver = new MavenLibraryResolver();
         repositories.forEach(url -> {
           String finalURL = url.equals(MAVEN_CENTRAL) ? getDefaultMavenCentralMirror() : url;
-          String repoID = String.format("repo-%d", Math.abs(finalURL.hashCode()));
+          String repoID = "repo-%d".formatted(Math.abs(finalURL.hashCode()));
 
           resolver.addRepository(new RemoteRepository.Builder(repoID, "default", finalURL).build());
         });
@@ -71,7 +71,7 @@ public class CustomDiscsLoader implements PluginLoader {
         System.setProperty("customdiscs.loader.success", "true");
       }
     } catch (IOException e) {
-      throw new RuntimeException(String.format("Failed to process %s", RESOURCE_NAME), e);
+      throw new RuntimeException("Failed to process %s".formatted(RESOURCE_NAME), e);
     }
   }
 }

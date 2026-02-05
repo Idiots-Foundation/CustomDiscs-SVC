@@ -5,7 +5,6 @@ import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.language.Language;
-import space.subkek.customdiscs.util.Formatter;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,11 +116,9 @@ public class CDConfig {
 
   private void globalSettings() {
     locale = getString("global.locale", locale, "Language of the plugin",
-      Formatter.format(
-        """
-          Supported: {0}
-          Unknown languages will be replaced with {1}""",
-        Language.getAllSeparatedComma(), Language.ENGLISH.getLabel()
+      """
+        Supported: %s
+        Unknown languages will be replaced with %s""".formatted(Language.getAllSeparatedComma(), Language.ENGLISH.getLabel()
       )
     );
     if (!Language.isExists(locale)) locale = Language.ENGLISH.getLabel();

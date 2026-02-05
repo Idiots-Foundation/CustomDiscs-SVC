@@ -27,11 +27,11 @@ public class YamlLanguage {
     try {
       Path langDir = plugin.getDataFolder().toPath().resolve("language");
       Files.createDirectories(langDir);
-      File langFile = langDir.resolve(String.format("%s.yml", locale)).toFile();
+      File langFile = langDir.resolve("%s.yml".formatted(locale)).toFile();
       boolean isNew = !langFile.exists();
 
       if (isNew) {
-        String resourcePath = String.format("language/%s.yml", languageExists(locale) ? locale : Language.ENGLISH.getLabel());
+        String resourcePath = "language/%s.yml".formatted(languageExists(locale) ? locale : Language.ENGLISH.getLabel());
         saveResourceSafely(resourcePath, langFile);
       }
 
@@ -52,7 +52,7 @@ public class YamlLanguage {
   }
 
   private void handleUpdate(Path directory, File file, String locale, String version) throws IOException {
-    String resourcePath = String.format("language/%s.yml", locale);
+    String resourcePath = "language/%s.yml".formatted(locale);
 
     YamlFile nextLang = new YamlFile();
     nextLang.load(() -> getClass().getClassLoader().getResourceAsStream(resourcePath));
@@ -62,7 +62,7 @@ public class YamlLanguage {
 
     if (!Objects.equals(oldContent, newContent)) {
       String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
-      Path backupPath = directory.resolve(String.format("%s-%s.backup", file.getName(), timestamp));
+      Path backupPath = directory.resolve("%s-%s.backup".formatted(file.getName(), timestamp));
       Files.copy(file.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING);
 
       saveResourceSafely(resourcePath, file);

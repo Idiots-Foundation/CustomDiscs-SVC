@@ -51,7 +51,7 @@ public class Main extends JavaPlugin implements Listener {
           player.sendPlainMessage("No played discs before");
           return Command.SINGLE_SUCCESS;
         }
-        player.sendPlainMessage(String.format("Starting last LavaPlayer at %s", player.getLocation()));
+        player.sendPlainMessage("Starting last LavaPlayer at %s".formatted(player.getLocation()));
         api.getLavaPlayerManager().play(player.getLocation().getBlock(), lastIdentifier, MINIMESSAGE.deserialize("LAST IDENTIFIER"));
 
         return Command.SINGLE_SUCCESS;
@@ -87,7 +87,7 @@ public class Main extends JavaPlugin implements Listener {
 
   @EventHandler
   public void discStopped(LavaPlayerStopPlayingEvent event) {
-    broadcast(String.format("<red>Disc stopped at %s, jukebox destroyed: %b", event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
+    broadcast("<red>Disc stopped at %s.formatted(jukebox destroyed: %b".formatted(event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
     Collection<ServerPlayer> sps = api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock());
     if (sps == null) {
       broadcast("<red>WTF!? Players is null");
@@ -104,14 +104,14 @@ public class Main extends JavaPlugin implements Listener {
     Player player = event.getPlayer();
     String inserter = player != null ? player.getName() : "Hopper or Dropper";
     lastIdentifier = event.getDiscEntry().getIdentifier();
-    broadcast(String.format("<green>Disc %s inserted by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
+    broadcast("<green>Disc %s inserted by %s at %s".formatted(PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 
   @EventHandler
   public void discEjected(CustomDiscEjectEvent event) {
     Player player = event.getPlayer();
     String inserter = player != null ? player.getName() : "Hopper";
-    broadcast(String.format("<yellow>Disc %s ejected by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
+    broadcast("<yellow>Disc %s ejected by %s at %s".formatted(PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 
   private void registerStutterHandler() {
