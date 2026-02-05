@@ -29,7 +29,7 @@ public class CDVoiceAddon implements VoicechatPlugin {
 
   @Override
   public String getPluginId() {
-    return CustomDiscs.PLUGIN_ID;
+    return CustomDiscs.getPlugin().getName().toLowerCase();
   }
 
   @Override

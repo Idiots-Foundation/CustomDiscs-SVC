@@ -25,6 +25,8 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.command.CustomDiscsCommand;
 import space.subkek.customdiscs.event.HopperHandler;
@@ -33,15 +35,13 @@ import space.subkek.customdiscs.event.PlayerHandler;
 import space.subkek.customdiscs.file.CDConfig;
 import space.subkek.customdiscs.file.CDData;
 import space.subkek.customdiscs.language.YamlLanguage;
-import space.subkek.customdiscs.util.Formatter;
 import space.subkek.customdiscs.util.HTTPRequestUtils;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 public class CustomDiscs extends JavaPlugin {
-  public static final String PLUGIN_ID = "customdiscs";
+  private static Logger logger;
+  private static Logger debugLogger;
 
   @Getter
   private final YamlLanguage language = new YamlLanguage();
@@ -65,6 +65,9 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onLoad() {
+    logger = LoggerFactory.getLogger(this.getName());
+    debugLogger = LoggerFactory.getLogger("%s/Debug".formatted(this.getName()));
+
     getServer().getServicesManager().register(
       CustomDiscsAPI.class,
       new CustomDiscsAPIImpl(),
@@ -166,7 +169,7 @@ public class CustomDiscs extends JavaPlugin {
         .getAsString();
 
       if (!version.equals(getPlugin().getPluginMeta().getVersion())) {
-        warn("New version available: {0}{1}", url, version);
+        warn("New version available: {}{}", url, version);
 
         getServer().getPluginManager().registerEvents(new Listener() {
           @EventHandler
@@ -208,78 +211,24 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   public static void debug(@NotNull String message, Object... format) {
-    if (!getPlugin().getCDConfig().isDebug()) return;
-    sendMessage(
-      getPlugin().getServer().getConsoleSender(),
-      getPlugin().getLanguage().deserialize(
-        Formatter.format(
-          "{0}{1}",
-          getPlugin().getLanguage().string("prefix.debug"),
-          Formatter.format(message, format)
-        )
-      )
-    );
+    if (getPlugin().getCDConfig().isDebug()) {
+      debugLogger.info(message, format);
+    }
   }
 
   public static void info(@NotNull String message, Object... format) {
-    sendMessage(
-      getPlugin().getServer().getConsoleSender(),
-      getPlugin().getLanguage().deserialize(
-        Formatter.format(
-          "{0}{1}",
-          getPlugin().getLanguage().string("prefix.info"),
-          Formatter.format(message, format)
-        )
-      )
-    );
-  }
-
-  private static String getStackTraceString(Throwable e) {
-    String stackTrace = "";
-
-    if (e != null) {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw, true);
-      e.printStackTrace(pw);
-      stackTrace = sw.getBuffer().toString();
-    }
-
-    return stackTrace;
-  }
-
-  public static void warn(@NotNull String message, @Nullable Throwable e, Object... format) {
-    sendMessage(
-      getPlugin().getServer().getConsoleSender(),
-      getPlugin().getLanguage().deserialize(
-        Formatter.format(
-          "{0}{1}{2}",
-          getPlugin().getLanguage().string("prefix.warn"),
-          Formatter.format(message, format),
-          getStackTraceString(e)
-        )
-      )
-    );
+    logger.info(message, format);
   }
 
   public static void warn(@NotNull String message, Object... format) {
-    warn(message, null, format);
+    logger.warn(message, format);
   }
 
   public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
-    sendMessage(
-      getPlugin().getServer().getConsoleSender(),
-      getPlugin().getLanguage().deserialize(
-        Formatter.format(
-          "{0}{1}{2}",
-          getPlugin().getLanguage().string("prefix.error"),
-          Formatter.format(message, format),
-          getStackTraceString(e)
-        )
-      )
-    );
+    logger.error(message, format, e);
   }
 
   public static void error(@NotNull String message, Object... format) {
-    error(message, null, format);
+    logger.error(message, format);
   }
 }

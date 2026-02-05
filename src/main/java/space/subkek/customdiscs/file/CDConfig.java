@@ -1,7 +1,6 @@
 package space.subkek.customdiscs.file;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
 import space.subkek.customdiscs.CustomDiscs;
@@ -59,7 +58,7 @@ public class CDConfig {
         try {
           method.invoke(this);
         } catch (Throwable t) {
-          CustomDiscs.error("Failed to load configuration option from {0}", t, method.getName());
+          CustomDiscs.error("Failed to load configuration option from {}", t, method.getName());
         }
       }
     }
@@ -195,19 +194,6 @@ public class CDConfig {
       https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-remote-cipher-server""");
   }
 
-  private void debug(@NotNull String message, Object... format) {
-    if (!debug) return;
-    CustomDiscs.sendMessage(
-      CustomDiscs.getPlugin().getServer().getConsoleSender(),
-      CustomDiscs.getPlugin().getLanguage().deserialize(
-        Formatter.format(
-          "<yellow>[CustomDiscs Debug] {0}",
-          Formatter.format(message, format)
-        )
-      )
-    );
-  }
-
   private void setConfigVersion(String version) {
     yaml.set("info.version", version);
     configVersion = version;
@@ -216,10 +202,10 @@ public class CDConfig {
   private void removeValue(String key) {
     if (yaml.contains(key)) {
       yaml.remove(key);
-      debug("Config successfully removed value {0}", key);
+      CustomDiscs.debug("Config successfully removed value {}", key);
       return;
     }
-    debug("Config not found value {0} to remove", key);
+    CustomDiscs.debug("Config not found value {} to remove", key);
   }
 
   private void migrateValue(String key, String newKey) {
@@ -227,14 +213,14 @@ public class CDConfig {
       Object value = yaml.get(key);
       yaml.remove(key);
       yaml.set(newKey, value);
-      debug("Config successfully migrated value {0} to {1}", key, newKey);
+      CustomDiscs.debug("Config successfully migrated value {} to {}", key, newKey);
       return;
     }
-    debug("Config not found value {0} to migrate to {1}", key, newKey);
+    CustomDiscs.debug("Config not found value {} to migrate to {}", key, newKey);
   }
 
   private void migrateTo1_1() {
-    debug("Config migrating from v1.0 to v1.1");
+    CustomDiscs.debug("Config migrating from v1.0 to v1.1");
     migrateValue("music-disc-distance", "disc.distance");
     migrateValue("music-disc-volume", "disc.volume");
     migrateValue("max-download-size", "command.download.max-size");
@@ -250,13 +236,13 @@ public class CDConfig {
   }
 
   private void migrateTo1_2() {
-    debug("Config migrating from v1.1 to v1.2");
+    CustomDiscs.debug("Config migrating from v1.1 to v1.2");
     removeValue("providers.youtube.po-token.auto");
     setConfigVersion("1.2");
   }
 
   private void migrateTo1_3() {
-    debug("Config migrating from v1.2 to v1.3");
+    CustomDiscs.debug("Config migrating from v1.2 to v1.3");
     removeValue("command.create.custom-model-data");
     removeValue("command.createyt");
     removeValue("command.createsc");
@@ -264,7 +250,7 @@ public class CDConfig {
   }
 
   private void migrateTo1_4() {
-    debug("Config migrating from v1.3 to v1.4");
+    CustomDiscs.debug("Config migrating from v1.3 to v1.4");
     removeValue("debug");
     setConfigVersion("1.4");
   }

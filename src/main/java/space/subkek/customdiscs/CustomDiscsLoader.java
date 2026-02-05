@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -31,7 +30,8 @@ public class CustomDiscsLoader implements PluginLoader {
       Field field = MavenLibraryResolver.class.getDeclaredField("MAVEN_CENTRAL_DEFAULT_MIRROR");
       field.setAccessible(true);
       return (String) field.get(null);
-    } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+    } catch (NoSuchFieldException | IllegalAccessException ignored) {
+    }
 
     // Official Google mirror by default
     return "https://maven-central.storage-download.googleapis.com/maven2";

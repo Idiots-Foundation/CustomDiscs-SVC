@@ -188,7 +188,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   public void play(@NotNull Block block, @NotNull String identifier, Component actionbarComponent) {
     UUID uuid = LegacyUtil.getBlockUUID(block);
     if (playerMap.containsKey(uuid)) return;
-    CustomDiscs.debug("Starting LavaPlayer: {0}", uuid);
+    CustomDiscs.debug("Starting LavaPlayer: {}", uuid);
 
     VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
     Position audioPosition = api.createPosition(
@@ -239,7 +239,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private synchronized void stopPlaying(UUID uuid) {
     LavaPlayer lavaPlayer = playerMap.get(uuid);
     if (lavaPlayer != null && lavaPlayer.isRunning) {
-      CustomDiscs.debug("Stopping LavaPlayer: {0}", uuid);
+      CustomDiscs.debug("Stopping LavaPlayer: {}", uuid);
 
       CompletableFuture<Void> eventFuture = new CompletableFuture<>();
       executor.execute(() -> {
@@ -253,13 +253,13 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       try {
         eventFuture.get(2, TimeUnit.SECONDS);
       } catch (ExecutionException | InterruptedException | TimeoutException e) {
-        CustomDiscs.error("Event timed out for LavaPlayer {0}", uuid);
+        CustomDiscs.error("Event timed out for LavaPlayer {}", uuid);
       }
 
       lavaPlayer.stop();
       playerMap.remove(uuid);
     } else {
-      CustomDiscs.debug("LavaPlayer {0} already stopped", uuid);
+      CustomDiscs.debug("LavaPlayer {} already stopped", uuid);
     }
   }
 
@@ -353,20 +353,20 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
         lavaPlayerManager.loadItem(identifier, new AudioLoadResultHandler() {
           @Override
           public void trackLoaded(AudioTrack audioTrack) {
-            CustomDiscs.debug("LavaPlayer {0} loaded track {1} successfully", uuid, audioTrack.getInfo().title);
+            CustomDiscs.debug("LavaPlayer {} loaded track {} successfully", uuid, audioTrack.getInfo().title);
             trackFuture.complete(audioTrack);
           }
 
           @Override
           public void playlistLoaded(AudioPlaylist audioPlaylist) {
             AudioTrack selected = audioPlaylist.getSelectedTrack();
-            CustomDiscs.debug("LavaPlayer {0} loaded track {1} from playlist successfully", uuid, selected.getInfo().title);
+            CustomDiscs.debug("LavaPlayer {} loaded track {} from playlist successfully", uuid, selected.getInfo().title);
             trackFuture.complete(selected);
           }
 
           @Override
           public void noMatches() {
-            CustomDiscs.debug("LavaPlayer {0} didn't found the track {1}", uuid, identifier);
+            CustomDiscs.debug("LavaPlayer {} didn't found the track {}", uuid, identifier);
             for (ServerPlayer serverPlayer : playersInRangeAtStart) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
               CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.no-matches"));
@@ -376,7 +376,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
           @Override
           public void loadFailed(FriendlyException e) {
-            CustomDiscs.debug("LavaPlayer {0} failed to load the track {1}: {2}", uuid, identifier, e.getMessage());
+            CustomDiscs.debug("LavaPlayer {} failed to load the track {}: {}", uuid, identifier, e.getMessage());
             for (ServerPlayer serverPlayer : playersInRangeAtStart) {
               Player bukkitPlayer = (Player) serverPlayer.getPlayer();
               CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.audio-load"));
@@ -393,11 +393,11 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
         } catch (InterruptedException e) {
           audioTrack = null;
           lavaPlayerThread.interrupt();
-          CustomDiscs.debug("LavaPlayer {0} got interrupt while loading", uuid);
+          CustomDiscs.debug("LavaPlayer {} got interrupt while loading", uuid);
         }
 
         if (audioTrack == null) {
-          CustomDiscs.debug("LavaPlayer {0} expected track is null. Stopping...", uuid);
+          CustomDiscs.debug("LavaPlayer {} expected track is null. Stopping...", uuid);
           if (isRunning) stopPlaying(uuid);
           return;
         }
@@ -423,10 +423,10 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
             if (wait > 0) TimeUnit.MILLISECONDS.sleep(wait);
           }
         } catch (InterruptedException e) {
-          CustomDiscs.debug("LavaPlayer {0} got interrupt", uuid);
+          CustomDiscs.debug("LavaPlayer {} got interrupt", uuid);
           Thread.currentThread().interrupt();
         } catch (Throwable e) {
-          CustomDiscs.error("LavaPlayer {0} got unexcepted exception: {1}", e, uuid);
+          CustomDiscs.error("LavaPlayer {} got unexcepted exception: {}", e, uuid);
         }
 
         if (isRunning) stopPlaying(uuid);
@@ -434,7 +434,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
         for (ServerPlayer serverPlayer : playersInRangeAtStart) {
           Player bukkitPlayer = (Player) serverPlayer.getPlayer();
           CustomDiscs.sendMessage(bukkitPlayer, plugin.getLanguage().PComponent("error.play.while-playing"));
-          CustomDiscs.error("LavaPlayer {0} got exception: ", e, uuid);
+          CustomDiscs.error("LavaPlayer {} got exception: ", e, uuid);
         }
       }
     }
