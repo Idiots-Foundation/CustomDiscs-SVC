@@ -30,6 +30,8 @@ public class CustomDiscEjectEvent extends Event implements Cancellable {
     this.block = block;
     this.player = player;
     this.discEntry = discEntry;
+
+    this.isCancelled = false;
   }
 
   @Override

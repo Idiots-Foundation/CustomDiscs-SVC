@@ -116,7 +116,7 @@ modrinth {
         "1.20.6"
     )
     loaders.addAll("paper", "purpur", "folia")
-    uploadFile.set(tasks.named("shadowJar"))
+    uploadFile.set(tasks.shadowJar)
     dependencies {
         required.project("simple-voice-chat", "commandapi")
     }

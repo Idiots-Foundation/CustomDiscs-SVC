@@ -4,6 +4,7 @@ import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +17,19 @@ import java.util.Collection;
  * synchronization for jukebox-like behavior at specific world coordinates.
  */
 public interface LavaPlayerManager {
+  interface HandlerRegistration {
+    void unregister();
+  }
+
+  @FunctionalInterface
+  interface PacketConsumer {
+    boolean process(@NotNull HandlerRegistration registration, @NotNull Block block, byte @NotNull [] data);
+  }
+
+  void registerPacketHandler(@NotNull Plugin plugin, @NotNull PacketConsumer consumer);
+
+  void unregisterPacketHandlers(@NotNull Plugin plugin);
+
   /**
    * Starts audio playback at the specified block location.
    * <p>

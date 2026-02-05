@@ -23,12 +23,14 @@ import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.api.LavaPlayerManager;
 import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
 import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
-import space.subkek.customdiscs.api.event.CustomDiscStopPlayingEvent;
+import space.subkek.customdiscs.api.event.LavaPlayerStopPlayingEvent;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main extends JavaPlugin implements Listener {
   private String lastIdentifier = null;
@@ -63,7 +65,14 @@ public class Main extends JavaPlugin implements Listener {
         return Command.SINGLE_SUCCESS;
       }));
 
+    registerStutterHandler();
+
     this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> commands.registrar().register(root.build()));
+  }
+
+  @Override
+  public void onDisable() {
+    api.getLavaPlayerManager().unregisterPacketHandlers(this);
   }
 
   private final MiniMessage MINIMESSAGE = MiniMessage.miniMessage();
@@ -77,7 +86,7 @@ public class Main extends JavaPlugin implements Listener {
   }
 
   @EventHandler
-  public void discStopped(CustomDiscStopPlayingEvent event) {
+  public void discStopped(LavaPlayerStopPlayingEvent event) {
     broadcast(String.format("<red>Disc stopped at %s, jukebox destroyed: %b", event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
     Collection<ServerPlayer> sps = api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock());
     if (sps == null) {
@@ -103,6 +112,22 @@ public class Main extends JavaPlugin implements Listener {
     Player player = event.getPlayer();
     String inserter = player != null ? player.getName() : "Hopper";
     broadcast(String.format("<yellow>Disc %s ejected by %s at %s", PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
+  }
+
+  private void registerStutterHandler() {
+    //noinspection PointlessBooleanExpression
+    if (!false) return;
+
+    AtomicInteger packetCounter = new AtomicInteger(0);
+    AtomicBoolean isMuted = new AtomicBoolean(false);
+
+    api.getLavaPlayerManager().registerPacketHandler(this, (handler, block, data) -> {
+      if (packetCounter.incrementAndGet() >= 50) {
+        packetCounter.set(0);
+        isMuted.set(!isMuted.get());
+      }
+      return !isMuted.get();
+    });
   }
 
   // Example of 24/7 lobby music in every world

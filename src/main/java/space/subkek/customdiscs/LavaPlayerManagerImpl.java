@@ -18,16 +18,17 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.YoutubeSourceOptions;
-import dev.lavalink.youtube.clients.TvHtml5Embedded;
-import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.*;
 import dev.lavalink.youtube.clients.skeleton.Client;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.subkek.customdiscs.api.LavaPlayerManager;
-import space.subkek.customdiscs.api.event.CustomDiscStopPlayingEvent;
+import space.subkek.customdiscs.api.event.LavaPlayerStartPlayingEvent;
+import space.subkek.customdiscs.api.event.LavaPlayerStopPlayingEvent;
 import space.subkek.customdiscs.util.LegacyUtil;
 
 import java.io.BufferedWriter;
@@ -35,10 +36,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -50,6 +48,9 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private final Map<UUID, LavaPlayer> playerMap = new ConcurrentHashMap<>();
   private final File refreshTokenFile = new File(plugin.getDataFolder(), ".youtube-token");
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "LavaPlayerExecutorThread"));
+
+  private final List<ActiveHandler> allHandlers = new CopyOnWriteArrayList<>();
+  private final Map<Plugin, List<ActiveHandler>> pluginMap = new ConcurrentHashMap<>();
 
   public synchronized static LavaPlayerManagerImpl getInstance() {
     if (instance == null) return instance = new LavaPlayerManagerImpl();
@@ -111,8 +112,11 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
   private static YoutubeAudioSourceManager getYoutubeAudioSourceManager(YoutubeSourceOptions options) {
     Client[] clients = {
-      new TvHtml5Embedded(),
-      new Web()
+      new Music(),
+      new AndroidVr(),
+      new Web(),
+      new WebEmbedded(),
+      new Tv()
     };
 
     return new YoutubeAudioSourceManager(options, clients);
@@ -157,6 +161,27 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       futureRef.get().cancel(false);
     }, 4, 4, TimeUnit.SECONDS);
     futureRef.set(future);
+  }
+
+  @Override
+  public void registerPacketHandler(@NotNull Plugin plugin, @NotNull PacketConsumer consumer) {
+    ActiveHandler active = new ActiveHandler(plugin, consumer);
+    allHandlers.add(active);
+    pluginMap.computeIfAbsent(plugin, k -> new CopyOnWriteArrayList<>()).add(active);
+  }
+
+  @Override
+  public void unregisterPacketHandlers(@NotNull Plugin plugin) {
+    List<ActiveHandler> handlers = pluginMap.remove(plugin);
+    if (handlers != null) {
+      allHandlers.removeAll(handlers);
+    }
+  }
+
+  private void removeHandler(ActiveHandler handler) {
+    allHandlers.remove(handler);
+    List<ActiveHandler> pluginList = pluginMap.get(handler.plugin);
+    if (pluginList != null) pluginList.remove(handler);
   }
 
   @Override
@@ -219,7 +244,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
       CompletableFuture<Void> eventFuture = new CompletableFuture<>();
       executor.execute(() -> {
         try {
-          CustomDiscStopPlayingEvent event = new CustomDiscStopPlayingEvent(lavaPlayer.block, lavaPlayer.identifier);
+          LavaPlayerStopPlayingEvent event = new LavaPlayerStopPlayingEvent(lavaPlayer.block, lavaPlayer.identifier);
           plugin.getServer().getPluginManager().callEvent(event);
         } finally {
           eventFuture.complete(null);
@@ -260,6 +285,22 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     return lavaPlayer == null ? null : lavaPlayer.playersInRangeAtStart;
   }
 
+  @SuppressWarnings("ClassCanBeRecord")
+  private static class ActiveHandler implements HandlerRegistration {
+    private final Plugin plugin;
+    private final PacketConsumer consumer;
+
+    private ActiveHandler(Plugin plugin, PacketConsumer consumer) {
+      this.plugin = plugin;
+      this.consumer = consumer;
+    }
+
+    @Override
+    public void unregister() {
+      LavaPlayerManagerImpl.getInstance().removeHandler(this);
+    }
+  }
+
   private class LavaPlayer {
     private final Block block;
     private final String identifier;
@@ -267,7 +308,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     private final UUID uuid;
     private final Collection<ServerPlayer> playersInRangeAtStart;
 
-    private final Thread lavaPlayerThread = new Thread(this::threadTask, "LavaPlayerThread");
+    private final Thread lavaPlayerThread = new Thread(this::threadJob, "LavaPlayerThread");
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
 
     private AudioPlayer audioPlayer;
@@ -290,8 +331,23 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
         this.audioPlayer.destroy();
     }
 
-    private void threadTask() {
+    private boolean processPacket(Block block, byte[] data) {
+      for (ActiveHandler handler : allHandlers) {
+        boolean allowed = handler.consumer.process(handler, block, data);
+        if (!allowed) return false;
+      }
+      return true;
+    }
+
+    private void threadJob() {
       try {
+        var event = new LavaPlayerStartPlayingEvent(this.block, this.identifier);
+        plugin.getServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+          if (isRunning) stopPlaying(uuid);
+          return;
+        }
+
         audioPlayer = lavaPlayerManager.createPlayer();
 
         lavaPlayerManager.loadItem(identifier, new AudioLoadResultHandler() {
@@ -359,7 +415,9 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
               continue;
             }
 
-            audioChannel.send(frame.getData());
+            byte[] data = frame.getData();
+            if (processPacket(this.block, data))
+              audioChannel.send(frame.getData());
 
             long wait = (start + frame.getTimecode()) - System.currentTimeMillis();
             if (wait > 0) TimeUnit.MILLISECONDS.sleep(wait);
