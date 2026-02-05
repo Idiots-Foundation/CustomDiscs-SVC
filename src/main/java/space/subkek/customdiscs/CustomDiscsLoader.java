@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -14,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -24,16 +26,15 @@ public class CustomDiscsLoader implements PluginLoader {
   private static final String RESOURCE_NAME = "/deps.json";
   private static final String MAVEN_CENTRAL = "maven-central";
 
-  // From paper's original MavenLibraryResolver
   private static String getDefaultMavenCentralMirror() {
-    String central = System.getenv("PAPER_DEFAULT_CENTRAL_REPOSITORY");
-    if (central == null) {
-      central = System.getProperty("org.bukkit.plugin.java.LibraryLoader.centralURL");
-    }
-    if (central == null) {
-      central = "https://maven-central.storage-download.googleapis.com/maven2";
-    }
-    return central;
+    try {
+      Field field = MavenLibraryResolver.class.getDeclaredField("MAVEN_CENTRAL_DEFAULT_MIRROR");
+      field.setAccessible(true);
+      return (String) field.get(null);
+    } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+
+    // Official Google mirror by default
+    return "https://maven-central.storage-download.googleapis.com/maven2";
   }
 
   @Override
