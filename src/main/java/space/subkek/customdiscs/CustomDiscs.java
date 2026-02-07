@@ -156,8 +156,6 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   private void startingChecks() {
-    String url = "https://modrinth.com/plugin/customdiscs-svc/version/";
-
     try {
       String response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
 
@@ -167,6 +165,8 @@ public class CustomDiscs extends JavaPlugin {
         .getAsJsonObject()
         .get("version_number")
         .getAsString();
+
+      String url = "https://modrinth.com/plugin/customdiscs-svc/version/";
 
       if (!version.equals(getPlugin().getPluginMeta().getVersion())) {
         warn("New version available: {}{}", url, version);

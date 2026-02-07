@@ -2,33 +2,44 @@ package space.subkek.customdiscs.util;
 
 import lombok.Getter;
 import space.subkek.customdiscs.CustomDiscs;
+import space.subkek.customdiscs.file.CDConfig;
+
+import java.util.List;
+import java.util.function.Function;
 
 @Getter
 public enum RemoteServices {
-  YOUTUBE("youtube"),
-  SOUNDCLOUD("soundcloud");
+  YOUTUBE("youtube", CDConfig::getRemoteFilterYoutube, CDConfig::getRemoteCustomModelDataYoutube),
+  SOUNDCLOUD("soundcloud", CDConfig::getRemoteFilterSoundcloud, CDConfig::getRemoteCustomModelDataSoundcloud);
 
   private final String id;
+  private final Function<CDConfig, List<String>> filterProvider;
+  private final Function<CDConfig, Integer> modelDataProvider;
 
-  RemoteServices(String id) {
+  RemoteServices(String id, Function<CDConfig, List<String>> filterProvider,
+                 Function<CDConfig, Integer> modelDataProvider) {
     this.id = id;
+    this.filterProvider = filterProvider;
+    this.modelDataProvider = modelDataProvider;
   }
 
   public int getCustomModelData() {
-    var config = CustomDiscs.getPlugin().getCDConfig();
-    return switch (this) {
-      case YOUTUBE -> config.getRemoteCustomModelDataYoutube();
-      case SOUNDCLOUD -> config.getRemoteCustomModelDataSoundcloud();
-    };
+    return modelDataProvider.apply(CustomDiscs.getPlugin().getCDConfig());
   }
 
   public static RemoteServices fromUrl(String url) {
-    if (CustomDiscs.getPlugin().getCDConfig().getRemoteFilterYoutube().stream().anyMatch(url::contains))
-      return YOUTUBE;
+    CDConfig config = CustomDiscs.getPlugin().getCDConfig();
 
-    if (CustomDiscs.getPlugin().getCDConfig().getRemoteFilterSoundcloud().stream().anyMatch(url::contains))
-      return SOUNDCLOUD;
+    for (RemoteServices service : values()) {
+      if (matchesAny(url, service.filterProvider.apply(config))) {
+        return service;
+      }
+    }
 
     throw new IllegalArgumentException("Unknown remote service for URL: %s".formatted(url));
+  }
+
+  private static boolean matchesAny(String url, List<String> patterns) {
+    return patterns.stream().anyMatch(url::contains);
   }
 }
