@@ -36,7 +36,7 @@ public enum RemoteServices {
       }
     }
 
-    throw new IllegalArgumentException("Unknown remote service for URL: %s".formatted(url));
+    return null;
   }
 
   private static boolean matchesAny(String url, List<String> patterns) {

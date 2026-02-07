@@ -1,10 +1,5 @@
 language:
-  prefix:
-    normal: '<dark_aqua>CustomDiscs <white>- '
-    debug: '<yellow>[CustomDiscs Debug] '
-    info: '<blue>[CustomDiscs Info] <reset>'
-    warn: '<yellow>[CustomDiscs Warn] <reset>'
-    error: '<red>[CustomDiscs Error] '
+  prefix: '<dark_aqua>CustomDiscs <white>- '
   plugin:
     messages:
       update-available: '<white>New version available: <click:open_url:{0}{1}><hover:show_text:"<dark_aqua>{0}{1}<br><white>Click to open"><aqua>{1}</hover></click>'
@@ -12,13 +7,13 @@ language:
     command:
       cant-perform: 'You can''t execute that command!'
       no-permission: 'No permission to perform that command!'
-      unknown-extension: 'File extension must be <dark_aqua>wav<white>, <dark_aqua>flac <white>or <dark_aqua>mp3<white>!'
+      unknown-extension: 'File extension must be <dark_aqua>wav<white>, <dark_aqua>flac <white>, <dark_aqua>mp3<white>, etc!'
       invalid-filename: 'Invalid filename!'
       disc-name-empty: 'You must specify the disc name.'
       no-youtube-support: 'You must download library for youtube support: <gold>https://github.com/Idiots-Foundation/lavaplayer-lib/releases'
     play:
       no-permission: 'No permissions to play that disc!'
-      no-matches: 'Video not found!'
+      no-matches: 'Track not found!'
       audio-load: 'Error loading audio!'
       while-playing: 'Error while playing disc!'
     file:
@@ -40,13 +35,11 @@ language:
       messages:
         successfully: 'Plugin successfully reloaded.'
     create:
-      syntax: '<dark_aqua>/cd create <local|remote>'
-      description: '<white>Creates music disc.'
       local:
-        syntax: '<dark_aqua>/cd create local <file name> \"<disc name>\"'
+        syntax: '<dark_aqua>/cd create local <file name> "<disc name>"'
         description: '<white>Creates a disc with previously downloaded music.'
       remote:
-        syntax: '<dark_aqua>/cd create remote \"<url>\" <disc name>'
+        syntax: '<dark_aqua>/cd create remote "<url>" "<disc name>"'
         description: '<white>Creates a disc with music from various services (YouTube, SoundCloud).'
       messages:
         error:
@@ -66,11 +59,11 @@ language:
       syntax: '<dark_aqua>/cd help'
       description: '<white>Shows command help'
       messages:
-        header: '<white>Custom discs'
+        header: '<white>Custom Discs'
         format: '{0}<white>: {1}'
-        footer: 'Some agruments must be written in double quotes "string"'
+        footer: 'Some arguments must be written in double quotes "string"'
   disc-name:
-    simple: '<white>Music disc'
+    simple: '<white>Custom disc'
     youtube: '<white>YouTube disc'
     soundcloud: '<white>SoundCloud disc'
   now-playing: '<gold>Now playing:'

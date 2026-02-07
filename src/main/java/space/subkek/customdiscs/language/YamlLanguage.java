@@ -20,28 +20,28 @@ public class YamlLanguage {
   private final YamlFile language = new YamlFile();
 
   public void load() {
-    CustomDiscs plugin = CustomDiscs.getPlugin();
-    String locale = plugin.getCDConfig().getLocale();
+    var plugin = CustomDiscs.getPlugin();
+    var locale = plugin.getCDConfig().getLocale();
 
     try {
-      Path langDir = plugin.getDataFolder().toPath().resolve("language");
+      var langDir = plugin.getDataFolder().toPath().resolve("language");
       Files.createDirectories(langDir);
-      File langFile = langDir.resolve("%s.yml".formatted(locale)).toFile();
+      var langFile = langDir.resolve("%s.yml".formatted(locale)).toFile();
       boolean isNew = !langFile.exists();
 
       if (isNew) {
-        String resourcePath = "language/%s.yml".formatted(languageExists(locale) ? locale : Language.ENGLISH.getLabel());
+        var resourcePath = "language/%s.yml".formatted(languageExists(locale) ? locale : Language.ENGLISH.getLabel());
         saveResourceSafely(resourcePath, langFile);
       }
 
       language.load(langFile);
 
-      String currentVersion = plugin.getPluginMeta().getVersion();
-      String fileVersion = language.getString("version", "unknown");
+      var currentVersion = plugin.getPluginMeta().getVersion();
+      var fileVersion = language.getString("version", "unknown");
 
       if (isNew) {
         language.set("version", currentVersion);
-        language.save();
+        language.save(langFile);
       } else if (!fileVersion.equals(currentVersion)) {
         handleUpdate(langDir, langFile, locale, currentVersion);
       }
@@ -51,17 +51,17 @@ public class YamlLanguage {
   }
 
   private void handleUpdate(Path directory, File file, String locale, String version) throws IOException {
-    String resourcePath = "language/%s.yml".formatted(locale);
+    var resourcePath = "language/%s.yml".formatted(locale);
 
-    YamlFile nextLang = new YamlFile();
+    var nextLang = new YamlFile();
     nextLang.load(() -> getClass().getClassLoader().getResourceAsStream(resourcePath));
 
-    Object oldContent = language.get("language");
-    Object newContent = nextLang.get("language");
+    var oldContent = language.get("language");
+    var newContent = nextLang.get("language");
 
     if (!Objects.equals(oldContent, newContent)) {
-      String timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
-      Path backupPath = directory.resolve("%s-%s.backup".formatted(file.getName(), timestamp));
+      var timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+      var backupPath = directory.resolve("%s-%s.backup".formatted(file.getName(), timestamp));
       Files.copy(file.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING);
 
       saveResourceSafely(resourcePath, file);
@@ -69,7 +69,7 @@ public class YamlLanguage {
     }
 
     language.set("version", version);
-    language.save();
+    language.save(file);
   }
 
   private void saveResourceSafely(String resourcePath, File outFile) throws IOException {
@@ -80,7 +80,7 @@ public class YamlLanguage {
   }
 
   private String getFormattedString(String key, Object... replace) {
-    String result = language.getString("language.%s".formatted(key), "<%s>".formatted(key));
+    var result = language.getString("language.%s".formatted(key), "<%s>".formatted(key));
     for (int i = 0; i < replace.length; i++) {
       result = result.replace("{%d}".formatted(i), (String) replace[i]);
     }
@@ -98,7 +98,7 @@ public class YamlLanguage {
   }
 
   public Component PComponent(String key, Object... replace) {
-    return MINIMESSAGE.deserialize(string("prefix.normal") + getFormattedString(key, replace));
+    return MINIMESSAGE.deserialize(string("prefix") + getFormattedString(key, replace));
   }
 
   public String string(String key, Object... replace) {
@@ -106,7 +106,7 @@ public class YamlLanguage {
   }
 
   public boolean languageExists(String label) {
-    InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("language/%s.yml".formatted(label));
+    var inputStream = this.getClass().getClassLoader().getResourceAsStream("language/%s.yml".formatted(label));
     return !Objects.isNull(inputStream);
   }
 }

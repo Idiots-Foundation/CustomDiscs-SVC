@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.api.LavaPlayerManager;
 import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
@@ -29,8 +30,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main extends JavaPlugin implements Listener {
   private String lastIdentifier = null;
@@ -52,7 +51,7 @@ public class Main extends JavaPlugin implements Listener {
           return Command.SINGLE_SUCCESS;
         }
         player.sendPlainMessage("Starting last LavaPlayer at %s".formatted(player.getLocation()));
-        api.getLavaPlayerManager().play(player.getLocation().getBlock(), lastIdentifier, MINIMESSAGE.deserialize("LAST IDENTIFIER"));
+        api.getLavaPlayerManager().play(player.getLocation().getBlock(), lastIdentifier, MINIMESSAGE.deserialize("<red>LAST IDENTIFIER"));
 
         return Command.SINGLE_SUCCESS;
       }))
@@ -115,18 +114,33 @@ public class Main extends JavaPlugin implements Listener {
   }
 
   private void registerStutterHandler() {
-    //noinspection PointlessBooleanExpression
-    if (!false) return;
+    api.getLavaPlayerManager().registerPacketHandler(this, new LavaPlayerManager.PacketConsumer() {
+      long counter = 0;
+      long last_time = Long.MIN_VALUE;
+      boolean isMuted = false;
 
-    AtomicInteger packetCounter = new AtomicInteger(0);
-    AtomicBoolean isMuted = new AtomicBoolean(false);
+      @Override
+      public boolean process(LavaPlayerManager.@NotNull HandlerRegistration handler, @NotNull Block block, byte @NotNull [] data) {
+        if (this.last_time == Long.MIN_VALUE) this.last_time = System.currentTimeMillis();
+        else if (System.currentTimeMillis() >= this.last_time + 2000) {
+          this.isMuted = !this.isMuted;
+          this.last_time = System.currentTimeMillis();
 
-    api.getLavaPlayerManager().registerPacketHandler(this, (handler, block, data) -> {
-      if (packetCounter.incrementAndGet() >= 50) {
-        packetCounter.set(0);
-        isMuted.set(!isMuted.get());
+          var sps = api.getLavaPlayerManager().getPlayersInRangeAtStart(block);
+          if (sps != null) {
+            sps.forEach(sp -> {
+              if (sp.getPlayer() instanceof Player player && player.isOnline())
+                player.sendMessage(MINIMESSAGE.deserialize("<light_purple>It's not lag but an API test %d".formatted(counter)));
+            });
+          }
+
+          counter++;
+        }
+
+        if (counter >= 8) handler.unregister();
+
+        return !isMuted;
       }
-      return !isMuted.get();
     });
   }
 

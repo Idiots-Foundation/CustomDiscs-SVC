@@ -13,7 +13,7 @@ max_line_length = 128
 
 [*.{kt,kts}]
 indent_size = 4
-max_line_length = 100
+max_line_length = 128
 
 [*.{yml,yaml}]
 indent_size = 2

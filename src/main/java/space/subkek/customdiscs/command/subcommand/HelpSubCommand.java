@@ -7,6 +7,8 @@ import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.command.AbstractSubCommand;
 import space.subkek.customdiscs.command.CustomDiscsCommand;
 
+import java.util.List;
+
 public class HelpSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final CustomDiscsCommand cdCommand;
@@ -45,13 +47,21 @@ public class HelpSubCommand extends AbstractSubCommand {
     }
 
     CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.header"));
-    for (CommandAPICommand caSubCommand : cdCommand.getSubcommands()) {
+    printHelp(sender, cdCommand.getSubcommands());
+    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.footer"));
+  }
+
+  private void printHelp(CommandSender sender, List<CommandAPICommand> commands) {
+    for (CommandAPICommand caSubCommand : commands) {
       AbstractSubCommand subCommand = (AbstractSubCommand) caSubCommand;
+
       if (subCommand.hasPermission(sender)) {
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.format", subCommand.getSyntax(), subCommand.getDescription()));
+        if (!subCommand.getSubcommands().isEmpty()) {
+          printHelp(sender, subCommand.getSubcommands());
+        } else {
+          CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.format", subCommand.getSyntax(), subCommand.getDescription()));
+        }
       }
     }
-
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.footer"));
   }
 }

@@ -2,6 +2,8 @@ package space.subkek.customdiscs.command.subcommand;
 
 import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.CustomModelData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -11,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.Keys;
@@ -48,16 +51,23 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
   }
 
   @Override
+  public boolean hasPermission(CommandSender sender) {
+    return sender.hasPermission("customdiscs.create.remote");
+  }
+
+  @Override
   public boolean hasPermission(CommandSender sender, RemoteServices service) {
+    if (service == null) return hasPermission(sender);
     return sender.hasPermission("customdiscs.create.remote.%s".formatted(service.getId()));
   }
 
+  @SuppressWarnings("UnstableApiUsage")
   @Override
   public void executePlayer(Player player, CommandArguments arguments) {
     String url = getArgumentValue(arguments, "url", String.class);
     RemoteServices service = RemoteServices.fromUrl(url);
 
-    if (!hasPermission(player, service)) {
+    if (service == null || !hasPermission(player, service)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
       return;
     }
@@ -89,8 +99,8 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
     meta.lore(List.of(customLoreSong));
 
     int modelData = service.getCustomModelData();
-    if (modelData > 0)
-      meta.setCustomModelData(modelData);
+    if (modelData != 0)
+      disc.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(modelData).build());
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
     for (NamespacedKey key : data.getKeys()) {

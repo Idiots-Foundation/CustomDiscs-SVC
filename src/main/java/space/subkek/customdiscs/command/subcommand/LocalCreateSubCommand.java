@@ -4,15 +4,19 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.arguments.TextArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.CustomModelData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.Keys;
@@ -66,6 +70,7 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
     return sender.hasPermission("customdiscs.create.local");
   }
 
+  @SuppressWarnings("UnstableApiUsage")
   @Override
   public void executePlayer(Player player, CommandArguments arguments) {
     if (!hasPermission(player)) {
@@ -119,8 +124,8 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
     meta.lore(List.of(customLoreSong));
 
     int modelData = plugin.getCDConfig().getLocalCustomModelData();
-    if (modelData > 0)
-      meta.setCustomModelData(modelData);
+    if (modelData != 0)
+      disc.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(modelData).build());
 
     PersistentDataContainer data = meta.getPersistentDataContainer();
     for (NamespacedKey key : data.getKeys()) {

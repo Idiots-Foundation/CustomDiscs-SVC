@@ -1,10 +1,5 @@
 language:
-  prefix:
-    normal: '<dark_aqua>CustomDiscs <white>- '
-    debug: '<yellow>[CustomDiscs Debug] '
-    info: '<blue>[CustomDiscs Info] <reset>'
-    warn: '<yellow>[CustomDiscs Warn] <reset>'
-    error: '<red>[CustomDiscs Error] '
+  prefix: '<dark_aqua>CustomDiscs <white>- '
   plugin:
     messages:
       update-available: '<white>Доступна новая версия: <click:open_url:{0}{1}><hover:show_text:"<dark_aqua>{0}{1}<br><white>Нажмите чтоб открыть"><aqua>{1}</hover></click>'
@@ -12,13 +7,12 @@ language:
     command:
       cant-perform: 'Вы не можете выполнять эту команду!'
       no-permission: 'Нет прав на выполнение команды'
-      unknown-extension: 'Файл должен иметь расширение <dark_aqua>wav<white>, <dark_aqua>flac <white>или <dark_aqua>mp3<white>!'
+      unknown-extension: 'Файл должен иметь расширение <dark_aqua>wav<white>, <dark_aqua>flac <white>, <dark_aqua>mp3<white> и др!'
       invalid-filename: 'Неверное имя файла!'
       disc-name-empty: 'Необходимо указать имя диска.'
-      no-youtube-support: 'Вам необходимо установить библиотеку для поддержки ютуба: <gold>https://github.com/Idiots-Foundation/lavaplayer-lib/releases'
     play:
       no-permission: 'Нет прав на воспроизведение такой пластинки'
-      no-matches: 'Видео не найденно!'
+      no-matches: 'Трек не найдено!'
       audio-load: 'Ошибка загрузки аудио!'
       while-playing: 'Ошибка при воспроизведении диска!'
     file:
@@ -40,13 +34,11 @@ language:
       messages:
         successfully: 'Плагин успешно перезагружен.'
     create:
-      syntax: '<dark_aqua>/cd create <local|remote>'
-      description: '<white>Создает диск с музыкой.'
       local:
         syntax: '<dark_aqua>/cd create local <имя файла> "<имя пластинки>"'
         description: '<white>Создает диск с ранее скачанной музыкой'
       remote:
-        syntax: '<dark_aqua>/cd create remote <ссылка> <имя пластинки>'
+        syntax: '<dark_aqua>/cd create remote "<ссылка>" "<имя пластинки>"'
         description: '<white>Создает диск с музыкой с разных сервисов (YouTube, SoundCloud).'
       messages:
         error:
@@ -66,11 +58,11 @@ language:
       syntax: '<dark_aqua>/cd help'
       description: '<white>Показывает помощь по командам'
       messages:
-        header: '<white>Кастомные пластинки'
+        header: '<white>Кастомные Пластинки'
         format: '{0}<white>: {1}'
-        footer: 'Некоторые агрументы должны быть написаны в двойных кавычках "строка"'
+        footer: 'Некоторые аргументы должны быть написаны в двойных кавычках "строка"'
   disc-name:
-    simple: '<white>Музыкальная пластинка'
+    simple: '<white>Кастомная пластинка'
     youtube: '<white>YouTube пластинка'
     soundcloud: '<white>SoundCloud пластинка'
   now-playing: '<gold>Сейчас играет:'
