@@ -112,6 +112,7 @@ public class CDConfig {
   }
 
   private String locale = Language.ENGLISH.getLabel();
+  private boolean shouldCheckUpdates = true;
   private boolean debug = false;
 
   private void globalSettings() {
@@ -122,6 +123,7 @@ public class CDConfig {
       )
     );
     if (!Language.isExists(locale)) locale = Language.ENGLISH.getLabel();
+    shouldCheckUpdates = getBoolean("global.check-updates", shouldCheckUpdates);
     debug = getBoolean("global.debug", debug);
   }
 

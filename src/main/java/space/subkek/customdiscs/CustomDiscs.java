@@ -105,7 +105,7 @@ public class CustomDiscs extends JavaPlugin {
     registerEvents();
     registerCommands();
 
-    schedulers.async.runNow(task -> startingChecks());
+    schedulers.async.runNow(task -> checkUpdates());
 
     ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
     protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
@@ -155,8 +155,9 @@ public class CustomDiscs extends JavaPlugin {
     }
   }
 
-  private void startingChecks() {
+  private void checkUpdates() {
     try {
+      if (!cDConfig.isShouldCheckUpdates()) return;
       String response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
 
       String version = JsonParser.parseString(response)
