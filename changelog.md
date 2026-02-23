@@ -1,5 +1,3 @@
-# ЕСЛИ БУДЕШЬ ЭТО ОБНОВЛЯТЬ НЕ УДАЛЯЙ ЭТО ДЛЯ 2.5.0
-
 - Added more YouTube clients to prevent decoding issues.
 - Updated `LavaPlayer`.
 - The plugin now features its own `API`.
