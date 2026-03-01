@@ -8,6 +8,8 @@ dependencyResolutionManagement {
         maven("https://maven.maxhenkel.de/repository/public") { name = "maxhenkel" }
         maven("https://maven.lavalink.dev/snapshots") { name = "lavalink-snapshots" }
         maven("https://maven.lavalink.dev/releases") { name = "lavalink-releases" }
+        maven("https://maven.topi.wtf/releases") { name = "topiWTFReleases" }
+        maven("https://maven.topi.wtf/snapshots") { name = "topiWTFReleases" }
         maven("https://jitpack.io") { name = "jitpack" }
     }
 }

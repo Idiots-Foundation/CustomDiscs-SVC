@@ -32,7 +32,7 @@ public class CDConfig {
       }
     }
 
-    configVersion = getString("info.version", "1.4", "Don't change this value");
+    configVersion = getString("info.version", "1.5", "Don't change this value");
     setComment("info",
       "CustomDiscs Configuration",
       "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
@@ -47,6 +47,8 @@ public class CDConfig {
         migrateTo1_3();
       case "1.3":
         migrateTo1_4();
+      case "1.4":
+        migrateTo1_5();
     }
 
     for (Method method : this.getClass().getDeclaredMethods()) {
@@ -131,9 +133,11 @@ public class CDConfig {
   private int localCustomModelData = 0;
   private List<String> remoteTabComplete = List.of("https://www.youtube.com/watch?v=", "https://soundcloud.com/");
   private int remoteCustomModelDataYoutube = 0;
-  private List<String> remoteFilterYoutube = List.of("https://www.youtube.com/watch?v=", "https://youtu.be/");
+  private String remoteFilterYoutube = "https?:\\/\\/(?:www\\.youtube\\.com\\/watch\\?v=|youtu\\.be\\/).+";
   private int remoteCustomModelDataSoundcloud = 0;
-  private List<String> remoteFilterSoundcloud = List.of("https://soundcloud.com/");
+  private String remoteFilterSoundcloud = "https?:\\/\\/soundcloud\\.com\\/[^\\s]+";
+  private int remoteCustomModelDataDeezer = 0;
+  private String remoteFilterDeezer = "https?:\\/\\/(?:www\\.deezer\\.com\\/(?:track|album|playlist|artist)\\/\\d+|deezer\\.page\\.link\\/[^\\s]+|link\\.deezer\\.com\\/s\\/[^\\s]+)";
   private int distanceCommandMaxDistance = 64;
 
   private void commandSettings() {
@@ -142,14 +146,16 @@ public class CDConfig {
     localCustomModelData = getInt("command.create.local.custom-model", localCustomModelData);
     remoteTabComplete = getStringList("command.create.remote.tabcomplete", remoteTabComplete);
     remoteCustomModelDataYoutube = getInt("command.create.remote.youtube.custom-model", remoteCustomModelDataYoutube);
-    remoteFilterYoutube = getStringList("command.create.remote.youtube.filter", remoteFilterYoutube);
+    remoteFilterYoutube = getString("command.create.remote.youtube.filter", remoteFilterYoutube);
     remoteCustomModelDataSoundcloud = getInt("command.create.remote.soundcloud.custom-model", remoteCustomModelDataSoundcloud);
-    remoteFilterSoundcloud = getStringList("command.create.remote.soundcloud.filter", remoteFilterSoundcloud);
+    remoteFilterSoundcloud = getString("command.create.remote.soundcloud.filter", remoteFilterSoundcloud);
+    remoteCustomModelDataDeezer = getInt("command.create.remote.deezer.custom-model", remoteCustomModelDataDeezer);
+    remoteFilterDeezer = getString("command.create.remote.deezer.filter", remoteFilterDeezer);
     distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
 
     setComment("command.create.remote.tabcomplete", """
       tabcomplete — Displaying hints when entering remote command
-      filter — Filter for applying custom-model-data to remote disk""");
+      filter — Regex filter for applying custom-model-data to remote disk""");
   }
 
   private int musicDiscDistance = 64;
@@ -170,6 +176,8 @@ public class CDConfig {
   private String youtubePoVisitorData = "";
   private String youtubeRemoteServer = "";
   private String youtubeRemoteServerPassword = "";
+  private String deezerMasterKey = "";
+  private String deezerArlToken = "";
 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
@@ -191,6 +199,11 @@ public class CDConfig {
       A method for obtaining streaming via a remote server that emulates a web client.
       Make sure Oauth2 was enabled!
       https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-remote-cipher-server""");
+
+    deezerMasterKey = getString("providers.deezer.master-decrypt-key", deezerMasterKey, """
+      Use Google to find the Deezer master decryption key.""");
+    deezerArlToken = getString("providers.deezer.arl", deezerArlToken, """
+      Use Google to find a guide on how to get the arl cookie. It's not that hard.""");
   }
 
   private void setConfigVersion(String version) {
@@ -252,5 +265,11 @@ public class CDConfig {
     CustomDiscs.debug("Config migrating from v1.3 to v1.4");
     removeValue("debug");
     setConfigVersion("1.4");
+  }
+
+  private void migrateTo1_5() {
+    removeValue("command.create.remote.youtube.filter");
+    removeValue("command.create.remote.soundcloud.filter");
+    setConfigVersion("1.5");
   }
 }

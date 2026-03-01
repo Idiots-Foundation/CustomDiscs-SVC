@@ -31,6 +31,7 @@ dependencies {
 
     implementation(libs.lavaplayer)
     implementation(libs.lavaplayer.youtube)
+    implementation(libs.lavasrc)
 
     implementation(libs.commons.io)
     implementation(libs.simple.yaml)
@@ -76,6 +77,9 @@ paper {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote.soundcloud") {
+            default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+        register("$pluginId.create.remote.deezer") {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.distance") {

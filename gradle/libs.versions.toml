@@ -7,6 +7,7 @@ paper-api = "1.21.11-R0.1-SNAPSHOT"
 voicechat-api = "2.6.0"
 lavaplayer = "2.2.6"
 youtube-source = "1.17.0"
+lavasrc = "4935a53"
 protocol-lib = "5.4.0"
 commandapi = "11.1.0"
 commons-io = "2.21.0"
@@ -27,6 +28,7 @@ commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "comman
 
 lavaplayer = { module = "dev.arbjerg:lavaplayer", version.ref = "lavaplayer" }
 lavaplayer-youtube = { module = "dev.lavalink.youtube:common", version.ref = "youtube-source" }
+lavasrc = { module = "com.github.topi314.lavasrc:lavasrc", version.ref = "lavasrc"}
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 simple-yaml = { module = "me.carleslc.Simple-YAML:Simple-Yaml", version.ref = "simple-yaml" }
