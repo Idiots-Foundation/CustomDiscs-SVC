@@ -62,8 +62,8 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   public LavaPlayerManagerImpl() {
     registerYoutube();
     registerSoundcloud();
-    lavaPlayerManager.registerSourceManager(new DeezerAudioSourceManager(
-      plugin.getCDConfig().getDeezerMasterKey(), plugin.getCDConfig().getDeezerArlToken()));
+//    lavaPlayerManager.registerSourceManager(new DeezerAudioSourceManager(
+//      plugin.getCDConfig().getDeezerMasterKey(), plugin.getCDConfig().getDeezerArlToken()));
     lavaPlayerManager.registerSourceManager(new LocalAudioSourceManager());
   }
 

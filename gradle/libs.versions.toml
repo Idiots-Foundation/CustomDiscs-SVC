@@ -8,12 +8,12 @@ voicechat-api = "2.6.0"
 lavaplayer = "2.2.6"
 youtube-source = "1.17.0"
 lavasrc = "4935a53"
-protocol-lib = "5.4.0"
 commandapi = "11.1.0"
 commons-io = "2.21.0"
 bstats = "3.1.0"
 simple-yaml = "1.8.4"
 lombok = "1.18.42"
+packetevents = "2.11.2"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -23,8 +23,8 @@ minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "voicechat-api" }
-protocollib = { module = "net.dmulloy2:ProtocolLib", version.ref = "protocol-lib" }
 commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "commandapi" }
+packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 
 lavaplayer = { module = "dev.arbjerg:lavaplayer", version.ref = "lavaplayer" }
 lavaplayer-youtube = { module = "dev.lavalink.youtube:common", version.ref = "youtube-source" }

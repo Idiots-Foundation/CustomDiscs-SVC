@@ -1,12 +1,11 @@
 package space.subkek.customdiscs;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEffect;
 import com.google.gson.JsonParser;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
@@ -25,6 +24,7 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.subkek.customdiscs.api.CustomDiscsAPI;
@@ -107,22 +107,33 @@ public class CustomDiscs extends JavaPlugin {
 
     schedulers.async.runNow(task -> checkUpdates());
 
-    ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-    protocolManager.addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.WORLD_EVENT) {
+    PacketEvents.getAPI().getEventManager().registerListener(new PacketListener() {
       @Override
-      public void onPacketSending(PacketEvent event) {
-        PacketContainer packet = event.getPacket();
+      public void onPacketSend(@NonNull PacketSendEvent event) {
+        if (event.getPacketType() == PacketType.Play.Server.EFFECT) {
+          var packet = new WrapperPlayServerEffect(event);
 
-        if (packet.getIntegers().read(0).equals(1010)) {
-          Jukebox jukebox = (Jukebox) packet.getBlockPositionModifier().read(0).toLocation(event.getPlayer().getWorld()).getBlock().getState();
-          if (LavaPlayerManagerImpl.getInstance().isPlaying(jukebox.getBlock())) {
-            event.setCancelled(true);
-            jukebox.stopPlaying();
-            ParticleManager.start(jukebox.getBlock());
+          if (packet.getType() == 1010) {
+            var pos = packet.getPosition();
+            var player = (org.bukkit.entity.Player) event.getPlayer();
+            var world = player.getWorld();
+
+            var block = world.getBlockAt(pos.getX(), pos.getY(), pos.getZ());
+
+            if (LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
+              event.setCancelled(true);
+
+              getServer().getRegionScheduler().run(CustomDiscs.this, block.getLocation(), task -> {
+                if (block.getState() instanceof Jukebox jukebox) {
+                  jukebox.stopPlaying();
+                  ParticleManager.start(block);
+                }
+              });
+            }
           }
         }
       }
-    });
+    }, PacketListenerPriority.HIGHEST);
   }
 
   @Override

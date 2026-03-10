@@ -26,8 +26,8 @@ dependencies {
 
     compileOnly(libs.paper.api)
     compileOnly(libs.voicechat.api)
-    compileOnly(libs.protocollib)
     compileOnly(libs.commandapi)
+    compileOnly(libs.packetevents)
 
     implementation(libs.lavaplayer)
     implementation(libs.lavaplayer.youtube)
@@ -89,7 +89,7 @@ paper {
 
     serverDependencies {
         register("voicechat") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
-        register("ProtocolLib") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
+        register("packetevents") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
         register("CommandAPI") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
     }
 }
@@ -122,7 +122,7 @@ modrinth {
     loaders.addAll("paper", "purpur", "folia")
     uploadFile.set(tasks.shadowJar)
     dependencies {
-        required.project("simple-voice-chat", "commandapi")
+        required.project("simple-voice-chat", "commandapi", "packetevents")
     }
 }
 
