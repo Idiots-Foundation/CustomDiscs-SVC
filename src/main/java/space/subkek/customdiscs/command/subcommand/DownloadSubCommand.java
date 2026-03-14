@@ -9,6 +9,7 @@ import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.command.AbstractSubCommand;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
@@ -50,9 +51,9 @@ public class DownloadSubCommand extends AbstractSubCommand {
       return;
     }
 
-    plugin.getSchedulers().async.runNow(task -> {
+    plugin.getFoliaLib().getScheduler().runAsync(task -> {
       try {
-        URL fileURL = new URL(getArgumentValue(arguments, "url", String.class));
+        URL fileURL = URI.create(getArgumentValue(arguments, "url", String.class)).toURL();
         String filename = getArgumentValue(arguments, "filename", String.class);
 
         if (filename.contains("../")) {

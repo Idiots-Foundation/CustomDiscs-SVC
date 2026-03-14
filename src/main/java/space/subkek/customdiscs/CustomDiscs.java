@@ -7,6 +7,7 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEffect;
 import com.google.gson.JsonParser;
+import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import dev.jorel.commandapi.CommandAPI;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import net.kyori.adventure.text.Component;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
-import org.bukkit.block.Jukebox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -57,7 +57,7 @@ public class CustomDiscs extends JavaPlugin {
   private boolean voicechatAddonRegistered = false;
   private boolean libsLoaded = false;
   @Getter
-  private final Schedulers schedulers = new Schedulers(this);
+  private final FoliaLib foliaLib = new FoliaLib(this);
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
@@ -105,7 +105,7 @@ public class CustomDiscs extends JavaPlugin {
     registerEvents();
     registerCommands();
 
-    schedulers.async.runNow(task -> checkUpdates());
+    foliaLib.getScheduler().runAsync(task -> checkUpdates());
 
     PacketEvents.getAPI().getEventManager().registerListener(new PacketListener() {
       @Override
@@ -122,13 +122,6 @@ public class CustomDiscs extends JavaPlugin {
 
             if (LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
               event.setCancelled(true);
-
-              getServer().getRegionScheduler().run(CustomDiscs.this, block.getLocation(), task -> {
-                if (block.getState() instanceof Jukebox jukebox) {
-                  jukebox.stopPlaying();
-                  ParticleManager.start(block);
-                }
-              });
             }
           }
         }
@@ -150,8 +143,7 @@ public class CustomDiscs extends JavaPlugin {
       CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 
-    schedulers.async.cancelTasks();
-    schedulers.global.cancelTasks();
+    foliaLib.getScheduler().cancelAllTasks();
   }
 
   private void registerVoicechatHook() {

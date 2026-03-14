@@ -16,7 +16,7 @@ public class ParticleManager {
     if (blocks.add(block)) {
       World world = block.getWorld();
       Location location = block.getLocation().add(0.5, 1.2, 0.5);
-      plugin.getSchedulers().region.runAtFixedRate(location, task -> {
+      plugin.getFoliaLib().getScheduler().runAtLocationTimer(location, task -> {
         if (!LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
           blocks.remove(block);
           task.cancel();

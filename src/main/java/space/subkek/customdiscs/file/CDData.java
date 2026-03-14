@@ -1,6 +1,6 @@
 package space.subkek.customdiscs.file;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.block.Block;
@@ -21,7 +21,7 @@ public class CDData {
   private final YamlFile yaml = new YamlFile();
   private final File dataFile;
 
-  private ScheduledTask autosaveTask;
+  private WrappedTask autosaveTask;
 
   private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
 
@@ -50,8 +50,8 @@ public class CDData {
 
   public void startAutosave() {
     if (autosaveTask != null) throw new IllegalStateException("Autosave data task already exists");
-    autosaveTask = CustomDiscs.getPlugin().getSchedulers().async.runAtFixedRate(
-      task -> save(),
+    autosaveTask = CustomDiscs.getPlugin().getFoliaLib().getScheduler().runTimerAsync(
+      this::save,
       60, 60,
       TimeUnit.SECONDS
     );

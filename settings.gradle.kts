@@ -11,6 +11,7 @@ dependencyResolutionManagement {
         maven("https://maven.topi.wtf/releases") { name = "topiWTFReleases" }
         maven("https://maven.topi.wtf/snapshots") { name = "topiWTFReleases" }
         maven("https://repo.codemc.io/repository/maven-releases/") { name = "codemc" }
+        maven("https://repo.tcoded.com/releases") { name = "tcoded" }
         maven("https://jitpack.io") { name = "jitpack" }
     }
 }

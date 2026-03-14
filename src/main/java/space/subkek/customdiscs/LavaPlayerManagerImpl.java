@@ -1,6 +1,5 @@
 package space.subkek.customdiscs;
 
-import com.github.topi314.lavasrc.deezer.DeezerAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -30,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import space.subkek.customdiscs.api.LavaPlayerManager;
 import space.subkek.customdiscs.api.event.LavaPlayerStartPlayingEvent;
 import space.subkek.customdiscs.api.event.LavaPlayerStopPlayingEvent;
-import space.subkek.customdiscs.file.CDConfig;
 import space.subkek.customdiscs.util.LegacyUtil;
 
 import java.io.BufferedWriter;
@@ -62,8 +60,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   public LavaPlayerManagerImpl() {
     registerYoutube();
     registerSoundcloud();
-//    lavaPlayerManager.registerSourceManager(new DeezerAudioSourceManager(
-//      plugin.getCDConfig().getDeezerMasterKey(), plugin.getCDConfig().getDeezerArlToken()));
+
     lavaPlayerManager.registerSourceManager(new LocalAudioSourceManager());
   }
 
@@ -365,7 +362,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
           public void playlistLoaded(AudioPlaylist audioPlaylist) {
             AudioTrack selected = audioPlaylist.getSelectedTrack();
             if (selected == null) {
-              selected = audioPlaylist.getTracks().get(0);
+              selected = audioPlaylist.getTracks().getFirst();
             }
 
             CustomDiscs.debug("LavaPlayer {} loaded track {} from playlist successfully", uuid, selected.getInfo().title);

@@ -176,8 +176,6 @@ public class CDConfig {
   private String youtubePoVisitorData = "";
   private String youtubeRemoteServer = "";
   private String youtubeRemoteServerPassword = "";
-  private String deezerMasterKey = "";
-  private String deezerArlToken = "";
 
   private void providersSettings() {
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
@@ -199,11 +197,6 @@ public class CDConfig {
       A method for obtaining streaming via a remote server that emulates a web client.
       Make sure Oauth2 was enabled!
       https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-a-remote-cipher-server""");
-
-    deezerMasterKey = getString("providers.deezer.master-decrypt-key", deezerMasterKey, """
-      Use Google to find the Deezer master decryption key.""");
-    deezerArlToken = getString("providers.deezer.arl", deezerArlToken, """
-      Use Google to find a guide on how to get the arl cookie. It's not that hard.""");
   }
 
   private void setConfigVersion(String version) {
