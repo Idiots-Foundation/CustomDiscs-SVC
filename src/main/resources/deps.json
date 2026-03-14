@@ -1,12 +1,14 @@
 {
   "repositories": [
     "maven-central",
+    "https://repo.subkek.space/maven-public/",
     "https://maven.lavalink.dev/snapshots/",
     "https://maven.lavalink.dev/releases/"
   ],
   "dependencies": [
     "${lavaplayer}",
     "${lavaplayer_youtube}",
+    "${simple_yaml}",
     "${commons_io}"
   ]
 }

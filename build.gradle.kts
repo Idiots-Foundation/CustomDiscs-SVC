@@ -25,7 +25,6 @@ dependencies {
 
     shadow(libs.bstats)
     shadow(libs.folialib)
-    shadow(libs.simple.yaml)
 
     compileOnly(libs.paper.api)
     compileOnly(libs.voicechat.api)
@@ -36,6 +35,7 @@ dependencies {
     implementation(libs.lavaplayer.youtube)
 
     implementation(libs.commons.io)
+    implementation(libs.simple.yaml)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
@@ -174,6 +174,4 @@ tasks.shadowJar {
     fun relocate(pkg: String) = relocate(pkg, "${rootProject.group}.customdiscs.deps.$pkg")
     relocate("org.bstats")
     relocate("com.tcoded.folialib")
-    relocate("org.yaml.snakeyaml")
-    relocate("org.simpleyaml")
 }

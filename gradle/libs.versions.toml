@@ -31,6 +31,6 @@ lavaplayer = { module = "dev.arbjerg:lavaplayer", version.ref = "lavaplayer" }
 lavaplayer-youtube = { module = "dev.lavalink.youtube:common", version.ref = "youtube-source" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
-simple-yaml = { module = "me.carleslc.Simple-YAML:Simple-Yaml", version.ref = "simple-yaml" }
+simple-yaml = { module = "me.carleslc:Simple-Yaml", version.ref = "simple-yaml" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
