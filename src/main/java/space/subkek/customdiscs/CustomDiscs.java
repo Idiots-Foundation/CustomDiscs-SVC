@@ -96,8 +96,8 @@ public class CustomDiscs extends JavaPlugin {
 
     linkBStats();
 
-    if (!(musicData.exists())) {
-      if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
+    if (musicData.mkdir()) {
+      CustomDiscs.info("Created music data folder");
     }
 
     registerVoicechatHook();

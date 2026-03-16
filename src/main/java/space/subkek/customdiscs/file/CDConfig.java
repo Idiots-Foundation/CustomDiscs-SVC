@@ -136,8 +136,6 @@ public class CDConfig {
   private String remoteFilterYoutube = "https?:\\/\\/(?:www\\.youtube\\.com\\/watch\\?v=|youtu\\.be\\/).+";
   private int remoteCustomModelDataSoundcloud = 0;
   private String remoteFilterSoundcloud = "https?:\\/\\/soundcloud\\.com\\/[^\\s]+";
-  private int remoteCustomModelDataDeezer = 0;
-  private String remoteFilterDeezer = "https?:\\/\\/(?:www\\.deezer\\.com\\/(?:track|album|playlist|artist)\\/\\d+|deezer\\.page\\.link\\/[^\\s]+|link\\.deezer\\.com\\/s\\/[^\\s]+)";
   private int distanceCommandMaxDistance = 64;
 
   private void commandSettings() {
@@ -149,8 +147,6 @@ public class CDConfig {
     remoteFilterYoutube = getString("command.create.remote.youtube.filter", remoteFilterYoutube);
     remoteCustomModelDataSoundcloud = getInt("command.create.remote.soundcloud.custom-model", remoteCustomModelDataSoundcloud);
     remoteFilterSoundcloud = getString("command.create.remote.soundcloud.filter", remoteFilterSoundcloud);
-    remoteCustomModelDataDeezer = getInt("command.create.remote.deezer.custom-model", remoteCustomModelDataDeezer);
-    remoteFilterDeezer = getString("command.create.remote.deezer.filter", remoteFilterDeezer);
     distanceCommandMaxDistance = getInt("command.distance.max", distanceCommandMaxDistance);
 
     setComment("command.create.remote.tabcomplete", """

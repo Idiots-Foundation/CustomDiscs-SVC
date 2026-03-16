@@ -1,17 +1,17 @@
 [versions]
-shadow = "9.3.0"
+shadow = "9.4.0"
 paper-yml = "0.8.0"
-minotaur = "2.8.10"
+minotaur = "2.9.0"
 
 paper-api = "1.21.11-R0.1-SNAPSHOT"
 voicechat-api = "2.6.0"
 lavaplayer = "2.2.6"
-youtube-source = "1.17.0"
+youtube-source = "1.18.0"
 commandapi = "11.1.0"
 commons-io = "2.21.0"
-bstats = "3.1.0"
+bstats = "3.2.1"
 simple-yaml = "1.8.4"
-lombok = "1.18.42"
+lombok = "1.18.44"
 packetevents = "2.11.2"
 folialib = "0.5.1"
 

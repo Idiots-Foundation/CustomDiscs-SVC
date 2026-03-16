@@ -10,8 +10,7 @@ import java.util.regex.Pattern;
 @Getter
 public enum RemoteServices {
   YOUTUBE("youtube", CDConfig::getRemoteFilterYoutube, CDConfig::getRemoteCustomModelDataYoutube),
-  SOUNDCLOUD("soundcloud", CDConfig::getRemoteFilterSoundcloud, CDConfig::getRemoteCustomModelDataSoundcloud),
-  DEEZER("deezer", CDConfig::getRemoteFilterDeezer, CDConfig::getRemoteCustomModelDataDeezer);
+  SOUNDCLOUD("soundcloud", CDConfig::getRemoteFilterSoundcloud, CDConfig::getRemoteCustomModelDataSoundcloud);
 
   private final String id;
   private final Function<CDConfig, String> filterProvider;

@@ -80,9 +80,6 @@ paper {
         register("$pluginId.create.remote.soundcloud") {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
-        register("$pluginId.create.remote.deezer") {
-            default = BukkitPluginDescription.Permission.Default.TRUE
-        }
         register("$pluginId.distance") {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
