@@ -87,7 +87,8 @@ public class CustomDiscs extends JavaPlugin {
 
     CommandAPI.onEnable();
 
-    if (getDataFolder().mkdir()) getSLF4JLogger().info("Created plugin data folder");
+    if (getDataFolder().mkdir()) CustomDiscs.info("Created plugin data folder");
+    if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
 
     cDConfig.load();
     language.load();
@@ -95,10 +96,6 @@ public class CustomDiscs extends JavaPlugin {
     cDData.startAutosave();
 
     linkBStats();
-
-    if (musicData.mkdir()) {
-      CustomDiscs.info("Created music data folder");
-    }
 
     registerVoicechatHook();
 
