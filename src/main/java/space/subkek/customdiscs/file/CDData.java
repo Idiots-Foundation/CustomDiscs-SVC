@@ -20,7 +20,7 @@ public class CDData {
   private final File dataFile;
 
   private WrappedTask autosaveTask;
-  private boolean dirty = false;
+  private volatile boolean dirty = false;
 
   private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
 
@@ -61,6 +61,7 @@ public class CDData {
   public void stopAutosave() {
     autosaveTask.cancel();
     autosaveTask = null;
+    save();
   }
 
   public int getJukeboxDistance(Block block) {

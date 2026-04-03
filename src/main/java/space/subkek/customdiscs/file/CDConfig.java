@@ -156,7 +156,7 @@ public class CDConfig {
 
   private int musicDiscDistance = 64;
   private float musicDiscVolume = 1f;
-  private boolean allowHoppers = false;
+  private boolean allowHoppers = true;
 
   private void discSettings() {
     musicDiscDistance = getInt("disc.distance", musicDiscDistance,
