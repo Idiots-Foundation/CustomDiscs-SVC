@@ -1,7 +1,6 @@
 package space.subkek.customdiscs.file;
 
 import com.tcoded.folialib.wrapper.task.WrappedTask;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.block.Block;
 import org.simpleyaml.configuration.ConfigurationSection;
@@ -15,13 +14,13 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@Getter
 @RequiredArgsConstructor
 public class CDData {
   private final YamlFile yaml = new YamlFile();
   private final File dataFile;
 
   private WrappedTask autosaveTask;
+  private boolean dirty = false;
 
   private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
 
@@ -37,12 +36,14 @@ public class CDData {
     loadJukeboxDistances();
   }
 
-  public void save() {
+  public synchronized void save() {
+    if (!this.dirty) return;
     jukeboxDistanceMap.forEach((uuid, distance) ->
       yaml.set("jukebox.distance.%s".formatted(uuid), distance));
 
     try {
       yaml.save(dataFile);
+      this.dirty = false;
     } catch (IOException e) {
       CustomDiscs.error("Error saving data: ", e);
     }
@@ -66,6 +67,12 @@ public class CDData {
     UUID blockUUID = LegacyUtil.getBlockUUID(block);
     return jukeboxDistanceMap.containsKey(blockUUID) ?
       jukeboxDistanceMap.get(blockUUID) : CustomDiscs.getPlugin().getCDConfig().getMusicDiscDistance();
+  }
+
+  public void setJukeboxDistance(Block block, int distance) {
+    UUID blockUUID = LegacyUtil.getBlockUUID(block);
+    this.jukeboxDistanceMap.put(blockUUID, distance);
+    this.dirty = true;
   }
 
   private void loadJukeboxDistances() {

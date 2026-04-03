@@ -50,9 +50,8 @@ public class PlayerHandler implements Listener {
 
     event.setCancelled(true);
 
-    UUID blockUUID = LegacyUtil.getBlockUUID(block);
     int distance = playersSelecting.remove(playerUUID);
-    plugin.getCDData().getJukeboxDistanceMap().put(blockUUID, distance);
+    plugin.getCDData().setJukeboxDistance(block, distance);
 
     CustomDiscs.sendMessage(event.getPlayer(), plugin.getLanguage().PComponent("command.distance.messages.success", distance));
   }
