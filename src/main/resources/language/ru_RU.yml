@@ -11,7 +11,6 @@ language:
       invalid-filename: 'Неверное имя файла!'
       disc-name-empty: 'Необходимо указать имя диска.'
     play:
-      no-permission: 'Нет прав на воспроизведение такой пластинки'
       no-matches: 'Трек не найдено!'
       audio-load: 'Ошибка загрузки аудио!'
       while-playing: 'Ошибка при воспроизведении диска!'
@@ -34,6 +33,8 @@ language:
       messages:
         successfully: 'Плагин успешно перезагружен.'
     create:
+      syntax: '<dark_aqua>/cd create <local|remote>'
+      description: '<white>Создает кастомную музыкальную пластинку.'
       local:
         syntax: '<dark_aqua>/cd create local <имя файла> "<имя пластинки>"'
         description: '<white>Создает диск с ранее скачанной музыкой'

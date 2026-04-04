@@ -65,7 +65,9 @@ public class LavaPlayerStartPlayingEvent extends Event implements Cancellable {
   }
 
   /**
-   * @return The identifier (URL or local path) of the track that stopped.
+   * Returns the identifier of the track that is starting to play.
+   *
+   * @return The source identifier (URL or local file path) of the track.
    */
   @NotNull
   public String getIdentifier() {

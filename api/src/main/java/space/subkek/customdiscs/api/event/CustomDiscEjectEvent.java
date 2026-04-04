@@ -70,8 +70,7 @@ public class CustomDiscEjectEvent extends Event implements Cancellable {
   /**
    * Returns the player who initiated the ejection.
    *
-   * @return The {@link Player} involved, or {@code null} if triggered by automation
-   * (e.g., hoppers or redstone).
+   * @return The {@link Player} involved, or {@code null} if triggered by a hopper.
    */
   @Nullable
   public Player getPlayer() {

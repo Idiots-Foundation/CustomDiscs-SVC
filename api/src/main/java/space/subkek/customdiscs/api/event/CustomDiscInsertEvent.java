@@ -12,9 +12,8 @@ import space.subkek.customdiscs.api.DiscEntry;
 /**
  * Fired when a custom disc is inserted into a jukebox.
  * <p>
- * This event can be triggered by a player's manual interaction or by automation
- * (e.g., a hopper or a dispenser). If cancelled, the disc will not be placed
- * inside the jukebox, and the playback will not initiate.
+ * This event can be triggered by a player's manual interaction or by a hopper.
+ * If cancelled, the disc will not be placed inside the jukebox, and playback will not start.
  */
 public class CustomDiscInsertEvent extends Event implements Cancellable {
   private static final HandlerList HANDLER_LIST = new HandlerList();
@@ -65,8 +64,7 @@ public class CustomDiscInsertEvent extends Event implements Cancellable {
   /**
    * Returns the player who inserted the disc.
    *
-   * @return The {@link Player} involved, or {@code null} if the insertion
-   * was triggered by automation (e.g., a hopper or a dispenser).
+   * @return The {@link Player} involved, or {@code null} if the insertion was triggered by a hopper.
    */
   @Nullable
   public Player getPlayer() {

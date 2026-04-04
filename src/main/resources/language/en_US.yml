@@ -10,9 +10,7 @@ language:
       unknown-extension: 'File extension must be <dark_aqua>wav<white>, <dark_aqua>flac <white>, <dark_aqua>mp3<white>, etc!'
       invalid-filename: 'Invalid filename!'
       disc-name-empty: 'You must specify the disc name.'
-      no-youtube-support: 'You must download library for youtube support: <gold>https://github.com/Idiots-Foundation/lavaplayer-lib/releases'
     play:
-      no-permission: 'No permissions to play that disc!'
       no-matches: 'Track not found!'
       audio-load: 'Error loading audio!'
       while-playing: 'Error while playing disc!'
@@ -35,6 +33,8 @@ language:
       messages:
         successfully: 'Plugin successfully reloaded.'
     create:
+      syntax: '<dark_aqua>/cd create <local|remote>'
+      description: '<white>Creates a custom music disc.'
       local:
         syntax: '<dark_aqua>/cd create local <file name> "<disc name>"'
         description: '<white>Creates a disc with previously downloaded music.'
