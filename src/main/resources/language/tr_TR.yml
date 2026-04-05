@@ -1,0 +1,77 @@
+version: 'plugin version'
+language:
+  prefix:
+    normal: '<dark_aqua>CustomDiscs <white>- '
+    debug: '<yellow>[CustomDiscs Debug] '
+    info: '<blue>[CustomDiscs Info] <reset>'
+    warn: '<yellow>[CustomDiscs Warn] <reset>'
+    error: '<red>[CustomDiscs Error] '
+  plugin:
+    messages:
+      update-available: '<white>Yeni versiyon mevcut: <click:open_url:{0}{1}><hover:show_text:"<dark_aqua>{0}{1}<br><white>Açmak için tıkla"><aqua>{1}</hover></click>'
+  error:
+    command:
+      cant-perform: 'Bu komutu çalıştıramazsınız!'
+      no-permission: 'Bu komutu gçalıştırma izniniz yok!'
+      unknown-extension: 'Dosya uzantısı <dark_aqua>wav<white>, <dark_aqua>flac <white>yada <dark_aqua>mp3<white> olmalıdır!'
+      invalid-filename: 'Geçersiz dosya adı!'
+      disc-name-empty: 'Disk ismini belirtmelisiniz.'
+      no-youtube-support: 'Youtube desteği için kütüphaneyi indirmeniz gerekmektedir: <gold>https://github.com/Idiots-Foundation/lavaplayer-lib/releases'
+    play:
+      no-permission: 'Bu diski oynatma izniniz yok!'
+      no-matches: 'Video bulunamadı!'
+      audio-load: 'Ses yüklenirken hata oluştu!'
+      while-playing: 'Disk oynatılırken hata oluştu!'
+    file:
+      not-found: 'Dosya bulunamadı!'
+  command:
+    download:
+      syntax: '<dark_aqua>/cd download "<direkt link>" <name.extension>'
+      description: '<white>URLden doğrudan müzik dosyasını indirir.'
+      messages:
+        downloading: '<gray>Dosya indiriliyor...'
+        successfully: 'Dosya başarıyla indirildi!'
+        create-tooltip: '{0} komutunu kullanarak diski oluşturun.'
+        error:
+          while-download: 'Dosya indirilirken hata oluştu.'
+          file-too-large: 'Dosya boyutu {0}mbdan büyük.'
+    reload:
+      syntax: '<dark_aqua>/cd reload'
+      description: '<white>Config dosyalarını yeniden yükler.'
+      messages:
+        successfully: 'Plugin başarıyla yeniden yüklendi.'
+    create:
+      syntax: '<dark_aqua>/cd create <local|remote>'
+      description: '<white>Müzik diski oluşturur.'
+      local:
+        syntax: '<dark_aqua>/cd create local <dosya ismi> \"<disk ismi>\"'
+        description: '<white>Daha önce indirilen müzikle bir disk oluşturur.'
+      remote:
+        syntax: '<dark_aqua>/cd create remote \"<url>\" <disk ismi>'
+        description: '<white>Çeşitli hizmetlerden müzik içeren bir disk oluşturur (YouTube, SoundCloud).'
+      messages:
+        error:
+          not-holding-disc: 'İlk olarak, müzik diskini eline al!'
+        name: '<white>Disk ismi: <dark_aqua>{0}'
+        file: '<white>Dosya ismi: <dark_aqua>{0}'
+        link: '<white>Ses URL: <dark_aqua>{0}'
+    distance:
+      syntax: '<dark_aqua>/cd distance <yarıçap>'
+      description: '<white>Müzik kutusunun yarıçapını ayarlar.'
+      messages:
+        error:
+          not-jukebox: 'Müzik kutusuna tıklamadınız.'
+        success: 'Müzik kutusunun yarıçapı {0} olarak ayarlandı.'
+        click: 'Yarıçapı ayarlamak istediğiniz müzik kutusuna tıklayın.'
+    help:
+      syntax: '<dark_aqua>/cd help'
+      description: '<white>Yardım komutlarını gösterir'
+      messages:
+        header: '<white>Custom discs'
+        format: '{0}<white>: {1}'
+        footer: 'Bazı değişkenler çift tırnak işaretiyle "string" olarak yazılmalıdır.'
+  disc-name:
+    simple: '<white>Music diski'
+    youtube: '<white>YouTube diski'
+    soundcloud: '<white>SoundCloud diski'
+  now-playing: '<gold>Şu anda oynatılıyor:'
