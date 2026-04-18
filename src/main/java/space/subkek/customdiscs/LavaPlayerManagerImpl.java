@@ -12,11 +12,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
 import de.maxhenkel.voicechat.api.Position;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
@@ -26,6 +21,11 @@ import dev.lavalink.youtube.YoutubeSourceOptions;
 import dev.lavalink.youtube.clients.*;
 import dev.lavalink.youtube.clients.skeleton.Client;
 import net.kyori.adventure.text.Component;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -42,11 +42,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private static LavaPlayerManagerImpl instance;
@@ -64,12 +64,18 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private final List<ActiveHandler> allHandlers = new CopyOnWriteArrayList<>();
   private final Map<Plugin, List<ActiveHandler>> pluginMap = new ConcurrentHashMap<>();
 
+  private final CompletableFuture<Void> initFuture;
+
   public synchronized static LavaPlayerManagerImpl getInstance() {
     if (instance == null) return instance = new LavaPlayerManagerImpl();
     return instance;
   }
 
   public LavaPlayerManagerImpl() {
+    initFuture = CompletableFuture.runAsync(this::lazyInit, executor);
+  }
+
+  private void lazyInit() {
     Consumer<HttpClientBuilder> proxyConfigurator = buildProxyConfigurator();
     if (proxyConfigurator != null) {
       lavaPlayerManager.setHttpBuilderConfigurator(proxyConfigurator);
@@ -77,8 +83,9 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
     registerYoutube(proxyConfigurator);
     registerSoundcloud();
-
     lavaPlayerManager.registerSourceManager(new LocalAudioSourceManager());
+
+    CustomDiscs.info("LavaPlayer initialized");
   }
 
   private void registerYoutube(@Nullable Consumer<HttpClientBuilder> proxyConfigurator) {
@@ -396,6 +403,8 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
 
     private void threadJob() {
       try {
+        initFuture.join();
+
         var event = new LavaPlayerStartPlayingEvent(this.block, this.identifier);
         plugin.getServer().getPluginManager().callEvent(event);
         if (event.isCancelled()) {
