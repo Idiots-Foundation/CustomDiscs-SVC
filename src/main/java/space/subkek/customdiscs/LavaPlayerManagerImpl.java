@@ -12,6 +12,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import de.maxhenkel.voicechat.api.Position;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
@@ -37,11 +42,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class LavaPlayerManagerImpl implements LavaPlayerManager {
   private static LavaPlayerManagerImpl instance;
+
+  private static final Pattern PROXY_PATTERN = Pattern.compile(
+    "^(?:(https?)://)?(?:(\\w+):(\\w*)@)?([a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,61}|(\\d{1,3}(?:\\.\\d{1,3}){3})):(\\d{1,5})$"
+  );
 
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final AudioPlayerManager lavaPlayerManager = new DefaultAudioPlayerManager();
@@ -58,13 +70,18 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   }
 
   public LavaPlayerManagerImpl() {
-    registerYoutube();
+    Consumer<HttpClientBuilder> proxyConfigurator = buildProxyConfigurator();
+    if (proxyConfigurator != null) {
+      lavaPlayerManager.setHttpBuilderConfigurator(proxyConfigurator);
+    }
+
+    registerYoutube(proxyConfigurator);
     registerSoundcloud();
 
     lavaPlayerManager.registerSourceManager(new LocalAudioSourceManager());
   }
 
-  private void registerYoutube() {
+  private void registerYoutube(@Nullable Consumer<HttpClientBuilder> proxyConfigurator) {
     YoutubeSourceOptions options = new YoutubeSourceOptions()
       .setAllowSearch(false);
 
@@ -79,6 +96,10 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     }
 
     YoutubeAudioSourceManager source = getYoutubeAudioSourceManager(options);
+
+    if (proxyConfigurator != null) {
+      source.getHttpInterfaceManager().configureBuilder(proxyConfigurator);
+    }
 
     if (!plugin.getCDConfig().getYoutubePoToken().isBlank() &&
       !plugin.getCDConfig().getYoutubePoVisitorData().isBlank()) {
@@ -121,6 +142,39 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     };
 
     return new YoutubeAudioSourceManager(options, clients);
+  }
+
+  private @Nullable Consumer<HttpClientBuilder> buildProxyConfigurator() {
+    String proxyString = plugin.getCDConfig().getYoutubeHttpProxy();
+    if (proxyString == null || proxyString.isBlank()) return null;
+
+    Matcher matcher = PROXY_PATTERN.matcher(proxyString);
+    if (!matcher.matches()) {
+      CustomDiscs.error("Failed to parse http-proxy: {}", proxyString);
+      return null;
+    }
+
+    String scheme = matcher.group(1);
+    String username = matcher.group(2);
+    String password = matcher.group(3);
+    String hostname = matcher.group(4);
+    int port = Integer.parseInt(matcher.group(6));
+
+    BasicCredentialsProvider credentials = null;
+    if (username != null && !username.isBlank()) {
+      credentials = new BasicCredentialsProvider();
+      credentials.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password != null ? password : ""));
+    }
+
+    HttpHost host = new HttpHost(hostname, port, scheme);
+    BasicCredentialsProvider finalCredentials = credentials;
+
+    return builder -> {
+      builder.setProxy(host);
+      if (finalCredentials != null) {
+        builder.setDefaultCredentialsProvider(finalCredentials);
+      }
+    };
   }
 
   private synchronized void save() {

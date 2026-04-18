@@ -172,8 +172,16 @@ public class CDConfig {
   private String youtubePoVisitorData = "";
   private String youtubeRemoteServer = "";
   private String youtubeRemoteServerPassword = "";
+  private String youtubeHttpProxy = "";
 
   private void providersSettings() {
+    youtubeHttpProxy = getString("providers.youtube.http-proxy", youtubeHttpProxy,
+      "HTTP/HTTPS proxy for LavaPlayer.",
+      "Format: [scheme://][user:pass@]host:port",
+      "http://user:password@ip:port",
+      "https://user:password@ip:port"
+    );
+
     youtubeOauth2 = getBoolean("providers.youtube.use-oauth2", youtubeOauth2, """
       This may help if the plugin is not working properly.
       When you first play the disc after the server starts, you will see an authorization request in the console. Use a secondary account for security purposes.""");
