@@ -94,6 +94,10 @@ public class LegacyUtil {
 
     String local = data.get(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
     if (local != null) {
+      if (local.contains("../") || local.contains("..\\") || local.startsWith("/")) {
+        return null;
+      }
+
       File file = new File(CustomDiscs.getPlugin().getMusicData(), local);
       return new DiscEntry(disc, getSongName(meta), file.getPath(), true);
     }

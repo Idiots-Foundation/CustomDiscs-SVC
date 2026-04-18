@@ -1,8 +1,9 @@
-name: Customdiscs CI
+name: CustomDiscs CI
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -9,6 +9,7 @@ language:
       no-permission: 'No permission to perform that command!'
       unknown-extension: 'File extension must be <dark_aqua>wav<white>, <dark_aqua>flac <white>, <dark_aqua>mp3<white>, etc!'
       invalid-filename: 'Invalid filename!'
+      invalid-url: 'Invalid URL! Only http/https is allowed.'
       disc-name-empty: 'You must specify the disc name.'
     play:
       no-matches: 'Track not found!'

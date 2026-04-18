@@ -31,6 +31,10 @@ public class HTTPRequestUtils {
 
   private static URLConnection createConnection(String link) throws IOException {
     URL url = URI.create(link).toURL();
+    String protocol = url.getProtocol();
+    if (!protocol.equals("http") && !protocol.equals("https")) {
+      throw new IOException("Only http/https schemes are allowed");
+    }
     URLConnection connection = url.openConnection();
 
     connection.setUseCaches(false);

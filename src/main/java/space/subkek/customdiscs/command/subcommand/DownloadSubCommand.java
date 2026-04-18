@@ -54,9 +54,17 @@ public class DownloadSubCommand extends AbstractSubCommand {
     plugin.getFoliaLib().getScheduler().runAsync(task -> {
       try {
         URL fileURL = URI.create(getArgumentValue(arguments, "url", String.class)).toURL();
+        String protocol = fileURL.getProtocol();
+        if (!protocol.equals("http") && !protocol.equals("https")) {
+          CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.invalid-url"));
+          return;
+        }
+
         String filename = getArgumentValue(arguments, "filename", String.class);
 
-        if (filename.contains("../")) {
+        Path base = plugin.getDataFolder().toPath().resolve("musicdata").normalize();
+        Path resolved = base.resolve(filename).normalize();
+        if (!resolved.startsWith(base)) {
           CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.invalid-filename"));
           return;
         }

@@ -9,6 +9,7 @@ language:
       no-permission: 'Нет прав на выполнение команды'
       unknown-extension: 'Файл должен иметь расширение <dark_aqua>wav<white>, <dark_aqua>flac <white>, <dark_aqua>mp3<white> и др!'
       invalid-filename: 'Неверное имя файла!'
+      invalid-url: 'Неверный URL! Разрешены только http/https.'
       disc-name-empty: 'Необходимо указать имя диска.'
     play:
       no-matches: 'Трек не найдено!'
