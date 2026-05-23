@@ -9,7 +9,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEf
 import com.google.gson.JsonParser;
 import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
-import dev.jorel.commandapi.CommandAPI;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bstats.bukkit.Metrics;
@@ -38,6 +38,7 @@ import space.subkek.customdiscs.language.YamlLanguage;
 import space.subkek.customdiscs.util.HTTPRequestUtils;
 
 import java.io.File;
+import java.util.List;
 
 public class CustomDiscs extends JavaPlugin {
   private static Logger logger;
@@ -85,8 +86,6 @@ public class CustomDiscs extends JavaPlugin {
       return;
     }
 
-    CommandAPI.onEnable();
-
     if (getDataFolder().mkdir()) CustomDiscs.info("Created plugin data folder");
     if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
 
@@ -129,7 +128,6 @@ public class CustomDiscs extends JavaPlugin {
   @Override
   public void onDisable() {
     if (!libsLoaded) return;
-    CommandAPI.onDisable();
     LavaPlayerManagerImpl.getInstance().stopPlayingAll();
 
     cDData.stopAutosave();
@@ -187,7 +185,9 @@ public class CustomDiscs extends JavaPlugin {
   }
 
   private void registerCommands() {
-    new CustomDiscsCommand().register("customdiscs");
+    getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+      event.registrar().register(new CustomDiscsCommand().create(), "Main command of CustomDiscs-SVC plugin.", List.of("cd"));
+    });
   }
 
   private void registerEvents() {

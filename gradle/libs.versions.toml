@@ -6,8 +6,7 @@ minotaur = "2.9.0"
 paper-api = "1.21.11-R0.1-SNAPSHOT"
 voicechat-api = "2.6.0"
 lavaplayer = "2.2.6"
-youtube-source = "1.18.0"
-commandapi = "11.2.0"
+youtube-source = "1.18.1"
 commons-io = "2.21.0"
 bstats = "3.2.1"
 simple-yaml = "1.8.4"
@@ -23,7 +22,6 @@ minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "voicechat-api" }
-commandapi = { module = "dev.jorel:commandapi-paper-core", version.ref = "commandapi" }
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 folialib = { module = "com.tcoded:FoliaLib", version.ref = "folialib" }
 

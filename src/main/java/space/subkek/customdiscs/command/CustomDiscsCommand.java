@@ -1,45 +1,60 @@
 package space.subkek.customdiscs.command;
 
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.executors.CommandArguments;
-import org.bukkit.command.CommandSender;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import space.subkek.customdiscs.command.subcommand.*;
 
-public class CustomDiscsCommand extends CommandAPICommand {
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+public class CustomDiscsCommand {
+  private final List<AbstractSubCommand> subcommands = new ArrayList<>();
+
   public CustomDiscsCommand() {
-    super("customdiscs");
-
-    this.withAliases("cd");
-    this.withFullDescription("Main command of CustomDiscs-SVC plugin.");
-
-    this.withSubcommand(new HelpSubCommand(this));
-    this.withSubcommand(new ReloadSubCommand());
-    this.withSubcommand(new DownloadSubCommand());
-    this.withSubcommand(new CreateSubCommand());
-    this.withSubcommand(new DistanceSubCommand());
-
-    this.executes(this::execute);
+    registerSubcommand(new HelpSubCommand(this));
+    registerSubcommand(new ReloadSubCommand());
+    registerSubcommand(new DownloadSubCommand());
+    registerSubcommand(new CreateSubCommand());
+    registerSubcommand(new DistanceSubCommand());
   }
 
-  public void execute(CommandSender sender, CommandArguments arguments) {
-    findHelpCommand().execute(sender, arguments);
+  private void registerSubcommand(AbstractSubCommand subcommand) {
+    this.subcommands.add(subcommand);
+  }
+
+  public LiteralCommandNode<CommandSourceStack> create() {
+    LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("customdiscs")
+      .executes(this::execute);
+
+    for (AbstractSubCommand subcommand : subcommands) {
+      LiteralArgumentBuilder<CommandSourceStack> subNode = Commands.literal(subcommand.getName())
+        .requires(stack -> subcommand.hasPermission(stack.getSender()));
+
+      subNode = subcommand.assemble(subNode);
+
+      builder.then(subNode);
+    }
+
+    return builder.build();
+  }
+
+  public int execute(CommandContext<CommandSourceStack> ctx) {
+    return findHelpCommand().execute(ctx);
   }
 
   @NotNull
   private AbstractSubCommand findHelpCommand() {
-    AbstractSubCommand subCommand = null;
-
-    for (CommandAPICommand caSubCommand : getSubcommands()) {
-      if (caSubCommand.getName().equals("help")) {
-        subCommand = (AbstractSubCommand) caSubCommand;
-        break;
+    for (AbstractSubCommand currentSub : getSubcommands()) {
+      if (currentSub.getName().equals("help")) {
+        return currentSub;
       }
     }
-
-    if (subCommand == null)
-      throw new IllegalStateException("Command help doesn't exists");
-
-    return subCommand;
+    throw new IllegalStateException("Command help doesn't exist");
   }
 }

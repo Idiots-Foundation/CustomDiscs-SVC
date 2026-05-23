@@ -9,11 +9,8 @@ public class CreateSubCommand extends AbstractSubCommand {
 
   public CreateSubCommand() {
     super("create");
-
-    this.withFullDescription(getDescription());
-    this.withUsage(getSyntax());
-    this.withSubcommand(new LocalCreateSubCommand());
-    this.withSubcommand(new RemoteCreateSubCommand());
+    this.addSubcommand(new LocalCreateSubCommand());
+    this.addSubcommand(new RemoteCreateSubCommand());
   }
 
   @Override

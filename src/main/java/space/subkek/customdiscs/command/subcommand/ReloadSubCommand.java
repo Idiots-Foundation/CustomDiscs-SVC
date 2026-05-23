@@ -1,6 +1,9 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import dev.jorel.commandapi.executors.CommandArguments;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.command.CommandSender;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.command.AbstractSubCommand;
@@ -10,11 +13,11 @@ public class ReloadSubCommand extends AbstractSubCommand {
 
   public ReloadSubCommand() {
     super("reload");
+  }
 
-    this.withFullDescription(getDescription());
-    this.withUsage(getSyntax());
-
-    this.executes(this::execute);
+  @Override
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+    return builder.executes(this::execute);
   }
 
   @Override
@@ -33,14 +36,11 @@ public class ReloadSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, CommandArguments arguments) {
-    if (!hasPermission(sender)) {
-      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.no-permission"));
-      return;
-    }
-
+  public int execute(CommandContext<CommandSourceStack> context) {
     plugin.getCDConfig().load();
     plugin.getLanguage().load();
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.reload.messages.successfully"));
+    CustomDiscs.sendMessage(context.getSource().getSender(), plugin.getLanguage().PComponent("command.reload.messages.successfully"));
+
+    return Command.SINGLE_SUCCESS;
   }
 }

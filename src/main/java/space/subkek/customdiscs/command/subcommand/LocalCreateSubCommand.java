@@ -1,9 +1,11 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.StringArgument;
-import dev.jorel.commandapi.arguments.TextArgument;
-import dev.jorel.commandapi.executors.CommandArguments;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
 import net.kyori.adventure.text.Component;
@@ -30,27 +32,34 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
 
   public LocalCreateSubCommand() {
     super("local");
+  }
 
-    this.withFullDescription(getDescription());
-    this.withUsage(getUsage());
+  @Override
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+    return builder.then(Commands.argument("filename", StringArgumentType.string())
+      .suggests((context, suggestionsBuilder) -> {
+        File musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
+        if (!musicDataFolder.isDirectory()) {
+          return suggestionsBuilder.buildFuture();
+        }
 
-    this.withArguments(new StringArgument("filename").replaceSuggestions(ArgumentSuggestions.stringCollection((sender) -> {
-      File musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
-      if (!musicDataFolder.isDirectory()) {
-        return List.of();
-      }
+        File[] files = musicDataFolder.listFiles();
+        if (files == null) {
+          return suggestionsBuilder.buildFuture();
+        }
 
-      File[] files = musicDataFolder.listFiles();
-      if (files == null) {
-        return List.of();
-      }
+        String remaining = suggestionsBuilder.getRemaining().toLowerCase();
+        Arrays.stream(files)
+          .filter(file -> !file.isDirectory())
+          .map(File::getName)
+          .filter(name -> name.toLowerCase().startsWith(remaining))
+          .forEach(suggestionsBuilder::suggest);
 
-      return Arrays.stream(files).filter(file -> !file.isDirectory()).map(File::getName).toList();
-    })));
-    this.withArguments(new TextArgument("song_name").replaceSuggestions(quotedArgument(null)));
+        return suggestionsBuilder.buildFuture();
+      })
 
-    this.executesPlayer(this::executePlayer);
-    this.executes(this::execute);
+      .then(Commands.argument("song_name", StringArgumentType.string())
+        .executes(this::executePlayer)));
   }
 
   @Override
@@ -69,29 +78,28 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
   }
 
   @SuppressWarnings("UnstableApiUsage")
-  @Override
-  public void executePlayer(Player player, CommandArguments arguments) {
-    if (!hasPermission(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
-      return;
+  public int executePlayer(CommandContext<CommandSourceStack> context) {
+    CommandSender sender = context.getSource().getSender();
+
+    if (!(sender instanceof Player player)) {
+      return execute(context);
     }
 
     if (!LegacyUtil.isMusicDiscInHand(player)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
-      return;
+      return 0;
     }
 
-    String filename = getArgumentValue(arguments, "filename", String.class);
+    String filename = getArgumentValue(context, "filename", String.class);
     if (filename.contains("../")) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.invalid-filename"));
-      return;
+      return 0;
     }
 
-    String customName = getArgumentValue(arguments, "song_name", String.class);
-
+    String customName = getArgumentValue(context, "song_name", String.class);
     if (customName.isEmpty()) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.disc-name-empty"));
-      return;
+      return 0;
     }
 
     File getDirectory = new File(CustomDiscs.getPlugin().getDataFolder(), "musicdata");
@@ -99,16 +107,14 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
     if (songFile.exists()) {
       if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
         CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.unknown-extension"));
-        return;
+        return 0;
       }
     } else {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.file.not-found"));
-      return;
+      return 0;
     }
 
-    //Sets the lore of the item to the quotes from the command.
     ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
-
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.displayName(plugin.getLanguage().component("disc-name.simple")
@@ -135,11 +141,14 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
 
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.file", filename));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
+
+    return Command.SINGLE_SUCCESS;
   }
 
   @Override
-  public void execute(CommandSender sender, CommandArguments arguments) {
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.cant-perform"));
+  public int execute(CommandContext<CommandSourceStack> context) {
+    CustomDiscs.sendMessage(context.getSource().getSender(), plugin.getLanguage().PComponent("error.command.cant-perform"));
+    return 0;
   }
 
   private String getFileExtension(String s) {

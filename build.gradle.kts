@@ -28,7 +28,6 @@ dependencies {
 
     compileOnly(libs.paper.api)
     compileOnly(libs.voicechat.api)
-    compileOnly(libs.commandapi)
     compileOnly(libs.packetevents)
 
     implementation(libs.lavaplayer)
@@ -88,7 +87,6 @@ paper {
     serverDependencies {
         register("voicechat") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
         register("packetevents") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
-        register("CommandAPI") { load = PaperPluginDescription.RelativeLoadOrder.BEFORE }
     }
 }
 
@@ -103,6 +101,9 @@ modrinth {
     versionNumber.set(version as String)
     versionType.set("release")
     gameVersions.addAll(
+        "26.1.2",
+        "26.1.1",
+        "26.1",
         "1.21.11",
         "1.21.10",
         "1.21.9",
@@ -120,7 +121,7 @@ modrinth {
     loaders.addAll("paper", "purpur", "folia")
     uploadFile.set(tasks.shadowJar)
     dependencies {
-        required.project("simple-voice-chat", "commandapi", "packetevents")
+        required.project("simple-voice-chat", "packetevents")
     }
 }
 

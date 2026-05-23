@@ -1,7 +1,11 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import dev.jorel.commandapi.arguments.TextArgument;
-import dev.jorel.commandapi.executors.CommandArguments;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.CustomModelData;
 import net.kyori.adventure.text.Component;
@@ -27,16 +31,16 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
 
   public RemoteCreateSubCommand() {
     super("remote");
+  }
 
-    this.withFullDescription(getDescription());
-    this.withUsage(getSyntax());
+  @Override
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+    return builder.then(Commands.argument("url", StringArgumentType.string())
+      .suggests(quotedArgument(plugin.getCDConfig().getRemoteTabComplete()))
 
-    this.withArguments(new TextArgument("url")
-      .replaceSuggestions(quotedArgument(plugin.getCDConfig().getRemoteTabComplete())));
-    this.withArguments(new TextArgument("song_name")
-      .replaceSuggestions(quotedArgument(null)));
-    this.executesPlayer(this::executePlayer);
-    this.executes(this::execute);
+      .then(Commands.argument("song_name", StringArgumentType.string())
+        .suggests(quotedArgument(null))
+        .executes(this::executePlayer)));
   }
 
   @Override
@@ -56,35 +60,45 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
 
   @Override
   public boolean hasPermission(CommandSender sender, RemoteServices service) {
+    if (sender.isOp()) return true;
     if (service == null) return hasPermission(sender);
     return sender.hasPermission("customdiscs.create.remote.%s".formatted(service.getId()));
   }
 
   @SuppressWarnings("UnstableApiUsage")
-  @Override
-  public void executePlayer(Player player, CommandArguments arguments) {
-    String url = getArgumentValue(arguments, "url", String.class);
+  public int executePlayer(CommandContext<CommandSourceStack> context) {
+    CommandSender sender = context.getSource().getSender();
+
+    if (!(sender instanceof Player player)) {
+      return execute(context);
+    }
+
+    String url = getArgumentValue(context, "url", String.class);
     RemoteServices service = RemoteServices.fromUrl(url);
 
-    if (service == null || !hasPermission(player, service)) {
+    if (service == null) {
+      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.invalid-url"));
+      return 0;
+    }
+
+    if (!hasPermission(player, service)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.no-permission"));
-      return;
+      return 0;
     }
 
     if (!LegacyUtil.isMusicDiscInHand(player)) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
-      return;
+      return 0;
     }
 
-    String customName = getArgumentValue(arguments, "song_name", String.class);
+    String customName = getArgumentValue(context, "song_name", String.class);
 
     if (customName.isEmpty()) {
       CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.disc-name-empty"));
-      return;
+      return 0;
     }
 
     ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
-
     ItemMeta meta = LegacyUtil.getItemMeta(disc);
 
     meta.displayName(plugin.getLanguage().component("disc-name.%s".formatted(service.getId()))
@@ -111,10 +125,13 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
 
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.link", url));
     CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
+
+    return Command.SINGLE_SUCCESS;
   }
 
   @Override
-  public void execute(CommandSender sender, CommandArguments arguments) {
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.cant-perform"));
+  public int execute(CommandContext<CommandSourceStack> context) {
+    CustomDiscs.sendMessage(context.getSource().getSender(), plugin.getLanguage().PComponent("error.command.cant-perform"));
+    return 0;
   }
 }

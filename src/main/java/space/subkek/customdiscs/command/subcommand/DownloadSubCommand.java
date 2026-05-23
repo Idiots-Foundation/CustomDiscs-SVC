@@ -1,8 +1,11 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import dev.jorel.commandapi.arguments.StringArgument;
-import dev.jorel.commandapi.arguments.TextArgument;
-import dev.jorel.commandapi.executors.CommandArguments;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
 import space.subkek.customdiscs.CustomDiscs;
@@ -19,14 +22,14 @@ public class DownloadSubCommand extends AbstractSubCommand {
 
   public DownloadSubCommand() {
     super("download");
+  }
 
-    this.withFullDescription(getDescription());
-    this.withUsage(getSyntax());
+  @Override
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+    return builder.then(Commands.argument("url", StringArgumentType.string())
 
-    this.withArguments(new TextArgument("url"));
-    this.withArguments(new StringArgument("filename"));
-
-    this.executes(this::execute);
+      .then(Commands.argument("filename", StringArgumentType.string())
+        .executes(this::execute)));
   }
 
   @Override
@@ -45,22 +48,19 @@ public class DownloadSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public void execute(CommandSender sender, CommandArguments arguments) {
-    if (!hasPermission(sender)) {
-      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.no-permission"));
-      return;
-    }
+  public int execute(CommandContext<CommandSourceStack> context) {
+    CommandSender sender = context.getSource().getSender();
 
     plugin.getFoliaLib().getScheduler().runAsync(task -> {
       try {
-        URL fileURL = URI.create(getArgumentValue(arguments, "url", String.class)).toURL();
+        URL fileURL = URI.create(getArgumentValue(context, "url", String.class)).toURL();
         String protocol = fileURL.getProtocol();
         if (!protocol.equals("http") && !protocol.equals("https")) {
           CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.invalid-url"));
           return;
         }
 
-        String filename = getArgumentValue(arguments, "filename", String.class);
+        String filename = getArgumentValue(context, "filename", String.class);
 
         Path base = plugin.getDataFolder().toPath().resolve("musicdata").normalize();
         Path resolved = base.resolve(filename).normalize();
@@ -100,6 +100,8 @@ public class DownloadSubCommand extends AbstractSubCommand {
         CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.error.while-download"));
       }
     });
+
+    return Command.SINGLE_SUCCESS;
   }
 
   private String getFileExtension(String s) {

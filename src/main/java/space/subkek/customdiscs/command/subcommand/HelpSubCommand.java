@@ -1,7 +1,8 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.executors.CommandArguments;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.command.CommandSender;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.command.AbstractSubCommand;
@@ -17,11 +18,6 @@ public class HelpSubCommand extends AbstractSubCommand {
     super("help");
 
     this.cdCommand = cdCommand;
-
-    this.withFullDescription(getDescription());
-    this.withUsage(getSyntax());
-
-    this.executes(this::execute);
   }
 
   @Override
@@ -39,27 +35,28 @@ public class HelpSubCommand extends AbstractSubCommand {
     return sender.hasPermission("customdiscs.help");
   }
 
-  @Override
-  public void execute(CommandSender sender, CommandArguments arguments) {
-    if (!hasPermission(sender)) {
-      CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.no-permission"));
-      return;
-    }
+  public int execute(CommandContext<CommandSourceStack> context) {
+    CommandSender sender = context.getSource().getSender();
 
     CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.header"));
     printHelp(sender, cdCommand.getSubcommands());
     CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.footer"));
+
+    return Command.SINGLE_SUCCESS;
   }
 
-  private void printHelp(CommandSender sender, List<CommandAPICommand> commands) {
-    for (CommandAPICommand caSubCommand : commands) {
-      AbstractSubCommand subCommand = (AbstractSubCommand) caSubCommand;
+  private void printHelp(CommandSender sender, List<AbstractSubCommand> commands) {
+    for (AbstractSubCommand subCommand : commands) {
 
       if (subCommand.hasPermission(sender)) {
         if (!subCommand.getSubcommands().isEmpty()) {
           printHelp(sender, subCommand.getSubcommands());
         } else {
-          CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.format", subCommand.getSyntax(), subCommand.getDescription()));
+          CustomDiscs.sendMessage(sender, plugin.getLanguage().component(
+            "command.help.messages.format",
+            subCommand.getSyntax(),
+            subCommand.getDescription()
+          ));
         }
       }
     }
