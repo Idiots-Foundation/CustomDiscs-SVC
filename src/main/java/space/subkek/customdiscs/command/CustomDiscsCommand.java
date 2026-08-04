@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import space.subkek.customdiscs.command.subcommand.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.command.AbstractCommand;
-import space.subkek.customdiscs.event.PlayerHandler;
+import space.subkek.customdiscs.listener.PlayerListener;
 
 public final class DistanceSubCommand extends AbstractCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
@@ -52,7 +52,7 @@ public final class DistanceSubCommand extends AbstractCommand {
 
     final int radius = this.getArgumentValue(context, "radius", Integer.class);
 
-    PlayerHandler.getInstance().getPlayersSelecting().put(player.getUniqueId(), radius);
+    PlayerListener.getInstance().getPlayersSelecting().put(player.getUniqueId(), radius);
 
     CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("command.distance.messages.click"));
 

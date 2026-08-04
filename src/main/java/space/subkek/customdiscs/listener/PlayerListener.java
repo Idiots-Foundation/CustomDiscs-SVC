@@ -1,4 +1,4 @@
-package space.subkek.customdiscs.event;
+package space.subkek.customdiscs.listener;
 
 import lombok.Getter;
 import org.bukkit.Material;
@@ -19,14 +19,14 @@ import space.subkek.customdiscs.util.PlayUtil;
 import java.util.HashMap;
 import java.util.UUID;
 
-public final class PlayerHandler implements Listener {
-  private static PlayerHandler instance;
+public final class PlayerListener implements Listener {
+  private static PlayerListener instance;
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   @Getter
   private final HashMap<UUID, Integer> playersSelecting = new HashMap<>();
 
-  public static synchronized PlayerHandler getInstance() {
-    if (instance == null) return instance = new PlayerHandler();
+  public static synchronized PlayerListener getInstance() {
+    if (instance == null) return instance = new PlayerListener();
     return instance;
   }
 
@@ -60,7 +60,6 @@ public final class PlayerHandler implements Listener {
     if (event.getPlayer().isSneaking()) return;
     if (event.getClickedBlock() == null) return;
     if (event.getItem() == null) return;
-    if (!event.getItem().hasItemMeta()) return;
     if (block == null) return;
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (LegacyUtil.isJukeboxContainsDisc(block)) return;

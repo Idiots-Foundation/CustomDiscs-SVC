@@ -34,6 +34,7 @@ public final class LegacyUtil {
   }
 
   public static boolean isCustomDisc(@NotNull final ItemStack item) {
+    if (!item.hasItemMeta()) return false;
     {
       final var meta = getItemMeta(item);
       if (migratePDC(meta.getPersistentDataContainer()))

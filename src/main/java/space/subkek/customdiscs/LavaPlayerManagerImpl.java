@@ -246,7 +246,7 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
     if (this.playerMap.containsKey(uuid)) return;
     CustomDiscs.debug("Starting LavaPlayer: {}", uuid);
 
-    final VoicechatServerApi api = CDVoiceAddon.getInstance().getVoicechatApi();
+    final var api = CDVoiceAddon.getInstance().getVoicechatApi();
     final var audioPosition = api.createPosition(
       block.getLocation().getX() + 0.5d,
       block.getLocation().getY() + 0.5d,

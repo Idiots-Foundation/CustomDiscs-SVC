@@ -1,11 +1,7 @@
 package space.subkek.customdiscs;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.PacketListener;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
-import com.github.retrooper.packetevents.event.PacketSendEvent;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEffect;
 import com.google.gson.JsonParser;
 import com.tcoded.folialib.FoliaLib;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
@@ -23,14 +19,14 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.command.CustomDiscsCommand;
-import space.subkek.customdiscs.event.HopperHandler;
-import space.subkek.customdiscs.event.JukeboxHandler;
-import space.subkek.customdiscs.event.PlayerHandler;
+import space.subkek.customdiscs.listener.HopperListener;
+import space.subkek.customdiscs.listener.JukeboxListener;
+import space.subkek.customdiscs.listener.JukeboxPacketListener;
+import space.subkek.customdiscs.listener.PlayerListener;
 import space.subkek.customdiscs.file.CDConfig;
 import space.subkek.customdiscs.file.CDData;
 import space.subkek.customdiscs.language.YamlLanguage;
@@ -127,26 +123,10 @@ public final class CustomDiscs extends JavaPlugin {
 
     this.foliaLib.getScheduler().runAsync(task -> this.checkUpdates());
 
-    PacketEvents.getAPI().getEventManager().registerListener(new PacketListener() {
-      @Override
-      public void onPacketSend(@NonNull final PacketSendEvent event) {
-        if (event.getPacketType() == PacketType.Play.Server.EFFECT) {
-          final var packet = new WrapperPlayServerEffect(event);
-
-          if (packet.getType() == 1010) {
-            final var pos = packet.getPosition();
-            final var player = (org.bukkit.entity.Player) event.getPlayer();
-            final var world = player.getWorld();
-
-            final var block = world.getBlockAt(pos.getX(), pos.getY(), pos.getZ());
-
-            if (LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
-              event.setCancelled(true);
-            }
-          }
-        }
-      }
-    }, PacketListenerPriority.HIGHEST);
+    PacketEvents.getAPI().getEventManager().registerListener(
+      new JukeboxPacketListener(),
+      PacketListenerPriority.HIGHEST
+    );
   }
 
   @Override
@@ -215,9 +195,9 @@ public final class CustomDiscs extends JavaPlugin {
   }
 
   private void registerEvents() {
-    this.getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
-    this.getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
-    this.getServer().getPluginManager().registerEvents(new HopperHandler(), this);
+    this.getServer().getPluginManager().registerEvents(new JukeboxListener(), this);
+    this.getServer().getPluginManager().registerEvents(PlayerListener.getInstance(), this);
+    this.getServer().getPluginManager().registerEvents(new HopperListener(), this);
   }
 
   private void linkBStats() {
