@@ -4,11 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.stream.Collectors;
 
-public class HTTPRequestUtils {
+public final class HTTPRequestUtils {
   private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0";
 
   public static String getTextResponse(final String link) {

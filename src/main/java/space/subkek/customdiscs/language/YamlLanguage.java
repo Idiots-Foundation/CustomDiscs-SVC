@@ -7,7 +7,6 @@ import space.subkek.customdiscs.CustomDiscs;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -15,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
-public class YamlLanguage {
+public final class YamlLanguage {
   private static final MiniMessage MINIMESSAGE = MiniMessage.miniMessage();
   private final YamlFile language = new YamlFile();
 

@@ -6,13 +6,14 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.VolumeCategory;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
+import lombok.Getter;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 
-public class CDVoiceAddon implements VoicechatPlugin {
+public final class CDVoiceAddon implements VoicechatPlugin {
   public static final String MUSIC_DISC_CATEGORY = "music_discs";
   private static CDVoiceAddon instance;
+  @Getter
   private VoicechatServerApi voicechatApi;
   private VolumeCategory musicDiscsCategory;
 

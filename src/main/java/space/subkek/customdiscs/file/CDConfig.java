@@ -8,36 +8,15 @@ import space.subkek.customdiscs.language.Language;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
 @Getter
-@SuppressWarnings("unused")
-public class CDConfig {
+public final class CDConfig {
   private final YamlFile yaml = new YamlFile();
   private final File configFile;
   private String configVersion;
-  private String locale = Language.ENGLISH.getLabel();
-  private boolean shouldCheckUpdates = true;
-  private boolean debug = false;
-  private int maxDownloadSize = 50;
-  private int localCustomModelData = 0;
-  private List<String> remoteTabComplete = List.of("https://www.youtube.com/watch?v=", "https://soundcloud.com/");
-  private int remoteCustomModelDataYoutube = 0;
-  private String remoteFilterYoutube = "https?:\\/\\/(?:www\\.youtube\\.com\\/watch\\?v=|youtu\\.be\\/).+";
-  private int remoteCustomModelDataSoundcloud = 0;
-  private String remoteFilterSoundcloud = "https?:\\/\\/soundcloud\\.com\\/[^\\s]+";
-  private int distanceCommandMaxDistance = 64;
-  private int musicDiscDistance = 64;
-  private float musicDiscVolume = 1f;
-  private boolean allowHoppers = true;
-  private boolean youtubeOauth2 = false;
-  private String youtubePoToken = "";
-  private String youtubePoVisitorData = "";
-  private String youtubeRemoteServer = "";
-  private String youtubeRemoteServerPassword = "";
-  private String youtubeHttpProxy = "";
+
   public CDConfig(final File configFile) {
     this.configFile = configFile;
   }
@@ -132,6 +111,10 @@ public class CDConfig {
     return this.yaml.getStringList(key);
   }
 
+  private String locale = Language.ENGLISH.getLabel();
+  private boolean shouldCheckUpdates = true;
+  private boolean debug = false;
+
   private void globalSettings() {
     this.locale = this.getString("global.locale", this.locale, "Language of the plugin",
       """
@@ -143,6 +126,15 @@ public class CDConfig {
     this.shouldCheckUpdates = this.getBoolean("global.check-updates", this.shouldCheckUpdates);
     this.debug = this.getBoolean("global.debug", this.debug);
   }
+
+  private int maxDownloadSize = 50;
+  private int localCustomModelData = 0;
+  private List<String> remoteTabComplete = List.of("https://www.youtube.com/watch?v=", "https://soundcloud.com/");
+  private int remoteCustomModelDataYoutube = 0;
+  private String remoteFilterYoutube = "https?:\\/\\/(?:www\\.youtube\\.com\\/watch\\?v=|youtu\\.be\\/).+";
+  private int remoteCustomModelDataSoundcloud = 0;
+  private String remoteFilterSoundcloud = "https?:\\/\\/soundcloud\\.com\\/[^\\s]+";
+  private int distanceCommandMaxDistance = 64;
 
   private void commandSettings() {
     this.maxDownloadSize = this.getInt("command.download.max-size", this.maxDownloadSize,
@@ -160,6 +152,10 @@ public class CDConfig {
       filter — Regex filter for applying custom-model-data to remote disk""");
   }
 
+  private int musicDiscDistance = 64;
+  private float musicDiscVolume = 1f;
+  private boolean allowHoppers = true;
+
   private void discSettings() {
     this.musicDiscDistance = this.getInt("disc.distance", this.musicDiscDistance,
       "The distance from which music discs can be heard in blocks.");
@@ -168,6 +164,13 @@ public class CDConfig {
     ));
     this.allowHoppers = this.getBoolean("disc.allow-hoppers", this.allowHoppers, "Please ensure that in the config/paper-world-defaults.yaml the value hopper.disable-move-event is false");
   }
+
+  private boolean youtubeOauth2 = false;
+  private String youtubePoToken = "";
+  private String youtubePoVisitorData = "";
+  private String youtubeRemoteServer = "";
+  private String youtubeRemoteServerPassword = "";
+  private String youtubeHttpProxy = "";
 
   private void providersSettings() {
     this.youtubeHttpProxy = this.getString("providers.youtube.http-proxy", this.youtubeHttpProxy,

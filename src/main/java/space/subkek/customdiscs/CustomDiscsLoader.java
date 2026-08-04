@@ -12,16 +12,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("UnstableApiUsage")
-public class CustomDiscsLoader implements PluginLoader {
+public final class CustomDiscsLoader implements PluginLoader {
   private static final String RESOURCE_NAME = "/deps.json";
   private static final String MAVEN_CENTRAL = "maven-central";
 

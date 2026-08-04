@@ -15,10 +15,9 @@ import space.subkek.customdiscs.Keys;
 import space.subkek.customdiscs.api.DiscEntry;
 
 import java.io.File;
-import java.util.List;
 import java.util.UUID;
 
-public class LegacyUtil {
+public final class LegacyUtil {
   public static boolean isJukeboxContainsDisc(@NotNull final Block block) {
     final var jukebox = (Jukebox) block.getLocation().getBlock().getState();
     return jukebox.getRecord().getType() != Material.AIR;

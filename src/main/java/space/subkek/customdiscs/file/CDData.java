@@ -3,7 +3,6 @@ package space.subkek.customdiscs.file;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.block.Block;
-import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.util.LegacyUtil;
@@ -15,7 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
-public class CDData {
+public final class CDData {
   private final YamlFile yaml = new YamlFile();
   private final File dataFile;
   private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();

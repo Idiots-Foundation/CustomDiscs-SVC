@@ -1,6 +1,5 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,27 +8,18 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.command.CommandSender;
 import space.subkek.customdiscs.CustomDiscs;
-import space.subkek.customdiscs.command.AbstractSubCommand;
+import space.subkek.customdiscs.command.AbstractCommand;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Path;
+import java.util.List;
 
-public class DownloadSubCommand extends AbstractSubCommand {
+public final class DownloadSubCommand extends AbstractCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public DownloadSubCommand() {
     super("download");
-  }
-
-  @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
-    return builder.then(Commands.argument("url", StringArgumentType.string())
-
-      .then(Commands.argument("filename", StringArgumentType.string())
-        .executes(this::execute)));
   }
 
   @Override
@@ -40,6 +30,17 @@ public class DownloadSubCommand extends AbstractSubCommand {
   @Override
   public String getSyntax() {
     return this.plugin.getLanguage().string("command.download.syntax");
+  }
+
+  @Override
+  public void build(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    builder.requires(source -> this.hasPermission(source.getSender()));
+    builder
+      .then(Commands.argument("url", StringArgumentType.string())
+        .suggests(this.quotedArgument(List.of()))
+        .then(Commands.argument("filename", StringArgumentType.string())
+          .suggests(this.quotedArgument(List.of()))
+          .executes(this::execute)));
   }
 
   @Override
@@ -101,7 +102,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
       }
     });
 
-    return Command.SINGLE_SUCCESS;
+    return SINGLE_SUCCESS;
   }
 
   private String getFileExtension(final String s) {

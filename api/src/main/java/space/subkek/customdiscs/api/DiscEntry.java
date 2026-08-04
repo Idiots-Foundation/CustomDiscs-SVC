@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * with its corresponding audio source metadata and identifier.
  */
 @SuppressWarnings("ClassCanBeRecord")
-public class DiscEntry {
+public final class DiscEntry {
   private final ItemStack disc;
   private final Component name;
   private final String identifier;

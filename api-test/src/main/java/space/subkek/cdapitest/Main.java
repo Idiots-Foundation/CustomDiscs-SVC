@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Main extends JavaPlugin implements Listener {
+public final class Main extends JavaPlugin implements Listener {
   private String lastIdentifier = null;
   private CustomDiscsAPI api;
 

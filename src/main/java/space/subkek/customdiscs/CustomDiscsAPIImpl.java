@@ -6,7 +6,7 @@ import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.api.LavaPlayerManager;
 import space.subkek.customdiscs.util.LegacyUtil;
 
-public class CustomDiscsAPIImpl implements CustomDiscsAPI {
+public final class CustomDiscsAPIImpl implements CustomDiscsAPI {
   @Override
   public @NotNull LavaPlayerManager getLavaPlayerManager() {
     return LavaPlayerManagerImpl.getInstance();

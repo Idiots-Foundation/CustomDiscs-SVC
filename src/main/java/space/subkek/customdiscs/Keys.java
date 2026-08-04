@@ -3,7 +3,7 @@ package space.subkek.customdiscs;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataType;
 
-public class Keys {
+public final class Keys {
   public static final Key<String> LOCAL_DISC = Key.create("local", PersistentDataType.STRING);
   public static final Key<String> REMOTE_DISC = Key.create("remote", PersistentDataType.STRING);
 

@@ -55,6 +55,16 @@ paper {
     foliaSupported = true
 
     permissions {
+        register("$pluginId.*") {
+            default = BukkitPluginDescription.Permission.Default.OP
+            children = listOf(
+                "$pluginId.help",
+                "$pluginId.reload",
+                "$pluginId.download",
+                "$pluginId.create",
+                "$pluginId.distance"
+            )
+        }
         register("$pluginId.help") {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
@@ -66,12 +76,20 @@ paper {
         }
         register("$pluginId.create") {
             default = BukkitPluginDescription.Permission.Default.TRUE
+            children = listOf(
+                "$pluginId.create.local",
+                "$pluginId.create.remote"
+            )
         }
         register("$pluginId.create.local") {
             default = BukkitPluginDescription.Permission.Default.TRUE
         }
         register("$pluginId.create.remote") {
             default = BukkitPluginDescription.Permission.Default.TRUE
+            children = listOf(
+                "$pluginId.create.remote.youtube",
+                "$pluginId.create.remote.soundcloud"
+            )
         }
         register("$pluginId.create.remote.youtube") {
             default = BukkitPluginDescription.Permission.Default.TRUE

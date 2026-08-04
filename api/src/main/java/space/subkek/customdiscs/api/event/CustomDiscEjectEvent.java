@@ -18,7 +18,7 @@ import space.subkek.customdiscs.api.DiscEntry;
  * <strong>Note:</strong> Since this event is synchronous and linked to world state changes,
  * it is safe to perform direct block or inventory modifications here.
  */
-public class CustomDiscEjectEvent extends Event implements Cancellable {
+public final class CustomDiscEjectEvent extends Event implements Cancellable {
   private static final HandlerList HANDLER_LIST = new HandlerList();
   private boolean isCancelled;
 

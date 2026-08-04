@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * Any modifications to the world or calls to non-thread-safe Bukkit methods must be
  * wrapped in an appropriate scheduler task (e.g., Global or Region scheduler).
  */
-public class LavaPlayerStartPlayingEvent extends Event implements Cancellable {
+public final class LavaPlayerStartPlayingEvent extends Event implements Cancellable {
   private static final HandlerList HANDLER_LIST = new HandlerList();
   private boolean isCancelled;
 

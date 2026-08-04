@@ -1,6 +1,5 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,22 +8,14 @@ import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import space.subkek.customdiscs.CustomDiscs;
-import space.subkek.customdiscs.command.AbstractSubCommand;
+import space.subkek.customdiscs.command.AbstractCommand;
 import space.subkek.customdiscs.event.PlayerHandler;
 
-public class DistanceSubCommand extends AbstractSubCommand {
+public final class DistanceSubCommand extends AbstractCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public DistanceSubCommand() {
     super("distance");
-  }
-
-  @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
-    final var maxDistance = this.plugin.getCDConfig().getDistanceCommandMaxDistance();
-
-    return builder.then(Commands.argument("radius", IntegerArgumentType.integer(0, maxDistance))
-      .executes(this::executePlayer));
   }
 
   @Override
@@ -35,6 +26,16 @@ public class DistanceSubCommand extends AbstractSubCommand {
   @Override
   public String getSyntax() {
     return this.plugin.getLanguage().string("command.distance.syntax");
+  }
+
+  @Override
+  public void build(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    final var maxDistance = this.plugin.getCDConfig().getDistanceCommandMaxDistance();
+
+    builder.requires(source -> this.hasPermission(source.getSender()));
+    builder
+      .then(Commands.argument("radius", IntegerArgumentType.integer(0, maxDistance))
+        .executes(this::executePlayer));
   }
 
   @Override
@@ -55,7 +56,7 @@ public class DistanceSubCommand extends AbstractSubCommand {
 
     CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("command.distance.messages.click"));
 
-    return Command.SINGLE_SUCCESS;
+    return SINGLE_SUCCESS;
   }
 
   @Override

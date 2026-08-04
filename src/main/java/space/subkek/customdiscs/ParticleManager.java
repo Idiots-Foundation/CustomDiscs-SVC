@@ -1,14 +1,12 @@
 package space.subkek.customdiscs;
 
-import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ParticleManager {
+public final class ParticleManager {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
   private static final Set<Block> blocks = new HashSet<>();
 

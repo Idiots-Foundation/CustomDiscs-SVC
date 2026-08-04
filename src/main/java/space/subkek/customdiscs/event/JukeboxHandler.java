@@ -1,7 +1,6 @@
 package space.subkek.customdiscs.event;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -9,7 +8,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import space.subkek.customdiscs.LavaPlayerManagerImpl;
 
-public class JukeboxHandler implements Listener {
+public final class JukeboxHandler implements Listener {
   @EventHandler(priority = EventPriority.NORMAL)
   public void onJukeboxBreak(final BlockBreakEvent event) {
     final var block = event.getBlock();

@@ -1,6 +1,5 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -11,36 +10,23 @@ import io.papermc.paper.datacomponent.item.CustomModelData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.Keys;
-import space.subkek.customdiscs.command.AbstractSubCommand;
+import space.subkek.customdiscs.command.AbstractCommand;
 import space.subkek.customdiscs.util.LegacyUtil;
 import space.subkek.customdiscs.util.RemoteServices;
 
 import java.util.List;
 
-public class RemoteCreateSubCommand extends AbstractSubCommand {
+public final class RemoteCreateSubCommand extends AbstractCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public RemoteCreateSubCommand() {
     super("remote");
-  }
-
-  @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
-    return builder.then(Commands.argument("url", StringArgumentType.string())
-      .suggests(this.quotedArgument(this.plugin.getCDConfig().getRemoteTabComplete()))
-
-      .then(Commands.argument("song_name", StringArgumentType.string())
-        .suggests(this.quotedArgument(null))
-        .executes(this::executePlayer)));
   }
 
   @Override
@@ -54,15 +40,18 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public boolean hasPermission(final CommandSender sender) {
-    return sender.hasPermission("customdiscs.create.remote");
+  public void build(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    builder.requires(source -> this.hasPermission(source.getSender()));
+    builder.then(Commands.argument("url", StringArgumentType.string())
+      .suggests(this.quotedArgument(this.plugin.getCDConfig().getRemoteTabComplete()))
+      .then(Commands.argument("song_name", StringArgumentType.string())
+        .suggests(this.quotedArgument(List.of()))
+        .executes(this::executePlayer)));
   }
 
   @Override
-  public boolean hasPermission(final CommandSender sender, final RemoteServices service) {
-    if (sender.isOp()) return true;
-    if (service == null) return this.hasPermission(sender);
-    return sender.hasPermission("customdiscs.create.remote.%s".formatted(service.getId()));
+  public boolean hasPermission(final CommandSender sender) {
+    return sender.hasPermission("customdiscs.create.remote");
   }
 
   @SuppressWarnings("UnstableApiUsage")
@@ -81,7 +70,7 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
       return 0;
     }
 
-    if (!this.hasPermission(player, service)) {
+    if (!service.hasPermission(player)) {
       CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("error.command.no-permission"));
       return 0;
     }
@@ -126,7 +115,7 @@ public class RemoteCreateSubCommand extends AbstractSubCommand {
     CustomDiscs.sendMessage(player, this.plugin.getLanguage().component("command.create.messages.link", url));
     CustomDiscs.sendMessage(player, this.plugin.getLanguage().component("command.create.messages.name", customName));
 
-    return Command.SINGLE_SUCCESS;
+    return SINGLE_SUCCESS;
   }
 
   @Override

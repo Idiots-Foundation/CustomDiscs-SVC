@@ -1,6 +1,5 @@
 package space.subkek.customdiscs.command.subcommand;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -11,55 +10,24 @@ import io.papermc.paper.datacomponent.item.CustomModelData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.Keys;
-import space.subkek.customdiscs.command.AbstractSubCommand;
+import space.subkek.customdiscs.command.AbstractCommand;
 import space.subkek.customdiscs.util.LegacyUtil;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-public class LocalCreateSubCommand extends AbstractSubCommand {
+public final class LocalCreateSubCommand extends AbstractCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public LocalCreateSubCommand() {
     super("local");
-  }
-
-  @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
-    return builder.then(Commands.argument("filename", StringArgumentType.string())
-      .suggests((context, suggestionsBuilder) -> {
-        final var musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
-        if (!musicDataFolder.isDirectory()) {
-          return suggestionsBuilder.buildFuture();
-        }
-
-        final var files = musicDataFolder.listFiles();
-        if (files == null) {
-          return suggestionsBuilder.buildFuture();
-        }
-
-        final var remaining = suggestionsBuilder.getRemaining().toLowerCase();
-        Arrays.stream(files)
-          .filter(file -> !file.isDirectory())
-          .map(File::getName)
-          .filter(name -> name.toLowerCase().startsWith(remaining))
-          .forEach(suggestionsBuilder::suggest);
-
-        return suggestionsBuilder.buildFuture();
-      })
-
-      .then(Commands.argument("song_name", StringArgumentType.string())
-        .executes(this::executePlayer)));
   }
 
   @Override
@@ -70,6 +38,29 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
   @Override
   public String getSyntax() {
     return this.plugin.getLanguage().string("command.create.local.syntax");
+  }
+
+  @Override
+  public void build(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    builder.requires(source -> this.hasPermission(source.getSender()));
+    builder.then(Commands.argument("filename", StringArgumentType.string())
+      .suggests(this.quotedArgument(() -> {
+        final var musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
+        if (!musicDataFolder.isDirectory()) {
+          return List.of();
+        }
+        final var files = musicDataFolder.listFiles();
+        if (files == null) {
+          return List.of();
+        }
+        return Arrays.stream(files)
+          .filter(file -> !file.isDirectory())
+          .map(File::getName)
+          .toList();
+      }))
+      .then(Commands.argument("song_name", StringArgumentType.string())
+        .suggests(this.quotedArgument(List.of()))
+        .executes(this::executePlayer)));
   }
 
   @Override
@@ -142,7 +133,7 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
     CustomDiscs.sendMessage(player, this.plugin.getLanguage().component("command.create.messages.file", filename));
     CustomDiscs.sendMessage(player, this.plugin.getLanguage().component("command.create.messages.name", customName));
 
-    return Command.SINGLE_SUCCESS;
+    return SINGLE_SUCCESS;
   }
 
   @Override

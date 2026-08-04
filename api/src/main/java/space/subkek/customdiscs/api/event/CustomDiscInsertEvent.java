@@ -15,7 +15,7 @@ import space.subkek.customdiscs.api.DiscEntry;
  * This event can be triggered by a player's manual interaction or by a hopper.
  * If cancelled, the disc will not be placed inside the jukebox, and playback will not start.
  */
-public class CustomDiscInsertEvent extends Event implements Cancellable {
+public final class CustomDiscInsertEvent extends Event implements Cancellable {
   private static final HandlerList HANDLER_LIST = new HandlerList();
   private boolean isCancelled;
 

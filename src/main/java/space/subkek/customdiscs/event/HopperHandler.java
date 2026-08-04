@@ -1,20 +1,18 @@
 package space.subkek.customdiscs.event;
 
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.LavaPlayerManagerImpl;
-import space.subkek.customdiscs.api.DiscEntry;
 import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
 import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
 import space.subkek.customdiscs.util.LegacyUtil;
 import space.subkek.customdiscs.util.PlayUtil;
 
-public class HopperHandler implements Listener {
+public final class HopperHandler implements Listener {
   @EventHandler(priority = EventPriority.NORMAL)
   public void onJukeboxInsertFromHopper(final InventoryMoveItemEvent event) {
     if (!CustomDiscs.getPlugin().getCDConfig().isAllowHoppers()) return;

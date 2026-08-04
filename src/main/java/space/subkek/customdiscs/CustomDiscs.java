@@ -16,7 +16,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -38,9 +37,8 @@ import space.subkek.customdiscs.language.YamlLanguage;
 import space.subkek.customdiscs.util.HTTPRequestUtils;
 
 import java.io.File;
-import java.util.List;
 
-public class CustomDiscs extends JavaPlugin {
+public final class CustomDiscs extends JavaPlugin {
   private static Logger logger;
   private static Logger debugLogger;
 
@@ -212,7 +210,7 @@ public class CustomDiscs extends JavaPlugin {
 
   private void registerCommands() {
     this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-      event.registrar().register(new CustomDiscsCommand().create(), "Main command of CustomDiscs-SVC plugin.", List.of("cd"));
+      new CustomDiscsCommand().register(event);
     });
   }
 

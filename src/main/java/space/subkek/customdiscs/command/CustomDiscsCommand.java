@@ -2,10 +2,11 @@ package space.subkek.customdiscs.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent;
 import lombok.Getter;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import space.subkek.customdiscs.command.subcommand.*;
 
@@ -13,35 +14,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class CustomDiscsCommand {
-  private final List<AbstractSubCommand> subcommands = new ArrayList<>();
-
+public final class CustomDiscsCommand extends AbstractCommand {
   public CustomDiscsCommand() {
-    this.registerSubcommand(new HelpSubCommand(this));
-    this.registerSubcommand(new ReloadSubCommand());
-    this.registerSubcommand(new DownloadSubCommand());
-    this.registerSubcommand(new CreateSubCommand());
-    this.registerSubcommand(new DistanceSubCommand());
+    super("customdiscs");
+    this.addSubCommand(new HelpSubCommand(this));
+    this.addSubCommand(new ReloadSubCommand());
+    this.addSubCommand(new DownloadSubCommand());
+    this.addSubCommand(new CreateSubCommand());
+    this.addSubCommand(new DistanceSubCommand());
   }
 
-  private void registerSubcommand(final AbstractSubCommand subcommand) {
-    this.subcommands.add(subcommand);
+  public void register(final ReloadableRegistrarEvent<Commands> event) {
+    final var builder = Commands.literal(this.getName());
+    this.build(builder);
+    this.buildSubCommands(builder);
+
+    event.registrar().register(builder.build(), "Main CustomDiscs command", List.of("cd"));
   }
 
-  public LiteralCommandNode<CommandSourceStack> create() {
-    final var builder = Commands.literal("customdiscs")
-      .executes(this::execute);
+  @Override
+  public boolean hasPermission(final CommandSender sender) {
+    return sender.hasPermission("customdiscs");
+  }
 
-    for (final var subcommand : this.subcommands) {
-      var subNode = Commands.literal(subcommand.getName())
-        .requires(stack -> subcommand.hasPermission(stack.getSender()));
-
-      subNode = subcommand.assemble(subNode);
-
-      builder.then(subNode);
-    }
-
-    return builder.build();
+  @Override
+  public void build(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    builder.executes(this::execute);
   }
 
   public int execute(final CommandContext<CommandSourceStack> ctx) {
@@ -49,8 +47,8 @@ public class CustomDiscsCommand {
   }
 
   @NotNull
-  private AbstractSubCommand findHelpCommand() {
-    for (final var currentSub : this.getSubcommands()) {
+  private AbstractCommand findHelpCommand() {
+    for (final var currentSub : this.getSubCommands()) {
       if (currentSub.getName().equals("help")) {
         return currentSub;
       }

@@ -1,6 +1,7 @@
 package space.subkek.customdiscs.util;
 
 import lombok.Getter;
+import org.bukkit.command.CommandSender;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.file.CDConfig;
 
@@ -37,5 +38,9 @@ public enum RemoteServices {
 
   public int getCustomModelData() {
     return this.modelDataProvider.apply(CustomDiscs.getPlugin().getCDConfig());
+  }
+
+  public boolean hasPermission(final CommandSender sender) {
+    return sender.hasPermission("customdiscs.create.remote.%s".formatted(this.id));
   }
 }

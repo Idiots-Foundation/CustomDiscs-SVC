@@ -7,7 +7,7 @@ import space.subkek.customdiscs.LavaPlayerManagerImpl;
 import space.subkek.customdiscs.ParticleManager;
 import space.subkek.customdiscs.api.DiscEntry;
 
-public class PlayUtil {
+public final class PlayUtil {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public static void play(final Block block, final DiscEntry disc) {

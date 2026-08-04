@@ -4,15 +4,12 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
-import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
-import de.maxhenkel.voicechat.api.Position;
 import de.maxhenkel.voicechat.api.ServerPlayer;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
@@ -45,10 +42,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LavaPlayerManagerImpl implements LavaPlayerManager {
+public final class LavaPlayerManagerImpl implements LavaPlayerManager {
   private static final Pattern PROXY_PATTERN = Pattern.compile(
     "^(?:(https?)://)?(?:(\\w+):(\\w*)@)?([a-zA-Z0-9][a-zA-Z0-9\\-_.]{0,61}|(\\d{1,3}(?:\\.\\d{1,3}){3})):(\\d{1,5})$"
   );
@@ -346,7 +342,7 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
   }
 
   @SuppressWarnings("ClassCanBeRecord")
-  private static class ActiveHandler implements HandlerRegistration {
+  private static final class ActiveHandler implements HandlerRegistration {
     private final Plugin plugin;
     private final PacketConsumer consumer;
 
@@ -361,15 +357,17 @@ public class LavaPlayerManagerImpl implements LavaPlayerManager {
     }
   }
 
-  private class LavaPlayer {
+  private final class LavaPlayer {
     private final Block block;
     private final String identifier;
     private final LocationalAudioChannel audioChannel;
     private final UUID uuid;
     private final Collection<ServerPlayer> playersInRangeAtStart;
-    private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();    private final Thread lavaPlayerThread = new Thread(this::threadJob, "LavaPlayerThread");
+    private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
+    private final Thread lavaPlayerThread = new Thread(this::threadJob, "LavaPlayerThread");
     private AudioPlayer audioPlayer;
     private volatile boolean isRunning = true;
+
     public LavaPlayer(final Block block, final String identifier, final LocationalAudioChannel audioChannel, final UUID uuid, final Collection<ServerPlayer> playersInRangeAtStart) {
       this.block = block;
       this.identifier = identifier;

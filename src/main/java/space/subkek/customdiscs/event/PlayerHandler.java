@@ -2,9 +2,7 @@ package space.subkek.customdiscs.event;
 
 import lombok.Getter;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -13,7 +11,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.LavaPlayerManagerImpl;
-import space.subkek.customdiscs.api.DiscEntry;
 import space.subkek.customdiscs.api.event.CustomDiscEjectEvent;
 import space.subkek.customdiscs.api.event.CustomDiscInsertEvent;
 import space.subkek.customdiscs.util.LegacyUtil;
@@ -22,7 +19,7 @@ import space.subkek.customdiscs.util.PlayUtil;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class PlayerHandler implements Listener {
+public final class PlayerHandler implements Listener {
   private static PlayerHandler instance;
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   @Getter
