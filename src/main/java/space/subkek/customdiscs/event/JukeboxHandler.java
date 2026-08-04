@@ -11,16 +11,16 @@ import space.subkek.customdiscs.LavaPlayerManagerImpl;
 
 public class JukeboxHandler implements Listener {
   @EventHandler(priority = EventPriority.NORMAL)
-  public void onJukeboxBreak(BlockBreakEvent event) {
-    Block block = event.getBlock();
+  public void onJukeboxBreak(final BlockBreakEvent event) {
+    final var block = event.getBlock();
     if (block.getType() == Material.JUKEBOX) {
       LavaPlayerManagerImpl.getInstance().stopPlaying(block);
     }
   }
 
   @EventHandler(priority = EventPriority.NORMAL)
-  public void onJukeboxExplode(EntityExplodeEvent event) {
-    for (Block explodedBlock : event.blockList()) {
+  public void onJukeboxExplode(final EntityExplodeEvent event) {
+    for (final var explodedBlock : event.blockList()) {
       if (explodedBlock.getType() == Material.JUKEBOX) {
         LavaPlayerManagerImpl.getInstance().stopPlaying(explodedBlock);
       }

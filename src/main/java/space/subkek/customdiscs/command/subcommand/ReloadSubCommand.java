@@ -16,30 +16,30 @@ public class ReloadSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
     return builder.executes(this::execute);
   }
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.reload.description");
+    return this.plugin.getLanguage().string("command.reload.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.reload.syntax");
+    return this.plugin.getLanguage().string("command.reload.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return sender.hasPermission("customdiscs.reload");
   }
 
   @Override
-  public int execute(CommandContext<CommandSourceStack> context) {
-    plugin.getCDConfig().load();
-    plugin.getLanguage().load();
-    CustomDiscs.sendMessage(context.getSource().getSender(), plugin.getLanguage().PComponent("command.reload.messages.successfully"));
+  public int execute(final CommandContext<CommandSourceStack> context) {
+    this.plugin.getCDConfig().load();
+    this.plugin.getLanguage().load();
+    CustomDiscs.sendMessage(context.getSource().getSender(), this.plugin.getLanguage().PComponent("command.reload.messages.successfully"));
 
     return Command.SINGLE_SUCCESS;
   }

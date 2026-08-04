@@ -13,7 +13,7 @@ public class CustomDiscsAPIImpl implements CustomDiscsAPI {
   }
 
   @Override
-  public boolean isCustomDisc(@NotNull ItemStack item) {
+  public boolean isCustomDisc(@NotNull final ItemStack item) {
     return LegacyUtil.isCustomDisc(item);
   }
 }

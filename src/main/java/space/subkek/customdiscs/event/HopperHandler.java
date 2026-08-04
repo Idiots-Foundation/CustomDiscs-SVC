@@ -16,32 +16,32 @@ import space.subkek.customdiscs.util.PlayUtil;
 
 public class HopperHandler implements Listener {
   @EventHandler(priority = EventPriority.NORMAL)
-  public void onJukeboxInsertFromHopper(InventoryMoveItemEvent event) {
+  public void onJukeboxInsertFromHopper(final InventoryMoveItemEvent event) {
     if (!CustomDiscs.getPlugin().getCDConfig().isAllowHoppers()) return;
     if (event.getDestination().getLocation() == null) return;
-    Block block = event.getDestination().getLocation().getBlock();
+    final var block = event.getDestination().getLocation().getBlock();
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (LegacyUtil.isJukeboxContainsDisc(block)) return;
 
     if (!LegacyUtil.isCustomDisc(event.getItem())) return;
-    DiscEntry discEntry = LegacyUtil.getDiscEntry(event.getItem());
+    final var discEntry = LegacyUtil.getDiscEntry(event.getItem());
 
-    CustomDiscInsertEvent playEvent = new CustomDiscInsertEvent(block, null, discEntry);
+    final var playEvent = new CustomDiscInsertEvent(block, null, discEntry);
     CustomDiscs.getPlugin().getServer().getPluginManager().callEvent(playEvent);
     if (!playEvent.isCancelled())
       PlayUtil.play(block, discEntry);
   }
 
   @EventHandler(priority = EventPriority.NORMAL)
-  public void onJukeboxEjectToHopper(InventoryMoveItemEvent event) {
+  public void onJukeboxEjectToHopper(final InventoryMoveItemEvent event) {
     if (event.getSource().getLocation() == null) return;
-    Block block = event.getSource().getLocation().getBlock();
+    final var block = event.getSource().getLocation().getBlock();
     if (!block.getType().equals(Material.JUKEBOX)) return;
     if (!event.getItem().hasItemMeta()) return;
     if (!LegacyUtil.isCustomDisc(event.getItem())) return;
 
     if (!LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
-      CustomDiscEjectEvent stopEvent = new CustomDiscEjectEvent(block, null, LegacyUtil.getDiscEntry(event.getItem()));
+      final var stopEvent = new CustomDiscEjectEvent(block, null, LegacyUtil.getDiscEntry(event.getItem()));
       CustomDiscs.getPlugin().getServer().getPluginManager().callEvent(stopEvent);
       event.setCancelled(stopEvent.isCancelled());
     } else event.setCancelled(true);

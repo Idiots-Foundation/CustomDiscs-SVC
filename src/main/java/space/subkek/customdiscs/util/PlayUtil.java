@@ -10,11 +10,11 @@ import space.subkek.customdiscs.api.DiscEntry;
 public class PlayUtil {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
 
-  public static void play(Block block, DiscEntry disc) {
+  public static void play(final Block block, final DiscEntry disc) {
     ParticleManager.start(block);
 
     plugin.getFoliaLib().getScheduler().runAtLocationLater(block.getLocation(), task -> {
-      if (block.getState() instanceof Jukebox jukebox) {
+      if (block.getState() instanceof final Jukebox jukebox) {
         jukebox.stopPlaying();
       }
     }, 1);

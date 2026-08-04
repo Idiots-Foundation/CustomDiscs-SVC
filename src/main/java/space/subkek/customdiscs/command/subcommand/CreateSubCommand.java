@@ -15,16 +15,16 @@ public class CreateSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.create.description");
+    return this.plugin.getLanguage().string("command.create.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.create.syntax");
+    return this.plugin.getLanguage().string("command.create.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return sender.hasPermission("customdiscs.create");
   }
 }

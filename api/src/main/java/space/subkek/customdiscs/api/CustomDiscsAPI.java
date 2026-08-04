@@ -18,7 +18,7 @@ public interface CustomDiscsAPI {
    */
   @Nullable
   static CustomDiscsAPI get() {
-    RegisteredServiceProvider<CustomDiscsAPI> rsp = Bukkit.getServicesManager().getRegistration(CustomDiscsAPI.class);
+    var rsp = Bukkit.getServicesManager().getRegistration(CustomDiscsAPI.class);
     if (rsp == null) return null;
     return rsp.getProvider();
   }

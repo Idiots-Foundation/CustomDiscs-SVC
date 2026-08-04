@@ -35,20 +35,20 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
     return builder.then(Commands.argument("filename", StringArgumentType.string())
       .suggests((context, suggestionsBuilder) -> {
-        File musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
+        final var musicDataFolder = new File(this.plugin.getDataFolder(), "musicdata");
         if (!musicDataFolder.isDirectory()) {
           return suggestionsBuilder.buildFuture();
         }
 
-        File[] files = musicDataFolder.listFiles();
+        final var files = musicDataFolder.listFiles();
         if (files == null) {
           return suggestionsBuilder.buildFuture();
         }
 
-        String remaining = suggestionsBuilder.getRemaining().toLowerCase();
+        final var remaining = suggestionsBuilder.getRemaining().toLowerCase();
         Arrays.stream(files)
           .filter(file -> !file.isDirectory())
           .map(File::getName)
@@ -64,60 +64,60 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.create.local.description");
+    return this.plugin.getLanguage().string("command.create.local.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.create.local.syntax");
+    return this.plugin.getLanguage().string("command.create.local.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return sender.hasPermission("customdiscs.create.local");
   }
 
   @SuppressWarnings("UnstableApiUsage")
-  public int executePlayer(CommandContext<CommandSourceStack> context) {
-    CommandSender sender = context.getSource().getSender();
+  public int executePlayer(final CommandContext<CommandSourceStack> context) {
+    final var sender = context.getSource().getSender();
 
-    if (!(sender instanceof Player player)) {
-      return execute(context);
+    if (!(sender instanceof final Player player)) {
+      return this.execute(context);
     }
 
     if (!LegacyUtil.isMusicDiscInHand(player)) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
+      CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("command.create.messages.error.not-holding-disc"));
       return 0;
     }
 
-    String filename = getArgumentValue(context, "filename", String.class);
+    final var filename = this.getArgumentValue(context, "filename", String.class);
     if (filename.contains("../")) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.invalid-filename"));
+      CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("error.command.invalid-filename"));
       return 0;
     }
 
-    String customName = getArgumentValue(context, "song_name", String.class);
+    final var customName = this.getArgumentValue(context, "song_name", String.class);
     if (customName.isEmpty()) {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.disc-name-empty"));
+      CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("error.command.disc-name-empty"));
       return 0;
     }
 
-    File getDirectory = new File(CustomDiscs.getPlugin().getDataFolder(), "musicdata");
-    File songFile = new File(getDirectory.getPath(), filename);
+    final var getDirectory = new File(CustomDiscs.getPlugin().getDataFolder(), "musicdata");
+    final var songFile = new File(getDirectory.getPath(), filename);
     if (songFile.exists()) {
-      if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") && !getFileExtension(filename).equals("flac")) {
-        CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.command.unknown-extension"));
+      if (!this.getFileExtension(filename).equals("wav") && !this.getFileExtension(filename).equals("mp3") && !this.getFileExtension(filename).equals("flac")) {
+        CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("error.command.unknown-extension"));
         return 0;
       }
     } else {
-      CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("error.file.not-found"));
+      CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("error.file.not-found"));
       return 0;
     }
 
-    ItemStack disc = new ItemStack(player.getInventory().getItemInMainHand());
-    ItemMeta meta = LegacyUtil.getItemMeta(disc);
+    final var disc = new ItemStack(player.getInventory().getItemInMainHand());
+    final var meta = LegacyUtil.getItemMeta(disc);
 
-    meta.displayName(plugin.getLanguage().component("disc-name.simple")
+    meta.displayName(this.plugin.getLanguage().component("disc-name.simple")
       .decoration(TextDecoration.ITALIC, false));
 
     final Component customLoreSong = Component.text(customName)
@@ -127,32 +127,32 @@ public class LocalCreateSubCommand extends AbstractSubCommand {
     meta.addItemFlags(ItemFlag.values());
     meta.lore(List.of(customLoreSong));
 
-    int modelData = plugin.getCDConfig().getLocalCustomModelData();
+    final var modelData = this.plugin.getCDConfig().getLocalCustomModelData();
     if (modelData != 0)
       disc.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(modelData).build());
 
-    PersistentDataContainer data = meta.getPersistentDataContainer();
-    for (NamespacedKey key : data.getKeys()) {
+    final var data = meta.getPersistentDataContainer();
+    for (final var key : data.getKeys()) {
       data.remove(key);
     }
     data.set(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType(), filename);
 
     player.getInventory().getItemInMainHand().setItemMeta(meta);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.file", filename));
-    CustomDiscs.sendMessage(player, plugin.getLanguage().component("command.create.messages.name", customName));
+    CustomDiscs.sendMessage(player, this.plugin.getLanguage().component("command.create.messages.file", filename));
+    CustomDiscs.sendMessage(player, this.plugin.getLanguage().component("command.create.messages.name", customName));
 
     return Command.SINGLE_SUCCESS;
   }
 
   @Override
-  public int execute(CommandContext<CommandSourceStack> context) {
-    CustomDiscs.sendMessage(context.getSource().getSender(), plugin.getLanguage().PComponent("error.command.cant-perform"));
+  public int execute(final CommandContext<CommandSourceStack> context) {
+    CustomDiscs.sendMessage(context.getSource().getSender(), this.plugin.getLanguage().PComponent("error.command.cant-perform"));
     return 0;
   }
 
-  private String getFileExtension(String s) {
-    int index = s.lastIndexOf(".");
+  private String getFileExtension(final String s) {
+    final var index = s.lastIndexOf(".");
     if (index > 0) {
       return s.substring(index + 1);
     } else {

@@ -17,23 +17,23 @@ public class CustomDiscsCommand {
   private final List<AbstractSubCommand> subcommands = new ArrayList<>();
 
   public CustomDiscsCommand() {
-    registerSubcommand(new HelpSubCommand(this));
-    registerSubcommand(new ReloadSubCommand());
-    registerSubcommand(new DownloadSubCommand());
-    registerSubcommand(new CreateSubCommand());
-    registerSubcommand(new DistanceSubCommand());
+    this.registerSubcommand(new HelpSubCommand(this));
+    this.registerSubcommand(new ReloadSubCommand());
+    this.registerSubcommand(new DownloadSubCommand());
+    this.registerSubcommand(new CreateSubCommand());
+    this.registerSubcommand(new DistanceSubCommand());
   }
 
-  private void registerSubcommand(AbstractSubCommand subcommand) {
+  private void registerSubcommand(final AbstractSubCommand subcommand) {
     this.subcommands.add(subcommand);
   }
 
   public LiteralCommandNode<CommandSourceStack> create() {
-    LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("customdiscs")
+    final var builder = Commands.literal("customdiscs")
       .executes(this::execute);
 
-    for (AbstractSubCommand subcommand : subcommands) {
-      LiteralArgumentBuilder<CommandSourceStack> subNode = Commands.literal(subcommand.getName())
+    for (final var subcommand : this.subcommands) {
+      var subNode = Commands.literal(subcommand.getName())
         .requires(stack -> subcommand.hasPermission(stack.getSender()));
 
       subNode = subcommand.assemble(subNode);
@@ -44,13 +44,13 @@ public class CustomDiscsCommand {
     return builder.build();
   }
 
-  public int execute(CommandContext<CommandSourceStack> ctx) {
-    return findHelpCommand().execute(ctx);
+  public int execute(final CommandContext<CommandSourceStack> ctx) {
+    return this.findHelpCommand().execute(ctx);
   }
 
   @NotNull
   private AbstractSubCommand findHelpCommand() {
-    for (AbstractSubCommand currentSub : getSubcommands()) {
+    for (final var currentSub : this.getSubcommands()) {
       if (currentSub.getName().equals("help")) {
         return currentSub;
       }

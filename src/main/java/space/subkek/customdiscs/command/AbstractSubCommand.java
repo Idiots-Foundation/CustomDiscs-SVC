@@ -17,22 +17,22 @@ public abstract class AbstractSubCommand {
   @Getter
   private final List<AbstractSubCommand> subcommands = new ArrayList<>();
 
-  public AbstractSubCommand(String commandName) {
+  public AbstractSubCommand(final String commandName) {
     this.commandName = commandName;
   }
 
   public String getName() {
-    return commandName;
+    return this.commandName;
   }
 
-  public void addSubcommand(AbstractSubCommand subcommand) {
+  public void addSubcommand(final AbstractSubCommand subcommand) {
     this.subcommands.add(subcommand);
   }
 
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
-    if (!subcommands.isEmpty()) {
-      for (AbstractSubCommand sub : subcommands) {
-        LiteralArgumentBuilder<CommandSourceStack> subNode = io.papermc.paper.command.brigadier.Commands.literal(sub.getName())
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    if (!this.subcommands.isEmpty()) {
+      for (final var sub : this.subcommands) {
+        var subNode = io.papermc.paper.command.brigadier.Commands.literal(sub.getName())
           .requires(stack -> sub.hasPermission(stack.getSender()));
 
         subNode = sub.assemble(subNode);
@@ -46,17 +46,17 @@ public abstract class AbstractSubCommand {
     return builder;
   }
 
-  protected <T> T getArgumentValue(CommandContext<CommandSourceStack> context, String nodeName, Class<T> argumentType) {
+  protected <T> T getArgumentValue(final CommandContext<CommandSourceStack> context, final String nodeName, final Class<T> argumentType) {
     try {
       return context.getArgument(nodeName, argumentType);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       throw new IllegalArgumentException("Couldn't find argument %s".formatted(nodeName), e);
     }
   }
 
-  protected SuggestionProvider<CommandSourceStack> quotedArgument(@Nullable List<String> suggestions) {
+  protected SuggestionProvider<CommandSourceStack> quotedArgument(@Nullable final List<String> suggestions) {
     return (context, builder) -> {
-      String remaining = builder.getRemaining();
+      final var remaining = builder.getRemaining();
 
       if (remaining.isEmpty()) {
         builder.suggest("\"");
@@ -67,13 +67,13 @@ public abstract class AbstractSubCommand {
         return builder.buildFuture();
       }
 
-      String query = remaining.startsWith("\"") ? remaining.substring(1) : remaining;
-      String lowerQuery = query.toLowerCase();
+      final var query = remaining.startsWith("\"") ? remaining.substring(1) : remaining;
+      final var lowerQuery = query.toLowerCase();
 
-      boolean hasMatches = false;
+      var hasMatches = false;
 
       if (suggestions != null && !suggestions.isEmpty()) {
-        for (String s : suggestions) {
+        for (final var s : suggestions) {
           if (s.toLowerCase().startsWith(lowerQuery)) {
             builder.suggest("\"" + s + "\"");
             hasMatches = true;
@@ -89,11 +89,11 @@ public abstract class AbstractSubCommand {
     };
   }
 
-  public int execute(CommandContext<CommandSourceStack> context) {
+  public int execute(final CommandContext<CommandSourceStack> context) {
     return 1;
   }
 
-  public int executePlayer(CommandContext<CommandSourceStack> context) {
+  public int executePlayer(final CommandContext<CommandSourceStack> context) {
     return 1;
   }
 
@@ -101,11 +101,11 @@ public abstract class AbstractSubCommand {
 
   public abstract String getSyntax();
 
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return false;
   }
 
-  public boolean hasPermission(CommandSender sender, RemoteServices service) {
-    return hasPermission(sender);
+  public boolean hasPermission(final CommandSender sender, final RemoteServices service) {
+    return this.hasPermission(sender);
   }
 }

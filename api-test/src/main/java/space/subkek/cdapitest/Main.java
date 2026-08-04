@@ -41,10 +41,10 @@ public class Main extends JavaPlugin implements Listener {
 
     getServer().getPluginManager().registerEvents(this, this);
 
-    LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("cdapitest")
+    var root = Commands.literal("cdapitest")
       .requires(ctx -> ctx.getSender() instanceof Player)
       .then(Commands.literal("playlast").executes(ctx -> {
-        Player player = (Player) ctx.getSource().getSender();
+        var player = (Player) ctx.getSource().getSender();
 
         if (lastIdentifier == null) {
           player.sendPlainMessage("No played discs before");
@@ -56,7 +56,7 @@ public class Main extends JavaPlugin implements Listener {
         return Command.SINGLE_SUCCESS;
       }))
       .then(Commands.literal("stopall").executes(ctx -> {
-        CommandSender sender = ctx.getSource().getSender();
+        var sender = ctx.getSource().getSender();
 
         sender.sendPlainMessage("Stopping all LavaPlayers on the server");
         api.getLavaPlayerManager().stopPlayingAll();
@@ -78,7 +78,7 @@ public class Main extends JavaPlugin implements Listener {
   private final PlainTextComponentSerializer PLAINTEXT = PlainTextComponentSerializer.plainText();
 
   private void broadcast(String message) {
-    Component component = MINIMESSAGE.deserialize(message);
+    var component = MINIMESSAGE.deserialize(message);
     for (var player : getServer().getOnlinePlayers()) {
       player.sendMessage(component);
     }
@@ -87,29 +87,29 @@ public class Main extends JavaPlugin implements Listener {
   @EventHandler
   public void discStopped(LavaPlayerStopPlayingEvent event) {
     broadcast("<red>Disc stopped at %s.formatted(jukebox destroyed: %b".formatted(event.getBlock().getLocation(), event.getBlock().getType() != Material.JUKEBOX));
-    Collection<ServerPlayer> sps = api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock());
+    var sps = api.getLavaPlayerManager().getPlayersInRangeAtStart(event.getBlock());
     if (sps == null) {
       broadcast("<red>WTF!? Players is null");
       return;
     }
     sps.forEach(sp -> {
-      Player player = (Player) sp.getPlayer();
+      var player = (Player) sp.getPlayer();
       if (player.isOnline()) player.sendMessage(MINIMESSAGE.deserialize("<gold>Wow disc is stopped."));
     });
   }
 
   @EventHandler
   public void discInserted(CustomDiscInsertEvent event) {
-    Player player = event.getPlayer();
-    String inserter = player != null ? player.getName() : "Hopper or Dropper";
+    var player = event.getPlayer();
+    var inserter = player != null ? player.getName() : "Hopper or Dropper";
     lastIdentifier = event.getDiscEntry().getIdentifier();
     broadcast("<green>Disc %s inserted by %s at %s".formatted(PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 
   @EventHandler
   public void discEjected(CustomDiscEjectEvent event) {
-    Player player = event.getPlayer();
-    String inserter = player != null ? player.getName() : "Hopper";
+    var player = event.getPlayer();
+    var inserter = player != null ? player.getName() : "Hopper";
     broadcast("<yellow>Disc %s ejected by %s at %s".formatted(PLAINTEXT.serialize(event.getDiscEntry().getName()), inserter, event.getBlock().getLocation()));
   }
 
@@ -154,15 +154,15 @@ public class Main extends JavaPlugin implements Listener {
 
     if (event.getChunk().getX() != 0 || event.getChunk().getZ() != 0) return;
 
-    World world = event.getWorld();
-    LavaPlayerManager lpm = api.getLavaPlayerManager();
+    var world = event.getWorld();
+    var lpm = api.getLavaPlayerManager();
 
-    File musicFile = new File("plugins/CustomDiscs/musicdata/", "lp.mp3");
+    var musicFile = new File("plugins/CustomDiscs/musicdata/", "lp.mp3");
     if (!musicFile.exists()) return;
 
     if (chunks.add(event.getChunk())) {
       getServer().getRegionScheduler().runAtFixedRate(this, world, 0, 0, task -> {
-        Block block = world.getBlockAt(0, 64, 0);
+        var block = world.getBlockAt(0, 64, 0);
 
         if (!lpm.isPlaying(block))
           api.getLavaPlayerManager().play(block, musicFile.getPath(), MINIMESSAGE.deserialize("<gold>LP3she4ka for you"));

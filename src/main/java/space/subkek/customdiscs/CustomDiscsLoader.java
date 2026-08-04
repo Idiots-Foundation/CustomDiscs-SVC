@@ -27,10 +27,10 @@ public class CustomDiscsLoader implements PluginLoader {
 
   private static String getDefaultMavenCentralMirror() {
     try {
-      Field field = MavenLibraryResolver.class.getDeclaredField("MAVEN_CENTRAL_DEFAULT_MIRROR");
+      final var field = MavenLibraryResolver.class.getDeclaredField("MAVEN_CENTRAL_DEFAULT_MIRROR");
       field.setAccessible(true);
       return (String) field.get(null);
-    } catch (NoSuchFieldException | IllegalAccessException ignored) {
+    } catch (final NoSuchFieldException | IllegalAccessException ignored) {
     }
 
     // Official Google mirror by default
@@ -38,31 +38,31 @@ public class CustomDiscsLoader implements PluginLoader {
   }
 
   @Override
-  public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
+  public void classloader(@NotNull final PluginClasspathBuilder classpathBuilder) {
     System.setProperty("customdiscs.loader.success", "false");
 
-    Gson gson = new Gson();
-    try (InputStream is = getClass().getResourceAsStream(RESOURCE_NAME)) {
+    final var gson = new Gson();
+    try (final var is = this.getClass().getResourceAsStream(RESOURCE_NAME)) {
       if (is == null) throw new FileNotFoundException("Resource not found: %s".formatted(RESOURCE_NAME));
 
-      try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-        Type type = new TypeToken<Map<String, List<String>>>() {
+      try (final var isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+        final var type = new TypeToken<Map<String, List<String>>>() {
         }.getType();
-        Map<String, List<String>> data = gson.fromJson(isr, type);
+        final Map<String, List<String>> data = gson.fromJson(isr, type);
 
         if (data == null) throw new RuntimeException("%s is empty".formatted(RESOURCE_NAME));
 
-        List<String> repositories = data.get("repositories");
-        List<String> dependencies = data.get("dependencies");
+        final var repositories = data.get("repositories");
+        final var dependencies = data.get("dependencies");
 
         if (repositories == null || dependencies == null) {
           throw new RuntimeException("Missing 'repositories' or 'dependencies' section in %s!".formatted(RESOURCE_NAME));
         }
 
-        MavenLibraryResolver resolver = new MavenLibraryResolver();
+        final var resolver = new MavenLibraryResolver();
         repositories.forEach(url -> {
-          String finalURL = url.equals(MAVEN_CENTRAL) ? getDefaultMavenCentralMirror() : url;
-          String repoID = "repo-%d".formatted(Math.abs(finalURL.hashCode()));
+          final var finalURL = url.equals(MAVEN_CENTRAL) ? getDefaultMavenCentralMirror() : url;
+          final var repoID = "repo-%d".formatted(Math.abs(finalURL.hashCode()));
 
           resolver.addRepository(new RemoteRepository.Builder(repoID, "default", finalURL).build());
         });
@@ -70,7 +70,7 @@ public class CustomDiscsLoader implements PluginLoader {
         classpathBuilder.addLibrary(resolver);
         System.setProperty("customdiscs.loader.success", "true");
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException("Failed to process %s".formatted(RESOURCE_NAME), e);
     }
   }

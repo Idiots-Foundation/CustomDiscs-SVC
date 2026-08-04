@@ -17,7 +17,7 @@ public class Keys {
   public static final Key<String> LEGACY_SOUNDCLOUD_DISC = Key.create("customdiscsc", PersistentDataType.STRING);
 
   public record Key<T>(NamespacedKey key, PersistentDataType<T, T> dataType) {
-    public static <Z> Key<Z> create(String key, PersistentDataType<Z, Z> dataType) {
+    public static <Z> Key<Z> create(final String key, final PersistentDataType<Z, Z> dataType) {
       return new Key<>(new NamespacedKey(CustomDiscs.getPlugin(), key), dataType);
     }
   }

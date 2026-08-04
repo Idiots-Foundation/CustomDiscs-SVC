@@ -20,8 +20,8 @@ public class DistanceSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
-    int maxDistance = plugin.getCDConfig().getDistanceCommandMaxDistance();
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
+    final var maxDistance = this.plugin.getCDConfig().getDistanceCommandMaxDistance();
 
     return builder.then(Commands.argument("radius", IntegerArgumentType.integer(0, maxDistance))
       .executes(this::executePlayer));
@@ -29,38 +29,38 @@ public class DistanceSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.distance.description");
+    return this.plugin.getLanguage().string("command.distance.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.distance.syntax");
+    return this.plugin.getLanguage().string("command.distance.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return sender.hasPermission("customdiscs.distance");
   }
 
-  public int executePlayer(CommandContext<CommandSourceStack> context) {
-    CommandSender sender = context.getSource().getSender();
+  public int executePlayer(final CommandContext<CommandSourceStack> context) {
+    final var sender = context.getSource().getSender();
 
-    if (!(sender instanceof Player player)) {
-      return execute(context);
+    if (!(sender instanceof final Player player)) {
+      return this.execute(context);
     }
 
-    int radius = getArgumentValue(context, "radius", Integer.class);
+    final int radius = this.getArgumentValue(context, "radius", Integer.class);
 
     PlayerHandler.getInstance().getPlayersSelecting().put(player.getUniqueId(), radius);
 
-    CustomDiscs.sendMessage(player, plugin.getLanguage().PComponent("command.distance.messages.click"));
+    CustomDiscs.sendMessage(player, this.plugin.getLanguage().PComponent("command.distance.messages.click"));
 
     return Command.SINGLE_SUCCESS;
   }
 
   @Override
-  public int execute(CommandContext<CommandSourceStack> context) {
-    CustomDiscs.sendMessage(context.getSource().getSender(), plugin.getLanguage().PComponent("error.command.cant-perform"));
+  public int execute(final CommandContext<CommandSourceStack> context) {
+    CustomDiscs.sendMessage(context.getSource().getSender(), this.plugin.getLanguage().PComponent("error.command.cant-perform"));
     return 0;
   }
 }

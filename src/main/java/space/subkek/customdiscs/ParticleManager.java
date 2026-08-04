@@ -12,10 +12,10 @@ public class ParticleManager {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
   private static final Set<Block> blocks = new HashSet<>();
 
-  public static void start(Block block) {
+  public static void start(final Block block) {
     if (blocks.add(block)) {
-      World world = block.getWorld();
-      Location location = block.getLocation().add(0.5, 1.2, 0.5);
+      final var world = block.getWorld();
+      final var location = block.getLocation().add(0.5, 1.2, 0.5);
       plugin.getFoliaLib().getScheduler().runAtLocationTimer(location, task -> {
         if (!LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
           blocks.remove(block);

@@ -20,93 +20,93 @@ public class YamlLanguage {
   private final YamlFile language = new YamlFile();
 
   public void load() {
-    var plugin = CustomDiscs.getPlugin();
-    var locale = plugin.getCDConfig().getLocale();
+    final var plugin = CustomDiscs.getPlugin();
+    final var locale = plugin.getCDConfig().getLocale();
 
     try {
-      var langDir = plugin.getDataFolder().toPath().resolve("language");
+      final var langDir = plugin.getDataFolder().toPath().resolve("language");
       Files.createDirectories(langDir);
-      var langFile = langDir.resolve("%s.yml".formatted(locale)).toFile();
-      boolean isNew = !langFile.exists();
+      final var langFile = langDir.resolve("%s.yml".formatted(locale)).toFile();
+      final var isNew = !langFile.exists();
 
       if (isNew) {
-        var resourcePath = "language/%s.yml".formatted(languageExists(locale) ? locale : Language.ENGLISH.getLabel());
-        saveResourceSafely(resourcePath, langFile);
+        final var resourcePath = "language/%s.yml".formatted(this.languageExists(locale) ? locale : Language.ENGLISH.getLabel());
+        this.saveResourceSafely(resourcePath, langFile);
       }
 
-      language.load(langFile);
+      this.language.load(langFile);
 
-      var currentVersion = plugin.getPluginMeta().getVersion();
-      var fileVersion = language.getString("version", "unknown");
+      final var currentVersion = plugin.getPluginMeta().getVersion();
+      final var fileVersion = this.language.getString("version", "unknown");
 
       if (isNew) {
-        language.set("version", currentVersion);
-        language.save(langFile);
+        this.language.set("version", currentVersion);
+        this.language.save(langFile);
       } else if (!fileVersion.equals(currentVersion)) {
-        handleUpdate(langDir, langFile, locale, currentVersion);
+        this.handleUpdate(langDir, langFile, locale, currentVersion);
       }
-    } catch (Throwable e) {
+    } catch (final Throwable e) {
       CustomDiscs.error("Error while loading language: ", e);
     }
   }
 
-  private void handleUpdate(Path directory, File file, String locale, String version) throws IOException {
-    var resourcePath = "language/%s.yml".formatted(locale);
+  private void handleUpdate(final Path directory, final File file, final String locale, final String version) throws IOException {
+    final var resourcePath = "language/%s.yml".formatted(locale);
 
-    var nextLang = new YamlFile();
-    nextLang.load(() -> getClass().getClassLoader().getResourceAsStream(resourcePath));
+    final var nextLang = new YamlFile();
+    nextLang.load(() -> this.getClass().getClassLoader().getResourceAsStream(resourcePath));
 
-    var oldContent = language.get("language");
-    var newContent = nextLang.get("language");
+    final var oldContent = this.language.get("language");
+    final var newContent = nextLang.get("language");
 
     if (!Objects.equals(oldContent, newContent)) {
-      var timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
-      var backupPath = directory.resolve("%s-%s.backup".formatted(file.getName(), timestamp));
+      final var timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
+      final var backupPath = directory.resolve("%s-%s.backup".formatted(file.getName(), timestamp));
       Files.copy(file.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING);
 
-      saveResourceSafely(resourcePath, file);
-      language.load(file);
+      this.saveResourceSafely(resourcePath, file);
+      this.language.load(file);
     }
 
-    language.set("version", version);
-    language.save(file);
+    this.language.set("version", version);
+    this.language.save(file);
   }
 
-  private void saveResourceSafely(String resourcePath, File outFile) throws IOException {
-    try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+  private void saveResourceSafely(final String resourcePath, final File outFile) throws IOException {
+    try (final var in = this.getClass().getClassLoader().getResourceAsStream(resourcePath)) {
       if (in == null) throw new IOException("Resource not found: %s".formatted(resourcePath));
       Files.copy(in, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
   }
 
-  private String getFormattedString(String key, Object... replace) {
-    var result = language.getString("language.%s".formatted(key), "<%s>".formatted(key));
-    for (int i = 0; i < replace.length; i++) {
+  private String getFormattedString(final String key, final Object... replace) {
+    var result = this.language.getString("language.%s".formatted(key), "<%s>".formatted(key));
+    for (var i = 0; i < replace.length; i++) {
       result = result.replace("{%d}".formatted(i), (String) replace[i]);
     }
     return result;
   }
 
-  public Component component(String key, Object... replace) {
-    return MINIMESSAGE.deserialize(getFormattedString(key, replace));
+  public Component component(final String key, final Object... replace) {
+    return MINIMESSAGE.deserialize(this.getFormattedString(key, replace));
   }
 
-  public Component component(String key, Component replacement) {
-    return MINIMESSAGE.deserialize(getFormattedString(key))
+  public Component component(final String key, final Component replacement) {
+    return MINIMESSAGE.deserialize(this.getFormattedString(key))
       .append(Component.space())
       .append(replacement);
   }
 
-  public Component PComponent(String key, Object... replace) {
-    return MINIMESSAGE.deserialize(string("prefix") + getFormattedString(key, replace));
+  public Component PComponent(final String key, final Object... replace) {
+    return MINIMESSAGE.deserialize(this.string("prefix") + this.getFormattedString(key, replace));
   }
 
-  public String string(String key, Object... replace) {
-    return getFormattedString(key, replace);
+  public String string(final String key, final Object... replace) {
+    return this.getFormattedString(key, replace);
   }
 
-  public boolean languageExists(String label) {
-    var inputStream = this.getClass().getClassLoader().getResourceAsStream("language/%s.yml".formatted(label));
+  public boolean languageExists(final String label) {
+    final var inputStream = this.getClass().getClassLoader().getResourceAsStream("language/%s.yml".formatted(label));
     return !Objects.isNull(inputStream);
   }
 }

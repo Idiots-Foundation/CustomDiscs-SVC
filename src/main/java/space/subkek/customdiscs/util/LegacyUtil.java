@@ -19,24 +19,24 @@ import java.util.List;
 import java.util.UUID;
 
 public class LegacyUtil {
-  public static boolean isJukeboxContainsDisc(@NotNull Block block) {
-    Jukebox jukebox = (Jukebox) block.getLocation().getBlock().getState();
+  public static boolean isJukeboxContainsDisc(@NotNull final Block block) {
+    final var jukebox = (Jukebox) block.getLocation().getBlock().getState();
     return jukebox.getRecord().getType() != Material.AIR;
   }
 
-  private static boolean isLocalDisc(@NotNull ItemStack item) {
+  private static boolean isLocalDisc(@NotNull final ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
       .has(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
   }
 
-  private static boolean isRemoteDisc(@NotNull ItemStack item) {
+  private static boolean isRemoteDisc(@NotNull final ItemStack item) {
     return getItemMeta(item).getPersistentDataContainer()
       .has(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType());
   }
 
-  public static boolean isCustomDisc(@NotNull ItemStack item) {
+  public static boolean isCustomDisc(@NotNull final ItemStack item) {
     {
-      ItemMeta meta = getItemMeta(item);
+      final var meta = getItemMeta(item);
       if (migratePDC(meta.getPersistentDataContainer()))
         item.setItemMeta(meta);
     }
@@ -44,12 +44,12 @@ public class LegacyUtil {
   }
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public static boolean isMusicDiscInHand(Player player) {
+  public static boolean isMusicDiscInHand(final Player player) {
     return player.getInventory().getItemInMainHand().getType().toString().contains("MUSIC_DISC");
   }
 
-  public static ItemMeta getItemMeta(ItemStack itemStack) {
-    ItemMeta meta;
+  public static ItemMeta getItemMeta(final ItemStack itemStack) {
+    final ItemMeta meta;
 
     if ((meta = itemStack.getItemMeta()) == null)
       throw new IllegalStateException("Why item meta is null!?");
@@ -57,27 +57,27 @@ public class LegacyUtil {
     return meta;
   }
 
-  public static UUID getBlockUUID(Block block) {
+  public static UUID getBlockUUID(final Block block) {
     return UUID.nameUUIDFromBytes(block.getLocation().toString().getBytes());
   }
 
   @SuppressWarnings("unchecked")
-  private static boolean migratePDC(PersistentDataContainer data) {
-    String legacyLocalValue = data.get(Keys.LEGACY_LOCAL_DISC.key(), Keys.LEGACY_LOCAL_DISC.dataType());
+  private static boolean migratePDC(final PersistentDataContainer data) {
+    final var legacyLocalValue = data.get(Keys.LEGACY_LOCAL_DISC.key(), Keys.LEGACY_LOCAL_DISC.dataType());
     if (legacyLocalValue != null) {
       data.remove(Keys.LEGACY_LOCAL_DISC.key());
       data.set(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType(), legacyLocalValue);
       return true;
     }
 
-    Keys.Key<String>[] legacyRemoteKeys = new Keys.Key[]{
+    final Keys.Key<String>[] legacyRemoteKeys = new Keys.Key[]{
       Keys.LEGACY_REMOTE_DISC,
       Keys.LEGACY_YOUTUBE_DISC,
       Keys.LEGACY_SOUNDCLOUD_DISC
     };
 
-    for (Keys.Key<String> key : legacyRemoteKeys) {
-      String legacyRemoteValue = data.get(key.key(), key.dataType());
+    for (final var key : legacyRemoteKeys) {
+      final var legacyRemoteValue = data.get(key.key(), key.dataType());
       if (legacyRemoteValue != null) {
         data.remove(key.key());
         data.set(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType(), legacyRemoteValue);
@@ -88,21 +88,21 @@ public class LegacyUtil {
     return false;
   }
 
-  public static DiscEntry getDiscEntry(ItemStack disc) {
-    ItemMeta meta = getItemMeta(disc);
-    PersistentDataContainer data = meta.getPersistentDataContainer();
+  public static DiscEntry getDiscEntry(final ItemStack disc) {
+    final var meta = getItemMeta(disc);
+    final var data = meta.getPersistentDataContainer();
 
-    String local = data.get(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
+    final var local = data.get(Keys.LOCAL_DISC.key(), Keys.LOCAL_DISC.dataType());
     if (local != null) {
       if (local.contains("../") || local.contains("..\\") || local.startsWith("/")) {
         return null;
       }
 
-      File file = new File(CustomDiscs.getPlugin().getMusicData(), local);
+      final var file = new File(CustomDiscs.getPlugin().getMusicData(), local);
       return new DiscEntry(disc, getSongName(meta), file.getPath(), true);
     }
 
-    String remote = data.get(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType());
+    final var remote = data.get(Keys.REMOTE_DISC.key(), Keys.REMOTE_DISC.dataType());
     if (remote != null) {
       return new DiscEntry(disc, getSongName(meta), remote, false);
     }
@@ -110,8 +110,8 @@ public class LegacyUtil {
     throw new IllegalArgumentException();
   }
 
-  private static Component getSongName(ItemMeta meta) {
-    List<Component> lore = meta.lore();
+  private static Component getSongName(final ItemMeta meta) {
+    final var lore = meta.lore();
     if (lore == null || lore.isEmpty())
       return Component.text("Unknown").color(NamedTextColor.GRAY);
 

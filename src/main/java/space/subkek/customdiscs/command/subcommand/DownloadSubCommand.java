@@ -25,7 +25,7 @@ public class DownloadSubCommand extends AbstractSubCommand {
   }
 
   @Override
-  public LiteralArgumentBuilder<CommandSourceStack> assemble(LiteralArgumentBuilder<CommandSourceStack> builder) {
+  public LiteralArgumentBuilder<CommandSourceStack> assemble(final LiteralArgumentBuilder<CommandSourceStack> builder) {
     return builder.then(Commands.argument("url", StringArgumentType.string())
 
       .then(Commands.argument("filename", StringArgumentType.string())
@@ -34,78 +34,78 @@ public class DownloadSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.download.description");
+    return this.plugin.getLanguage().string("command.download.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.download.syntax");
+    return this.plugin.getLanguage().string("command.download.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return sender.hasPermission("customdiscs.download");
   }
 
   @Override
-  public int execute(CommandContext<CommandSourceStack> context) {
-    CommandSender sender = context.getSource().getSender();
+  public int execute(final CommandContext<CommandSourceStack> context) {
+    final var sender = context.getSource().getSender();
 
-    plugin.getFoliaLib().getScheduler().runAsync(task -> {
+    this.plugin.getFoliaLib().getScheduler().runAsync(task -> {
       try {
-        URL fileURL = URI.create(getArgumentValue(context, "url", String.class)).toURL();
-        String protocol = fileURL.getProtocol();
+        final var fileURL = URI.create(this.getArgumentValue(context, "url", String.class)).toURL();
+        final var protocol = fileURL.getProtocol();
         if (!protocol.equals("http") && !protocol.equals("https")) {
-          CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.invalid-url"));
+          CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("error.command.invalid-url"));
           return;
         }
 
-        String filename = getArgumentValue(context, "filename", String.class);
+        final var filename = this.getArgumentValue(context, "filename", String.class);
 
-        Path base = plugin.getDataFolder().toPath().resolve("musicdata").normalize();
-        Path resolved = base.resolve(filename).normalize();
+        final var base = this.plugin.getDataFolder().toPath().resolve("musicdata").normalize();
+        final var resolved = base.resolve(filename).normalize();
         if (!resolved.startsWith(base)) {
-          CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.invalid-filename"));
+          CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("error.command.invalid-filename"));
           return;
         }
 
-        if (!getFileExtension(filename).equals("wav") && !getFileExtension(filename).equals("mp3") &&
-          !getFileExtension(filename).equals("flac")) {
-          CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("error.command.unknown-extension"));
+        if (!this.getFileExtension(filename).equals("wav") && !this.getFileExtension(filename).equals("mp3") &&
+          !this.getFileExtension(filename).equals("flac")) {
+          CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("error.command.unknown-extension"));
           return;
         }
 
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.downloading"));
-        Path downloadPath = Path.of(plugin.getDataFolder().getPath(), "musicdata", filename);
-        File downloadFile = new File(downloadPath.toUri());
+        CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("command.download.messages.downloading"));
+        final var downloadPath = Path.of(this.plugin.getDataFolder().getPath(), "musicdata", filename);
+        final var downloadFile = new File(downloadPath.toUri());
 
-        URLConnection connection = fileURL.openConnection();
+        final var connection = fileURL.openConnection();
 
         if (connection != null) {
-          long size = connection.getContentLengthLong() / 1048576;
-          if (size > plugin.getCDConfig().getMaxDownloadSize()) {
-            CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.error.file-too-large",
-              String.valueOf(plugin.getCDConfig().getMaxDownloadSize())));
+          final var size = connection.getContentLengthLong() / 1048576;
+          if (size > this.plugin.getCDConfig().getMaxDownloadSize()) {
+            CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("command.download.messages.error.file-too-large",
+              String.valueOf(this.plugin.getCDConfig().getMaxDownloadSize())));
             return;
           }
         }
 
         FileUtils.copyURLToFile(fileURL, downloadFile);
 
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.successfully"));
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.create-tooltip",
-          plugin.getLanguage().string("command.create.syntax")));
-      } catch (Throwable e) {
+        CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("command.download.messages.successfully"));
+        CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("command.download.messages.create-tooltip",
+          this.plugin.getLanguage().string("command.create.syntax")));
+      } catch (final Throwable e) {
         CustomDiscs.error("Error while download music: ", e);
-        CustomDiscs.sendMessage(sender, plugin.getLanguage().PComponent("command.download.messages.error.while-download"));
+        CustomDiscs.sendMessage(sender, this.plugin.getLanguage().PComponent("command.download.messages.error.while-download"));
       }
     });
 
     return Command.SINGLE_SUCCESS;
   }
 
-  private String getFileExtension(String s) {
-    int index = s.lastIndexOf(".");
+  private String getFileExtension(final String s) {
+    final var index = s.lastIndexOf(".");
     if (index > 0) {
       return s.substring(index + 1);
     } else {

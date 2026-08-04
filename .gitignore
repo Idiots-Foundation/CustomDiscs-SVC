@@ -1,7 +1,3 @@
 .idea/
 .gradle/
 build/
-
-# shhh its not vibecoded
-CLAUDE.md
-.claude/

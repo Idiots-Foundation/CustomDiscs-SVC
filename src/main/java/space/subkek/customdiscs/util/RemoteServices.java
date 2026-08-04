@@ -16,18 +16,14 @@ public enum RemoteServices {
   private final Function<CDConfig, String> filterProvider;
   private final Function<CDConfig, Integer> modelDataProvider;
 
-  RemoteServices(String id, Function<CDConfig, String> filterProvider, Function<CDConfig, Integer> modelDataProvider) {
+  RemoteServices(final String id, final Function<CDConfig, String> filterProvider, final Function<CDConfig, Integer> modelDataProvider) {
     this.id = id;
     this.filterProvider = filterProvider;
     this.modelDataProvider = modelDataProvider;
   }
 
-  public int getCustomModelData() {
-    return modelDataProvider.apply(CustomDiscs.getPlugin().getCDConfig());
-  }
-
-  public static RemoteServices fromUrl(String url) {
-    for (RemoteServices service : values()) {
+  public static RemoteServices fromUrl(final String url) {
+    for (final var service : values()) {
       if (matchesAny(url, service.filterProvider.apply(CustomDiscs.getPlugin().getCDConfig()))) {
         return service;
       }
@@ -35,7 +31,11 @@ public enum RemoteServices {
     return null;
   }
 
-  private static boolean matchesAny(String url, String regex) {
+  private static boolean matchesAny(final String url, final String regex) {
     return Pattern.compile(regex).matcher(url).find();
+  }
+
+  public int getCustomModelData() {
+    return this.modelDataProvider.apply(CustomDiscs.getPlugin().getCDConfig());
   }
 }

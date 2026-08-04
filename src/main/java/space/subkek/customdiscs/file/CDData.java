@@ -18,40 +18,38 @@ import java.util.concurrent.TimeUnit;
 public class CDData {
   private final YamlFile yaml = new YamlFile();
   private final File dataFile;
-
+  private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
   private WrappedTask autosaveTask;
   private volatile boolean dirty = false;
 
-  private final HashMap<UUID, Integer> jukeboxDistanceMap = new HashMap<>();
-
   public void load() {
-    if (dataFile.exists()) {
+    if (this.dataFile.exists()) {
       try {
-        yaml.load(dataFile);
-      } catch (IOException e) {
+        this.yaml.load(this.dataFile);
+      } catch (final IOException e) {
         CustomDiscs.error("Error while loading config: ", e);
       }
     }
 
-    loadJukeboxDistances();
+    this.loadJukeboxDistances();
   }
 
   public synchronized void save() {
     if (!this.dirty) return;
-    jukeboxDistanceMap.forEach((uuid, distance) ->
-      yaml.set("jukebox.distance.%s".formatted(uuid), distance));
+    this.jukeboxDistanceMap.forEach((uuid, distance) ->
+      this.yaml.set("jukebox.distance.%s".formatted(uuid), distance));
 
     try {
-      yaml.save(dataFile);
+      this.yaml.save(this.dataFile);
       this.dirty = false;
-    } catch (IOException e) {
+    } catch (final IOException e) {
       CustomDiscs.error("Error saving data: ", e);
     }
   }
 
   public void startAutosave() {
-    if (autosaveTask != null) throw new IllegalStateException("Autosave data task already exists");
-    autosaveTask = CustomDiscs.getPlugin().getFoliaLib().getScheduler().runTimerAsync(
+    if (this.autosaveTask != null) throw new IllegalStateException("Autosave data task already exists");
+    this.autosaveTask = CustomDiscs.getPlugin().getFoliaLib().getScheduler().runTimerAsync(
       this::save,
       60, 60,
       TimeUnit.SECONDS
@@ -59,32 +57,32 @@ public class CDData {
   }
 
   public void stopAutosave() {
-    autosaveTask.cancel();
-    autosaveTask = null;
-    save();
+    this.autosaveTask.cancel();
+    this.autosaveTask = null;
+    this.save();
   }
 
-  public int getJukeboxDistance(Block block) {
-    UUID blockUUID = LegacyUtil.getBlockUUID(block);
-    return jukeboxDistanceMap.containsKey(blockUUID) ?
-      jukeboxDistanceMap.get(blockUUID) : CustomDiscs.getPlugin().getCDConfig().getMusicDiscDistance();
+  public int getJukeboxDistance(final Block block) {
+    final var blockUUID = LegacyUtil.getBlockUUID(block);
+    return this.jukeboxDistanceMap.containsKey(blockUUID) ?
+      this.jukeboxDistanceMap.get(blockUUID) : CustomDiscs.getPlugin().getCDConfig().getMusicDiscDistance();
   }
 
-  public void setJukeboxDistance(Block block, int distance) {
-    UUID blockUUID = LegacyUtil.getBlockUUID(block);
+  public void setJukeboxDistance(final Block block, final int distance) {
+    final var blockUUID = LegacyUtil.getBlockUUID(block);
     this.jukeboxDistanceMap.put(blockUUID, distance);
     this.dirty = true;
   }
 
   private void loadJukeboxDistances() {
-    ConfigurationSection section = yaml.getConfigurationSection("jukebox.distance");
+    final var section = this.yaml.getConfigurationSection("jukebox.distance");
     if (section == null) return;
 
-    for (String key : section.getKeys(false)) {
-      UUID uuid = UUID.fromString(key);
-      int distance = (int) section.get(key);
+    for (final var key : section.getKeys(false)) {
+      final var uuid = UUID.fromString(key);
+      final var distance = (int) section.get(key);
 
-      jukeboxDistanceMap.put(uuid, distance);
+      this.jukeboxDistanceMap.put(uuid, distance);
     }
   }
 }

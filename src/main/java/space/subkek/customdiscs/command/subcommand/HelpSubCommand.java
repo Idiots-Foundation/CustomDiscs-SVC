@@ -14,7 +14,7 @@ public class HelpSubCommand extends AbstractSubCommand {
   private final CustomDiscs plugin = CustomDiscs.getPlugin();
   private final CustomDiscsCommand cdCommand;
 
-  public HelpSubCommand(CustomDiscsCommand cdCommand) {
+  public HelpSubCommand(final CustomDiscsCommand cdCommand) {
     super("help");
 
     this.cdCommand = cdCommand;
@@ -22,37 +22,37 @@ public class HelpSubCommand extends AbstractSubCommand {
 
   @Override
   public String getDescription() {
-    return plugin.getLanguage().string("command.help.description");
+    return this.plugin.getLanguage().string("command.help.description");
   }
 
   @Override
   public String getSyntax() {
-    return plugin.getLanguage().string("command.help.syntax");
+    return this.plugin.getLanguage().string("command.help.syntax");
   }
 
   @Override
-  public boolean hasPermission(CommandSender sender) {
+  public boolean hasPermission(final CommandSender sender) {
     return sender.hasPermission("customdiscs.help");
   }
 
-  public int execute(CommandContext<CommandSourceStack> context) {
-    CommandSender sender = context.getSource().getSender();
+  public int execute(final CommandContext<CommandSourceStack> context) {
+    final var sender = context.getSource().getSender();
 
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.header"));
-    printHelp(sender, cdCommand.getSubcommands());
-    CustomDiscs.sendMessage(sender, plugin.getLanguage().component("command.help.messages.footer"));
+    CustomDiscs.sendMessage(sender, this.plugin.getLanguage().component("command.help.messages.header"));
+    this.printHelp(sender, this.cdCommand.getSubcommands());
+    CustomDiscs.sendMessage(sender, this.plugin.getLanguage().component("command.help.messages.footer"));
 
     return Command.SINGLE_SUCCESS;
   }
 
-  private void printHelp(CommandSender sender, List<AbstractSubCommand> commands) {
-    for (AbstractSubCommand subCommand : commands) {
+  private void printHelp(final CommandSender sender, final List<AbstractSubCommand> commands) {
+    for (final var subCommand : commands) {
 
       if (subCommand.hasPermission(sender)) {
         if (!subCommand.getSubcommands().isEmpty()) {
-          printHelp(sender, subCommand.getSubcommands());
+          this.printHelp(sender, subCommand.getSubcommands());
         } else {
-          CustomDiscs.sendMessage(sender, plugin.getLanguage().component(
+          CustomDiscs.sendMessage(sender, this.plugin.getLanguage().component(
             "command.help.messages.format",
             subCommand.getSyntax(),
             subCommand.getDescription()

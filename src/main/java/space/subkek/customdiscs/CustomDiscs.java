@@ -50,18 +50,44 @@ public class CustomDiscs extends JavaPlugin {
   private final File musicData = new File(this.getDataFolder(), "musicdata");
   @Getter
   private final CDConfig cDConfig = new CDConfig(
-    new File(getDataFolder(), "config.yml"));
+    new File(this.getDataFolder(), "config.yml"));
   @Getter
   private final CDData cDData = new CDData(
-    new File(getDataFolder(), "data.yml"));
+    new File(this.getDataFolder(), "data.yml"));
+  @Getter
+  private final FoliaLib foliaLib = new FoliaLib(this);
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
   private boolean libsLoaded = false;
-  @Getter
-  private final FoliaLib foliaLib = new FoliaLib(this);
 
   public static CustomDiscs getPlugin() {
     return getPlugin(CustomDiscs.class);
+  }
+
+  public static void sendMessage(final CommandSender sender, final Component component) {
+    sender.sendMessage(component);
+  }
+
+  public static void debug(@NotNull final String message, final Object... format) {
+    if (getPlugin().getCDConfig().isDebug()) {
+      debugLogger.info(message, format);
+    }
+  }
+
+  public static void info(@NotNull final String message, final Object... format) {
+    logger.info(message, format);
+  }
+
+  public static void warn(@NotNull final String message, final Object... format) {
+    logger.warn(message, format);
+  }
+
+  public static void error(@NotNull final String message, @Nullable final Throwable e, final Object... format) {
+    logger.error(message, format, e);
+  }
+
+  public static void error(@NotNull final String message, final Object... format) {
+    logger.error(message, format);
   }
 
   @Override
@@ -69,7 +95,7 @@ public class CustomDiscs extends JavaPlugin {
     logger = LoggerFactory.getLogger(this.getName());
     debugLogger = LoggerFactory.getLogger("%s/Debug".formatted(this.getName()));
 
-    getServer().getServicesManager().register(
+    this.getServer().getServicesManager().register(
       CustomDiscsAPI.class,
       new CustomDiscsAPIImpl(),
       this,
@@ -79,42 +105,42 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    libsLoaded = System.getProperty("customdiscs.loader.success").equals("true");
-    if (!libsLoaded) {
-      getSLF4JLogger().error("Libraries failed to load: Goodbye.");
-      getServer().getPluginManager().disablePlugin(this);
+    this.libsLoaded = System.getProperty("customdiscs.loader.success").equals("true");
+    if (!this.libsLoaded) {
+      this.getSLF4JLogger().error("Libraries failed to load: Goodbye.");
+      this.getServer().getPluginManager().disablePlugin(this);
       return;
     }
 
-    if (getDataFolder().mkdir()) CustomDiscs.info("Created plugin data folder");
-    if (musicData.mkdir()) CustomDiscs.info("Created music data folder");
+    if (this.getDataFolder().mkdir()) CustomDiscs.info("Created plugin data folder");
+    if (this.musicData.mkdir()) CustomDiscs.info("Created music data folder");
 
-    cDConfig.load();
-    language.load();
-    cDData.load();
-    cDData.startAutosave();
+    this.cDConfig.load();
+    this.language.load();
+    this.cDData.load();
+    this.cDData.startAutosave();
 
-    linkBStats();
+    this.linkBStats();
 
-    registerVoicechatHook();
+    this.registerVoicechatHook();
 
-    registerEvents();
-    registerCommands();
+    this.registerEvents();
+    this.registerCommands();
 
-    foliaLib.getScheduler().runAsync(task -> checkUpdates());
+    this.foliaLib.getScheduler().runAsync(task -> this.checkUpdates());
 
     PacketEvents.getAPI().getEventManager().registerListener(new PacketListener() {
       @Override
-      public void onPacketSend(@NonNull PacketSendEvent event) {
+      public void onPacketSend(@NonNull final PacketSendEvent event) {
         if (event.getPacketType() == PacketType.Play.Server.EFFECT) {
-          var packet = new WrapperPlayServerEffect(event);
+          final var packet = new WrapperPlayServerEffect(event);
 
           if (packet.getType() == 1010) {
-            var pos = packet.getPosition();
-            var player = (org.bukkit.entity.Player) event.getPlayer();
-            var world = player.getWorld();
+            final var pos = packet.getPosition();
+            final var player = (org.bukkit.entity.Player) event.getPlayer();
+            final var world = player.getWorld();
 
-            var block = world.getBlockAt(pos.getX(), pos.getY(), pos.getZ());
+            final var block = world.getBlockAt(pos.getX(), pos.getY(), pos.getZ());
 
             if (LavaPlayerManagerImpl.getInstance().isPlaying(block)) {
               event.setCancelled(true);
@@ -127,26 +153,26 @@ public class CustomDiscs extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    if (!libsLoaded) return;
+    if (!this.libsLoaded) return;
     LavaPlayerManagerImpl.getInstance().stopPlayingAll();
 
-    cDData.stopAutosave();
-    cDData.save();
+    this.cDData.stopAutosave();
+    this.cDData.save();
 
-    if (voicechatAddonRegistered) {
-      getServer().getServicesManager().unregister(CDVoiceAddon.getInstance());
+    if (this.voicechatAddonRegistered) {
+      this.getServer().getServicesManager().unregister(CDVoiceAddon.getInstance());
       CustomDiscs.info("Successfully disabled CustomDiscs plugin");
     }
 
-    foliaLib.getScheduler().cancelAllTasks();
+    this.foliaLib.getScheduler().cancelAllTasks();
   }
 
   private void registerVoicechatHook() {
-    BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
+    final var service = this.getServer().getServicesManager().load(BukkitVoicechatService.class);
 
     if (service != null) {
       service.registerPlugin(CDVoiceAddon.getInstance());
-      voicechatAddonRegistered = true;
+      this.voicechatAddonRegistered = true;
       CustomDiscs.info("Successfully enabled voicechat hook");
     } else {
       CustomDiscs.error("Failed to enable voicechat hook");
@@ -155,81 +181,55 @@ public class CustomDiscs extends JavaPlugin {
 
   private void checkUpdates() {
     try {
-      if (!cDConfig.isShouldCheckUpdates()) return;
-      String response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
+      if (!this.cDConfig.isShouldCheckUpdates()) return;
+      final var response = HTTPRequestUtils.getTextResponse("https://api.modrinth.com/v2/project/customdiscs-svc/version");
 
-      String version = JsonParser.parseString(response)
+      final var version = JsonParser.parseString(response)
         .getAsJsonArray()
         .get(0)
         .getAsJsonObject()
         .get("version_number")
         .getAsString();
 
-      String url = "https://modrinth.com/plugin/customdiscs-svc/version/";
+      final var url = "https://modrinth.com/plugin/customdiscs-svc/version/";
 
       if (!version.equals(getPlugin().getPluginMeta().getVersion())) {
         warn("New version available: {}{}", url, version);
 
-        getServer().getPluginManager().registerEvents(new Listener() {
+        this.getServer().getPluginManager().registerEvents(new Listener() {
           @EventHandler
-          public void onPlayerJoin(PlayerJoinEvent event) {
-            Player player = event.getPlayer();
+          public void onPlayerJoin(final PlayerJoinEvent event) {
+            final var player = event.getPlayer();
             if (player.isOp() || player.hasPermission("customdiscs.reload")) {
-              sendMessage(player, getLanguage().PComponent("plugin.messages.update-available", url, version));
+              sendMessage(player, CustomDiscs.this.getLanguage().PComponent("plugin.messages.update-available", url, version));
             }
           }
         }, this);
       }
-    } catch (Throwable ignore) {
+    } catch (final Throwable ignore) {
     }
   }
 
   private void registerCommands() {
-    getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+    this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
       event.registrar().register(new CustomDiscsCommand().create(), "Main command of CustomDiscs-SVC plugin.", List.of("cd"));
     });
   }
 
   private void registerEvents() {
-    getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
-    getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
-    getServer().getPluginManager().registerEvents(new HopperHandler(), this);
+    this.getServer().getPluginManager().registerEvents(new JukeboxHandler(), this);
+    this.getServer().getPluginManager().registerEvents(PlayerHandler.getInstance(), this);
+    this.getServer().getPluginManager().registerEvents(new HopperHandler(), this);
   }
 
   private void linkBStats() {
-    Metrics metrics = new Metrics(this, 20077);
+    final var metrics = new Metrics(this, 20077);
 
-    metrics.addCustomChart(new SimplePie("plugin_language", () -> getCDConfig().getLocale()));
+    metrics.addCustomChart(new SimplePie("plugin_language", () -> this.getCDConfig().getLocale()));
     metrics.addCustomChart(new SingleLineChart("discs_played", () -> {
-      int value = discsPlayed;
-      discsPlayed = 0;
+      final var value = this.discsPlayed;
+      this.discsPlayed = 0;
       return value;
     }));
-  }
-
-  public static void sendMessage(CommandSender sender, Component component) {
-    sender.sendMessage(component);
-  }
-
-  public static void debug(@NotNull String message, Object... format) {
-    if (getPlugin().getCDConfig().isDebug()) {
-      debugLogger.info(message, format);
-    }
-  }
-
-  public static void info(@NotNull String message, Object... format) {
-    logger.info(message, format);
-  }
-
-  public static void warn(@NotNull String message, Object... format) {
-    logger.warn(message, format);
-  }
-
-  public static void error(@NotNull String message, @Nullable Throwable e, Object... format) {
-    logger.error(message, format, e);
-  }
-
-  public static void error(@NotNull String message, Object... format) {
-    logger.error(message, format);
   }
 }
