@@ -27,6 +27,7 @@ import space.subkek.customdiscs.listener.HopperListener;
 import space.subkek.customdiscs.listener.JukeboxListener;
 import space.subkek.customdiscs.listener.JukeboxPacketListener;
 import space.subkek.customdiscs.listener.PlayerListener;
+import space.subkek.customdiscs.listener.VisualizationListener;
 import space.subkek.customdiscs.file.CDConfig;
 import space.subkek.customdiscs.file.CDData;
 import space.subkek.customdiscs.language.YamlLanguage;
@@ -50,6 +51,8 @@ public final class CustomDiscs extends JavaPlugin {
     new File(this.getDataFolder(), "data.yml"));
   @Getter
   private final FoliaLib foliaLib = new FoliaLib(this);
+  @Getter
+  private final VisualizationManager visualizationManager = new VisualizationManager(this);
   public int discsPlayed = 0;
   private boolean voicechatAddonRegistered = false;
   private boolean libsLoaded = false;
@@ -133,6 +136,7 @@ public final class CustomDiscs extends JavaPlugin {
   public void onDisable() {
     if (!this.libsLoaded) return;
     LavaPlayerManagerImpl.getInstance().stopPlayingAll();
+    this.visualizationManager.shutdown();
 
     this.cDData.stopAutosave();
     this.cDData.save();
@@ -198,6 +202,7 @@ public final class CustomDiscs extends JavaPlugin {
     this.getServer().getPluginManager().registerEvents(new JukeboxListener(), this);
     this.getServer().getPluginManager().registerEvents(PlayerListener.getInstance(), this);
     this.getServer().getPluginManager().registerEvents(new HopperListener(), this);
+    this.getServer().getPluginManager().registerEvents(new VisualizationListener(), this);
   }
 
   private void linkBStats() {

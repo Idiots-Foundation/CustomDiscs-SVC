@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Locale;
 
 @Getter
 public final class CDConfig {
@@ -30,7 +31,7 @@ public final class CDConfig {
       }
     }
 
-    this.configVersion = this.getString("info.version", "1.5", "Don't change this value");
+    this.configVersion = this.getString("info.version", "1.6", "Don't change this value");
     this.setComment("info",
       "CustomDiscs Configuration",
       "Join our Discord for support: https://discord.gg/eRvwvmEXWz");
@@ -47,6 +48,8 @@ public final class CDConfig {
         this.migrateTo1_4();
       case "1.4":
         this.migrateTo1_5();
+      case "1.5":
+        this.migrateTo1_6();
     }
 
     for (final var method : this.getClass().getDeclaredMethods()) {
@@ -154,7 +157,14 @@ public final class CDConfig {
 
   private int musicDiscDistance = 64;
   private float musicDiscVolume = 1f;
-  private boolean allowHoppers = true;
+  private int maxTrackLengthSeconds = 1200;
+  private VisualizationMode visualizationMode = VisualizationMode.PARTICLES;
+  private int hologramDistance = 16;
+  private int hologramNameMaxLength = 32;
+  private HologramPositionMode hologramPositionMode = HologramPositionMode.STATIC;
+  private double hologramOffsetX = 0d;
+  private double hologramOffsetY = 1.2d;
+  private double hologramOffsetZ = 0d;
 
   private void discSettings() {
     this.musicDiscDistance = this.getInt("disc.distance", this.musicDiscDistance,
@@ -162,7 +172,67 @@ public final class CDConfig {
     this.musicDiscVolume = Float.parseFloat(this.getString("disc.volume", String.valueOf(this.musicDiscVolume),
       "The master volume of music discs from 0-1.", "You can set values like 0.5 for 50% volume."
     ));
-    this.allowHoppers = this.getBoolean("disc.allow-hoppers", this.allowHoppers, "Please ensure that in the config/paper-world-defaults.yaml the value hopper.disable-move-event is false");
+    this.maxTrackLengthSeconds = this.getInt("disc.max-track-length-seconds", this.maxTrackLengthSeconds,
+      "Maximum track length in seconds. Set to 0 to disable the limit and allow streams.");
+    if (this.maxTrackLengthSeconds < 0) {
+      CustomDiscs.warn("Invalid negative maximum track length {}; falling back to 1200", this.maxTrackLengthSeconds);
+      this.maxTrackLengthSeconds = 1200;
+    }
+
+    final var configuredMode = this.getString("disc.visualization.mode", "particles",
+      "Supported visualization modes: particles, hologram, off.");
+    try {
+      this.visualizationMode = VisualizationMode.valueOf(configuredMode.trim().toUpperCase(Locale.ROOT));
+    } catch (final RuntimeException e) {
+      CustomDiscs.warn("Invalid disc visualization mode '{}'; falling back to particles", configuredMode);
+      this.visualizationMode = VisualizationMode.PARTICLES;
+    }
+    this.removeValue("disc.visualization.hologram.text");
+
+    this.hologramDistance = this.getInt("disc.visualization.hologram.distance", this.hologramDistance,
+      "The maximum distance in blocks from which the hologram is rendered.");
+    if (this.hologramDistance < 0) {
+      CustomDiscs.warn("Invalid negative hologram distance {}; falling back to 16", this.hologramDistance);
+      this.hologramDistance = 16;
+    }
+
+    this.hologramNameMaxLength = this.getInt(
+      "disc.visualization.hologram.name-max-length",
+      this.hologramNameMaxLength,
+      "Maximum visible disc name length, including the truncation suffix."
+    );
+    if (this.hologramNameMaxLength < 1) {
+      CustomDiscs.warn("Invalid hologram name length {}; falling back to 32", this.hologramNameMaxLength);
+      this.hologramNameMaxLength = 32;
+    }
+
+    final var configuredPositionMode = this.getString(
+      "disc.visualization.hologram.position.mode",
+      "static",
+      "Supported hologram position modes: static, rotational.",
+      "Static offsets use world axes. Rotational offsets turn towards each viewer."
+    );
+    try {
+      this.hologramPositionMode = HologramPositionMode.valueOf(configuredPositionMode.trim().toUpperCase(Locale.ROOT));
+    } catch (final RuntimeException e) {
+      CustomDiscs.warn("Invalid hologram position mode '{}'; falling back to static", configuredPositionMode);
+      this.hologramPositionMode = HologramPositionMode.STATIC;
+    }
+
+    this.hologramOffsetX = this.getFiniteDouble("disc.visualization.hologram.position.offset.x", 0d,
+      "World X offset in static mode; sideways offset in rotational mode.");
+    this.hologramOffsetY = this.getFiniteDouble("disc.visualization.hologram.position.offset.y", 1.2d,
+      "Vertical offset above the jukebox.");
+    this.hologramOffsetZ = this.getFiniteDouble("disc.visualization.hologram.position.offset.z", 0d,
+      "World Z offset in static mode; offset towards the viewer in rotational mode.");
+  }
+
+  private double getFiniteDouble(final String key, final double defaultValue, final String... comment) {
+    final var value = this.getDouble(key, defaultValue, comment);
+    if (Double.isFinite(value)) return value;
+
+    CustomDiscs.warn("Invalid hologram offset at '{}'; falling back to {}", key, defaultValue);
+    return defaultValue;
   }
 
   private boolean youtubeOauth2 = false;
@@ -263,8 +333,26 @@ public final class CDConfig {
   }
 
   private void migrateTo1_5() {
+    CustomDiscs.debug("Config migrating from v1.4 to v1.5");
     this.removeValue("command.create.remote.youtube.filter");
     this.removeValue("command.create.remote.soundcloud.filter");
     this.setConfigVersion("1.5");
+  }
+
+  private void migrateTo1_6() {
+    CustomDiscs.debug("Config migrating from v1.5 to v1.6");
+    this.removeValue("disc.allow-hoppers");
+    this.setConfigVersion("1.6");
+  }
+
+  public enum VisualizationMode {
+    PARTICLES,
+    HOLOGRAM,
+    OFF
+  }
+
+  public enum HologramPositionMode {
+    STATIC,
+    ROTATIONAL
   }
 }

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public final class YamlLanguage {
@@ -102,6 +103,12 @@ public final class YamlLanguage {
 
   public String string(final String key, final Object... replace) {
     return this.getFormattedString(key, replace);
+  }
+
+  public List<String> strings(final String key) {
+    final var path = "language.%s".formatted(key);
+    if (!this.language.isList(path)) return List.of("<%s>".formatted(key));
+    return List.copyOf(this.language.getStringList(path));
   }
 
   public boolean languageExists(final String label) {

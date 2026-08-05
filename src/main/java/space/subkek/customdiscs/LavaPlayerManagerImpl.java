@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.tools.Units;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
@@ -242,6 +243,11 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
 
   @Override
   public void play(@NotNull final Block block, @NotNull final String identifier, final Component actionbarComponent) {
+    this.playDisc(block, identifier, actionbarComponent, actionbarComponent);
+  }
+
+  public void playDisc(@NotNull final Block block, @NotNull final String identifier,
+                       final Component actionbarComponent, final Component songComponent) {
     final var uuid = LegacyUtil.getBlockUUID(block);
     if (this.playerMap.containsKey(uuid)) return;
     CustomDiscs.debug("Starting LavaPlayer: {}", uuid);
@@ -267,23 +273,27 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
       this.plugin.getCDData().getJukeboxDistance(block)
     );
 
+    if (actionbarComponent != null) {
+      for (final var serverPlayer : players) {
+        final var bukkitPlayer = (Player) serverPlayer.getPlayer();
+        this.plugin.getFoliaLib().getScheduler().runAtEntity(
+          bukkitPlayer,
+          task -> bukkitPlayer.sendActionBar(actionbarComponent)
+        );
+      }
+    }
+
     final var lavaPlayer = new LavaPlayer(
       block,
       identifier,
       audioChannel,
       uuid,
-      players
+      players,
+      songComponent != null ? songComponent : Component.empty()
     );
     this.playerMap.put(uuid, lavaPlayer);
 
     lavaPlayer.lavaPlayerThread.start();
-
-    if (actionbarComponent != null) {
-      for (final var serverPlayer : lavaPlayer.playersInRangeAtStart) {
-        final var bukkitPlayer = (Player) serverPlayer.getPlayer();
-        bukkitPlayer.sendActionBar(actionbarComponent);
-      }
-    }
   }
 
   @Override
@@ -363,21 +373,26 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
     private final LocationalAudioChannel audioChannel;
     private final UUID uuid;
     private final Collection<ServerPlayer> playersInRangeAtStart;
+    private final Component songComponent;
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private final Thread lavaPlayerThread = new Thread(this::threadJob, "LavaPlayerThread");
     private AudioPlayer audioPlayer;
     private volatile boolean isRunning = true;
 
-    public LavaPlayer(final Block block, final String identifier, final LocationalAudioChannel audioChannel, final UUID uuid, final Collection<ServerPlayer> playersInRangeAtStart) {
+    public LavaPlayer(final Block block, final String identifier, final LocationalAudioChannel audioChannel,
+                      final UUID uuid, final Collection<ServerPlayer> playersInRangeAtStart,
+                      final Component songComponent) {
       this.block = block;
       this.identifier = identifier;
       this.audioChannel = audioChannel;
       this.uuid = uuid;
       this.playersInRangeAtStart = playersInRangeAtStart;
+      this.songComponent = songComponent;
     }
 
     private void stop() {
       this.isRunning = false;
+      LavaPlayerManagerImpl.this.plugin.getVisualizationManager().stop(this.block);
 
       this.lavaPlayerThread.interrupt();
       this.trackFuture.complete(null);
@@ -462,9 +477,25 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
           return;
         }
 
+        final var maxTrackLengthSeconds = LavaPlayerManagerImpl.this.plugin.getCDConfig().getMaxTrackLengthSeconds();
+        if (maxTrackLengthSeconds > 0) {
+          final var duration = audioTrack.getDuration();
+          if (audioTrack.getInfo().isStream || duration <= 0L || duration == Units.DURATION_MS_UNKNOWN) {
+            this.sendLocalizedError("error.play.unknown-track-length");
+            if (this.isRunning) LavaPlayerManagerImpl.this.stopPlaying(this.uuid);
+            return;
+          }
+          if (duration > maxTrackLengthSeconds * 1000L) {
+            this.sendLocalizedError("error.play.track-too-long");
+            if (this.isRunning) LavaPlayerManagerImpl.this.stopPlaying(this.uuid);
+            return;
+          }
+        }
+
         final var volume = Math.round(LavaPlayerManagerImpl.this.plugin.getCDConfig().getMusicDiscVolume() * 100);
         this.audioPlayer.setVolume(volume);
         this.audioPlayer.playTrack(audioTrack);
+        this.startVisualization(audioTrack);
 
         try {
           final var start = System.currentTimeMillis();
@@ -496,6 +527,27 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
           CustomDiscs.sendMessage(bukkitPlayer, LavaPlayerManagerImpl.this.plugin.getLanguage().PComponent("error.play.while-playing"));
           CustomDiscs.error("LavaPlayer {} got exception: ", e, this.uuid);
         }
+        if (this.isRunning) LavaPlayerManagerImpl.this.stopPlaying(this.uuid);
+      }
+    }
+
+    private void startVisualization(final AudioTrack audioTrack) {
+      LavaPlayerManagerImpl.this.plugin.getFoliaLib().getScheduler().runAtLocation(
+        this.block.getLocation(),
+        task -> {
+          if (!this.isRunning) return;
+          LavaPlayerManagerImpl.this.plugin.getVisualizationManager().start(this.block, this.songComponent, audioTrack);
+        }
+      );
+    }
+
+    private void sendLocalizedError(final String key) {
+      for (final var serverPlayer : this.playersInRangeAtStart) {
+        final var bukkitPlayer = (Player) serverPlayer.getPlayer();
+        LavaPlayerManagerImpl.this.plugin.getFoliaLib().getScheduler().runAtEntity(
+          bukkitPlayer,
+          task -> CustomDiscs.sendMessage(bukkitPlayer, LavaPlayerManagerImpl.this.plugin.getLanguage().PComponent(key))
+        );
       }
     }
 

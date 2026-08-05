@@ -15,6 +15,8 @@ language:
       no-matches: 'Track not found!'
       audio-load: 'Error loading audio!'
       while-playing: 'Error while playing disc!'
+      track-too-long: 'The track is longer than the configured maximum length.'
+      unknown-track-length: 'Live streams and tracks with an unknown length are not allowed.'
     file:
       not-found: 'File not found!'
   command:
@@ -68,3 +70,17 @@ language:
     youtube: '<white>YouTube disc'
     soundcloud: '<white>SoundCloud disc'
   now-playing: '<gold>Now playing:'
+  hologram:
+    lines:
+      - '<gold>Now playing:</gold> {name}'
+      - '<gray>{played} / {length} <dark_gray>({percentage})'
+    formats:
+      name: '{value}'
+      name-truncated: '{value}<gray>…'
+      length: '<white>{minutes}<gray>:</gray><white>{seconds}'
+      played: '<white>{minutes}<gray>:</gray><white>{seconds}'
+      remaining: '<white>{minutes}<gray>:</gray><white>{seconds}'
+      percentage: '<white>{value}%'
+      length-unknown: '<gray>--:--'
+      remaining-unknown: '<gray>--:--'
+      percentage-unknown: '<gray>--%'

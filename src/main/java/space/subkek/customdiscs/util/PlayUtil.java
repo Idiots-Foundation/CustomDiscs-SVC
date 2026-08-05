@@ -4,21 +4,23 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Jukebox;
 import space.subkek.customdiscs.CustomDiscs;
 import space.subkek.customdiscs.LavaPlayerManagerImpl;
-import space.subkek.customdiscs.ParticleManager;
 import space.subkek.customdiscs.api.DiscEntry;
 
 public final class PlayUtil {
   private static final CustomDiscs plugin = CustomDiscs.getPlugin();
 
   public static void play(final Block block, final DiscEntry disc) {
-    ParticleManager.start(block);
-
     plugin.getFoliaLib().getScheduler().runAtLocationLater(block.getLocation(), task -> {
       if (block.getState() instanceof final Jukebox jukebox) {
         jukebox.stopPlaying();
       }
     }, 1);
 
-    LavaPlayerManagerImpl.getInstance().play(block, disc.getIdentifier(), plugin.getLanguage().component("now-playing", disc.getName()));
+    LavaPlayerManagerImpl.getInstance().playDisc(
+      block,
+      disc.getIdentifier(),
+      plugin.getLanguage().component("now-playing", disc.getName()),
+      disc.getName()
+    );
   }
 }

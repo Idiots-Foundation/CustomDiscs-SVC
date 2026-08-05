@@ -39,6 +39,7 @@ public final class ReloadSubCommand extends AbstractCommand {
   public int execute(final CommandContext<CommandSourceStack> context) {
     this.plugin.getCDConfig().load();
     this.plugin.getLanguage().load();
+    this.plugin.getVisualizationManager().reload();
     CustomDiscs.sendMessage(context.getSource().getSender(), this.plugin.getLanguage().PComponent("command.reload.messages.successfully"));
 
     return SINGLE_SUCCESS;

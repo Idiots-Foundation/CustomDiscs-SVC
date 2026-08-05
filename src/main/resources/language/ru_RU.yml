@@ -15,6 +15,8 @@ language:
       no-matches: 'Трек не найдено!'
       audio-load: 'Ошибка загрузки аудио!'
       while-playing: 'Ошибка при воспроизведении диска!'
+      track-too-long: 'Длина трека превышает настроенное ограничение.'
+      unknown-track-length: 'Прямые трансляции и треки с неизвестной длиной запрещены.'
     file:
       not-found: 'Файл не найден.'
   command:
@@ -68,3 +70,17 @@ language:
     youtube: '<white>YouTube пластинка'
     soundcloud: '<white>SoundCloud пластинка'
   now-playing: '<gold>Сейчас играет:'
+  hologram:
+    lines:
+      - '<gold>Сейчас играет:</gold> {name}'
+      - '<gray>{played} / {length} <dark_gray>({percentage})'
+    formats:
+      name: '{value}'
+      name-truncated: '{value}<gray>…'
+      length: '<white>{minutes}<gray>:</gray><white>{seconds}'
+      played: '<white>{minutes}<gray>:</gray><white>{seconds}'
+      remaining: '<white>{minutes}<gray>:</gray><white>{seconds}'
+      percentage: '<white>{value}%'
+      length-unknown: '<gray>--:--'
+      remaining-unknown: '<gray>--:--'
+      percentage-unknown: '<gray>--%'
