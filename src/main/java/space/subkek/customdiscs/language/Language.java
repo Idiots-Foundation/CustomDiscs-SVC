@@ -7,7 +7,8 @@ import java.util.ArrayList;
 @Getter
 public enum Language {
   RUSSIAN("ru_RU"),
-  ENGLISH("en_US");
+  ENGLISH("en_US"),
+  TURKISH("tr_TR");
 
   private final String label;
 
