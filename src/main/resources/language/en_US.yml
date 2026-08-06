@@ -72,7 +72,7 @@ language:
   now-playing: '<gold>Now playing:'
   hologram:
     lines:
-      - '<gold>Now playing:</gold> {name}'
+      - '{name}'
       - '<gray>{played} / {length} <dark_gray>({percentage})'
     formats:
       name: '{value}'

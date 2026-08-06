@@ -12,7 +12,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
 import de.maxhenkel.voicechat.api.ServerPlayer;
-import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.YoutubeSourceOptions;
@@ -25,6 +24,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -243,11 +243,12 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
 
   @Override
   public void play(@NotNull final Block block, @NotNull final String identifier, final Component actionbarComponent) {
-    this.playDisc(block, identifier, actionbarComponent, actionbarComponent);
+    this.playDisc(block, identifier, actionbarComponent, actionbarComponent, BlockFace.SOUTH);
   }
 
   public void playDisc(@NotNull final Block block, @NotNull final String identifier,
-                       final Component actionbarComponent, final Component songComponent) {
+                       final Component actionbarComponent, final Component songComponent,
+                       @NotNull final BlockFace hologramFacing) {
     final var uuid = LegacyUtil.getBlockUUID(block);
     if (this.playerMap.containsKey(uuid)) return;
     CustomDiscs.debug("Starting LavaPlayer: {}", uuid);
@@ -289,7 +290,8 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
       audioChannel,
       uuid,
       players,
-      songComponent != null ? songComponent : Component.empty()
+      songComponent != null ? songComponent : Component.empty(),
+      hologramFacing
     );
     this.playerMap.put(uuid, lavaPlayer);
 
@@ -374,6 +376,7 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
     private final UUID uuid;
     private final Collection<ServerPlayer> playersInRangeAtStart;
     private final Component songComponent;
+    private final BlockFace hologramFacing;
     private final CompletableFuture<AudioTrack> trackFuture = new CompletableFuture<>();
     private final Thread lavaPlayerThread = new Thread(this::threadJob, "LavaPlayerThread");
     private AudioPlayer audioPlayer;
@@ -381,13 +384,14 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
 
     public LavaPlayer(final Block block, final String identifier, final LocationalAudioChannel audioChannel,
                       final UUID uuid, final Collection<ServerPlayer> playersInRangeAtStart,
-                      final Component songComponent) {
+                      final Component songComponent, final BlockFace hologramFacing) {
       this.block = block;
       this.identifier = identifier;
       this.audioChannel = audioChannel;
       this.uuid = uuid;
       this.playersInRangeAtStart = playersInRangeAtStart;
       this.songComponent = songComponent;
+      this.hologramFacing = hologramFacing;
     }
 
     private void stop() {
@@ -536,7 +540,12 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
         this.block.getLocation(),
         task -> {
           if (!this.isRunning) return;
-          LavaPlayerManagerImpl.this.plugin.getVisualizationManager().start(this.block, this.songComponent, audioTrack);
+          LavaPlayerManagerImpl.this.plugin.getVisualizationManager().start(
+            this.block,
+            this.songComponent,
+            audioTrack,
+            this.hologramFacing
+          );
         }
       );
     }

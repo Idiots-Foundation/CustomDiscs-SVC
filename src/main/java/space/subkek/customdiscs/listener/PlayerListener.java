@@ -73,7 +73,7 @@ public final class PlayerListener implements Listener {
     final var playEvent = new CustomDiscInsertEvent(block, event.getPlayer(), discEntry);
     CustomDiscs.getPlugin().getServer().getPluginManager().callEvent(playEvent);
     if (!playEvent.isCancelled())
-      PlayUtil.play(block, discEntry);
+      PlayUtil.play(block, discEntry, playEvent.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.NORMAL)

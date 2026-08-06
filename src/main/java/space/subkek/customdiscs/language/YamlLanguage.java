@@ -82,7 +82,7 @@ public final class YamlLanguage {
   private String getFormattedString(final String key, final Object... replace) {
     var result = this.language.getString("language.%s".formatted(key), "<%s>".formatted(key));
     for (var i = 0; i < replace.length; i++) {
-      result = result.replace("{%d}".formatted(i), (String) replace[i]);
+      result = result.replace("{%d}".formatted(i), String.valueOf(replace[i]));
     }
     return result;
   }

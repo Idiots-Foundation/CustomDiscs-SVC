@@ -180,7 +180,7 @@ public final class CDConfig {
     }
 
     final var configuredMode = this.getString("disc.visualization.mode", "particles",
-      "Supported visualization modes: particles, hologram, off.");
+      "Supported visualization modes: particles, hologram, both, off.");
     try {
       this.visualizationMode = VisualizationMode.valueOf(configuredMode.trim().toUpperCase(Locale.ROOT));
     } catch (final RuntimeException e) {
@@ -190,7 +190,8 @@ public final class CDConfig {
     this.removeValue("disc.visualization.hologram.text");
 
     this.hologramDistance = this.getInt("disc.visualization.hologram.distance", this.hologramDistance,
-      "The maximum distance in blocks from which the hologram is rendered.");
+      "The maximum distance in blocks from which the hologram is rendered.",
+      "This distance is exact only when the client's Entity Distance setting is 100%.");
     if (this.hologramDistance < 0) {
       CustomDiscs.warn("Invalid negative hologram distance {}; falling back to 16", this.hologramDistance);
       this.hologramDistance = 16;
@@ -208,23 +209,23 @@ public final class CDConfig {
 
     final var configuredPositionMode = this.getString(
       "disc.visualization.hologram.position.mode",
-      "static",
+      "rotational",
       "Supported hologram position modes: static, rotational.",
-      "Static offsets use world axes. Rotational offsets turn towards each viewer."
+      "Static faces the side where playback was activated. Rotational allows player's client to rotate hologram."
     );
     try {
       this.hologramPositionMode = HologramPositionMode.valueOf(configuredPositionMode.trim().toUpperCase(Locale.ROOT));
     } catch (final RuntimeException e) {
-      CustomDiscs.warn("Invalid hologram position mode '{}'; falling back to static", configuredPositionMode);
-      this.hologramPositionMode = HologramPositionMode.STATIC;
+      CustomDiscs.warn("Invalid hologram position mode '{}'; falling back to rotational", configuredPositionMode);
+      this.hologramPositionMode = HologramPositionMode.ROTATIONAL;
     }
 
     this.hologramOffsetX = this.getFiniteDouble("disc.visualization.hologram.position.offset.x", 0d,
-      "World X offset in static mode; sideways offset in rotational mode.");
+      "Sideways offset relative to the direction the hologram faces.");
     this.hologramOffsetY = this.getFiniteDouble("disc.visualization.hologram.position.offset.y", 1.2d,
       "Vertical offset above the jukebox.");
     this.hologramOffsetZ = this.getFiniteDouble("disc.visualization.hologram.position.offset.z", 0d,
-      "World Z offset in static mode; offset towards the viewer in rotational mode.");
+      "Forward offset relative to the direction the hologram faces.");
   }
 
   private double getFiniteDouble(final String key, final double defaultValue, final String... comment) {
@@ -348,6 +349,7 @@ public final class CDConfig {
   public enum VisualizationMode {
     PARTICLES,
     HOLOGRAM,
+    BOTH,
     OFF
   }
 

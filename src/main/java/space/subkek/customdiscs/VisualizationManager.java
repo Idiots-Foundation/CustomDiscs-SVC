@@ -9,8 +9,8 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityTeleport;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.tools.Units;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -21,23 +21,20 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NonNull;
 import space.subkek.customdiscs.file.CDConfig.HologramPositionMode;
 import space.subkek.customdiscs.file.CDConfig.VisualizationMode;
 import space.subkek.customdiscs.util.LegacyUtil;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class VisualizationManager {
   private static final float ENTITY_TRACKING_RANGE = 64f;
-  private static final int VIEWER_DISCOVERY_PERIOD = 20;
+  private static final int VISUALIZATION_PERIOD = 20;
   private static final int ROTATIONAL_UPDATE_PERIOD = 2;
   private static final int STATIC_UPDATE_PERIOD = 20;
   private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
@@ -51,12 +48,13 @@ public final class VisualizationManager {
     this.plugin = plugin;
   }
 
-  public synchronized void start(final Block block, final Component song, final AudioTrack track) {
+  public synchronized void start(final Block block, final Component song, final AudioTrack track,
+                                 final BlockFace hologramFacing) {
     final var id = LegacyUtil.getBlockUUID(block);
     final var previous = this.activeVisualizations.remove(id);
     if (previous != null) this.destroyVisual(previous);
 
-    final var visualization = new ActiveVisualization(block, song, track);
+    final var visualization = new ActiveVisualization(block, song, track, hologramFacing);
     this.activeVisualizations.put(id, visualization);
     try {
       this.createVisual(visualization);
@@ -103,17 +101,17 @@ public final class VisualizationManager {
 
   private void createVisual(final ActiveVisualization visualization) {
     final var mode = this.plugin.getCDConfig().getVisualizationMode();
-    if (mode == VisualizationMode.PARTICLES) {
-      visualization.particleTask = ParticleManager.start(visualization.block);
-    } else if (mode == VisualizationMode.HOLOGRAM) {
+    if (mode == VisualizationMode.HOLOGRAM || mode == VisualizationMode.BOTH) {
       visualization.entityId = reserveEntityId();
-      visualization.viewerDiscoveryTask = this.plugin.getFoliaLib().getScheduler().runAtLocationTimer(
-        visualization.block.getLocation(),
-        () -> this.discoverViewers(visualization),
-        1,
-        VIEWER_DISCOVERY_PERIOD
-      );
     }
+    if (mode == VisualizationMode.OFF) return;
+
+    visualization.visualizationTask = this.plugin.getFoliaLib().getScheduler().runAtLocationTimer(
+      visualization.block.getLocation(),
+      () -> this.tickVisualization(visualization),
+      1,
+      VISUALIZATION_PERIOD
+    );
   }
 
   @SuppressWarnings("deprecation")
@@ -121,13 +119,18 @@ public final class VisualizationManager {
     return Bukkit.getUnsafe().nextEntityId();
   }
 
-  private synchronized void discoverViewers(final ActiveVisualization visualization) {
-    if (visualization.entityId == null ||
-      this.activeVisualizations.get(LegacyUtil.getBlockUUID(visualization.block)) != visualization) return;
+  private synchronized void tickVisualization(final ActiveVisualization visualization) {
+    if (this.activeVisualizations.get(LegacyUtil.getBlockUUID(visualization.block)) != visualization) return;
+
+    final var mode = this.plugin.getCDConfig().getVisualizationMode();
+    if (mode == VisualizationMode.PARTICLES || mode == VisualizationMode.BOTH) {
+      final var location = visualization.block.getLocation().add(0.5d, 1.2d, 0.5d);
+      visualization.block.getWorld().spawnParticle(Particle.NOTE, location, 1);
+    }
+    if (visualization.entityId == null) return;
 
     final var center = visualization.block.getLocation().add(0.5d, 0.5d, 0.5d);
-    final var distance = this.plugin.getCDConfig().getHologramDistance();
-    for (final var player : visualization.block.getWorld().getNearbyPlayers(center, distance)) {
+    for (final var player : visualization.block.getWorld().getNearbyPlayers(center, ENTITY_TRACKING_RANGE)) {
       if (visualization.viewerTasks.containsKey(player.getUniqueId())) continue;
       this.plugin.getFoliaLib().getScheduler().runAtEntity(
         player,
@@ -136,8 +139,7 @@ public final class VisualizationManager {
     }
   }
 
-  private synchronized void showHologramIfActive(final Player player, final ActiveVisualization visualization,
-                                                  final boolean force) {
+  private synchronized void showHologramIfActive(final Player player, final ActiveVisualization visualization, final boolean force) {
     if (this.activeVisualizations.get(LegacyUtil.getBlockUUID(visualization.block)) != visualization) return;
     if (visualization.entityId == null || !this.isViewerInRange(player, visualization)) {
       this.removeViewer(player, visualization);
@@ -148,18 +150,13 @@ public final class VisualizationManager {
   }
 
   private void destroyVisual(final ActiveVisualization visualization) {
-    if (visualization.particleTask != null) {
-      visualization.particleTask.cancel();
-      visualization.particleTask = null;
-    }
-
-    if (visualization.viewerDiscoveryTask != null) {
-      visualization.viewerDiscoveryTask.cancel();
-      visualization.viewerDiscoveryTask = null;
+    if (visualization.visualizationTask != null) {
+      visualization.visualizationTask.cancel();
+      visualization.visualizationTask = null;
     }
 
     if (visualization.entityId != null) {
-      final var destroyPacket = new WrapperPlayServerDestroyEntities(visualization.entityId);
+      final var destroyPacket = new WrapperPlayServerDestroyEntities(visualization.entityId, visualization.entityId);
       for (final var entry : visualization.viewerTasks.entrySet()) {
         entry.getValue().cancel();
         final var player = this.plugin.getServer().getPlayer(entry.getKey());
@@ -184,7 +181,7 @@ public final class VisualizationManager {
     if (previousTask != null) {
       previousTask.cancel();
       visualization.rotationalTicks.remove(player.getUniqueId());
-      packetManager.sendPacket(player, new WrapperPlayServerDestroyEntities(entityId));
+      packetManager.sendPacket(player, new WrapperPlayServerDestroyEntities(visualization.entityId, visualization.entityId));
     }
 
     final var pose = this.hologramPose(player, visualization);
@@ -255,8 +252,7 @@ public final class VisualizationManager {
     if (!player.isOnline() || !visualization.block.getWorld().equals(player.getWorld())) return false;
 
     final var center = visualization.block.getLocation().add(0.5d, 0.5d, 0.5d);
-    final var distance = this.plugin.getCDConfig().getHologramDistance();
-    return player.getLocation().distanceSquared(center) <= (double) distance * distance;
+    return player.getLocation().distanceSquared(center) <= (double) ENTITY_TRACKING_RANGE * ENTITY_TRACKING_RANGE;
   }
 
   private void removeViewer(final Player player, final ActiveVisualization visualization) {
@@ -267,16 +263,15 @@ public final class VisualizationManager {
 
     PacketEvents.getAPI().getPlayerManager().sendPacket(
       player,
-      new WrapperPlayServerDestroyEntities(visualization.entityId)
+      new WrapperPlayServerDestroyEntities(visualization.entityId, visualization.entityId)
     );
   }
 
   private ArrayList<EntityData<?>> hologramMetadata(final ActiveVisualization visualization) {
     final var metadata = new ArrayList<EntityData<?>>();
     metadata.add(new EntityData<>(15, EntityDataTypes.BYTE,
-      this.plugin.getCDConfig().getHologramPositionMode() == HologramPositionMode.STATIC ? (byte) 3 : (byte) 0));
-    metadata.add(new EntityData<>(17, EntityDataTypes.FLOAT,
-      this.plugin.getCDConfig().getHologramDistance() / ENTITY_TRACKING_RANGE));
+      this.plugin.getCDConfig().getHologramPositionMode() == HologramPositionMode.STATIC ? (byte) 0 : (byte) 3));
+    metadata.add(new EntityData<>(17, EntityDataTypes.FLOAT,  this.plugin.getCDConfig().getHologramDistance() / ENTITY_TRACKING_RANGE));
     metadata.add(new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, this.hologramText(visualization)));
     metadata.add(new EntityData<>(25, EntityDataTypes.INT, 0));
     metadata.add(new EntityData<>(27, EntityDataTypes.BYTE, (byte) 0x01));
@@ -366,12 +361,14 @@ public final class VisualizationManager {
     final var anchorZ = blockLocation.getZ() + 0.5d;
     final var playerLocation = player.getEyeLocation();
 
-    double x = anchorX + config.getHologramOffsetX();
-    final var y = anchorY + config.getHologramOffsetY();
-    double z = anchorZ + config.getHologramOffsetZ();
-    if (config.getHologramPositionMode() == HologramPositionMode.ROTATIONAL) {
-      var forwardX = playerLocation.getX() - anchorX;
-      var forwardZ = playerLocation.getZ() - anchorZ;
+    double forwardX;
+    double forwardZ;
+    if (config.getHologramPositionMode() == HologramPositionMode.STATIC) {
+      forwardX = visualization.hologramFacing.getModX();
+      forwardZ = visualization.hologramFacing.getModZ();
+    } else {
+      forwardX = playerLocation.getX() - anchorX;
+      forwardZ = playerLocation.getZ() - anchorZ;
       final var horizontalLength = Math.hypot(forwardX, forwardZ);
       if (horizontalLength > 1.0e-6d) {
         forwardX /= horizontalLength;
@@ -380,17 +377,14 @@ public final class VisualizationManager {
         forwardX = 0d;
         forwardZ = 1d;
       }
-
-      x = anchorX + forwardZ * config.getHologramOffsetX() + forwardX * config.getHologramOffsetZ();
-      z = anchorZ - forwardX * config.getHologramOffsetX() + forwardZ * config.getHologramOffsetZ();
     }
 
-    final var toPlayerX = playerLocation.getX() - x;
-    final var toPlayerY = playerLocation.getY() - y;
-    final var toPlayerZ = playerLocation.getZ() - z;
-    final var yaw = (float) Math.toDegrees(Math.atan2(-toPlayerX, toPlayerZ));
-    final var pitch = (float) Math.toDegrees(-Math.atan2(toPlayerY, Math.hypot(toPlayerX, toPlayerZ)));
-    return new HologramPose(new Vector3d(x, y, z), yaw, pitch);
+    final var x = anchorX + forwardZ * config.getHologramOffsetX() + forwardX * config.getHologramOffsetZ();
+    final var y = anchorY + config.getHologramOffsetY();
+    final var z = anchorZ - forwardX * config.getHologramOffsetX() + forwardZ * config.getHologramOffsetZ();
+
+    final var yaw = (float) Math.toDegrees(Math.atan2(-forwardX, forwardZ));
+    return new HologramPose(new Vector3d(x, y, z), yaw, 0f);
   }
 
   private static Component truncate(final Component component, final int maxCodePoints) {
@@ -437,16 +431,18 @@ public final class VisualizationManager {
     private final Block block;
     private final Component song;
     private final AudioTrack track;
+    private final BlockFace hologramFacing;
     private final Map<UUID, WrappedTask> viewerTasks = new HashMap<>();
     private final Map<UUID, Integer> rotationalTicks = new HashMap<>();
-    private WrappedTask particleTask;
-    private WrappedTask viewerDiscoveryTask;
+    private WrappedTask visualizationTask;
     private Integer entityId;
 
-    private ActiveVisualization(final Block block, final Component song, final AudioTrack track) {
+    private ActiveVisualization(final Block block, final Component song, final AudioTrack track,
+                                final BlockFace hologramFacing) {
       this.block = block;
       this.song = song;
       this.track = track;
+      this.hologramFacing = hologramFacing;
     }
   }
 }
