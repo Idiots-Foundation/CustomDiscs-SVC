@@ -155,6 +155,7 @@ public final class CDConfig {
       filter — Regex filter for applying custom-model-data to remote disk""");
   }
 
+  private boolean allowHoppers = true;
   private int musicDiscDistance = 64;
   private float musicDiscVolume = 1f;
   private int maxTrackLengthSeconds = 1200;
@@ -167,6 +168,7 @@ public final class CDConfig {
   private double hologramOffsetZ = 0d;
 
   private void discSettings() {
+    this.allowHoppers = this.getBoolean("disc.allow-hoppers", this.allowHoppers, "Please ensure that in the paper world config the value hopper.disable-move-event is false");
     this.musicDiscDistance = this.getInt("disc.distance", this.musicDiscDistance,
       "The distance from which music discs can be heard in blocks.");
     this.musicDiscVolume = Float.parseFloat(this.getString("disc.volume", String.valueOf(this.musicDiscVolume),
@@ -342,7 +344,6 @@ public final class CDConfig {
 
   private void migrateTo1_6() {
     CustomDiscs.debug("Config migrating from v1.5 to v1.6");
-    this.removeValue("disc.allow-hoppers");
     this.setConfigVersion("1.6");
   }
 

@@ -64,7 +64,7 @@ public final class CustomDiscInsertEvent extends Event implements Cancellable {
   /**
    * Returns the player who inserted the disc.
    *
-   * @return The {@link Player} involved, or {@code null} if the insertion was triggered by a hopper.
+   * @return The {@link Player} involved, or {@code null} if the insertion was triggered by a redstone.
    */
   @Nullable
   public Player getPlayer() {

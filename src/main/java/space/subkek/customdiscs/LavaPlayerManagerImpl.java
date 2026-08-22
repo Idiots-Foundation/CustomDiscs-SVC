@@ -73,10 +73,15 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
   private static YoutubeAudioSourceManager getYoutubeAudioSourceManager(final YoutubeSourceOptions options) {
     final Client[] clients = {
       new Music(),
-      new AndroidVr(),
       new Web(),
+      new MWeb(),
       new WebEmbedded(),
-      new Tv()
+      new Android(),
+      new AndroidVr(),
+      new AndroidMusic(),
+      new Ios(),
+      new Tv(),
+      new TvHtml5Simply()
     };
 
     return new YoutubeAudioSourceManager(options, clients);
@@ -331,6 +336,7 @@ public final class LavaPlayerManagerImpl implements LavaPlayerManager {
     }
   }
 
+  @Override
   public synchronized void stopPlayingAll() {
     Set.copyOf(this.playerMap.keySet()).forEach(this::stopPlaying);
   }
