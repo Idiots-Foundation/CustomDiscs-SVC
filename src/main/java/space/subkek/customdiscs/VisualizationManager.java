@@ -271,7 +271,7 @@ public final class VisualizationManager {
     final var metadata = new ArrayList<EntityData<?>>();
     metadata.add(new EntityData<>(15, EntityDataTypes.BYTE,
       this.plugin.getCDConfig().getHologramPositionMode() == HologramPositionMode.STATIC ? (byte) 0 : (byte) 3));
-    metadata.add(new EntityData<>(17, EntityDataTypes.FLOAT,  this.plugin.getCDConfig().getHologramDistance() / ENTITY_TRACKING_RANGE));
+    metadata.add(new EntityData<>(17, EntityDataTypes.FLOAT, this.plugin.getCDConfig().getHologramDistance() / ENTITY_TRACKING_RANGE));
     metadata.add(new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, this.hologramText(visualization)));
     metadata.add(new EntityData<>(25, EntityDataTypes.INT, 0));
     metadata.add(new EntityData<>(27, EntityDataTypes.BYTE, (byte) 0x01));

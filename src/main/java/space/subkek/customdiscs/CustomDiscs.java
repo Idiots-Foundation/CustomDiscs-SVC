@@ -23,14 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.subkek.customdiscs.api.CustomDiscsAPI;
 import space.subkek.customdiscs.command.CustomDiscsCommand;
-import space.subkek.customdiscs.listener.HopperListener;
-import space.subkek.customdiscs.listener.JukeboxListener;
-import space.subkek.customdiscs.listener.JukeboxPacketListener;
-import space.subkek.customdiscs.listener.PlayerListener;
-import space.subkek.customdiscs.listener.VisualizationListener;
 import space.subkek.customdiscs.file.CDConfig;
 import space.subkek.customdiscs.file.CDData;
 import space.subkek.customdiscs.language.YamlLanguage;
+import space.subkek.customdiscs.listener.*;
 import space.subkek.customdiscs.util.HTTPRequestUtils;
 
 import java.io.File;

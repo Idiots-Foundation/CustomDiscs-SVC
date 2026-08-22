@@ -192,8 +192,8 @@ public final class CDConfig {
     this.hologramDistance = this.getInt("disc.visualization.hologram.distance", this.hologramDistance,
       "The maximum distance in blocks from which the hologram is rendered.",
       "This distance is exact only when the client's Entity Distance setting is 100%.");
-    if (this.hologramDistance < 0) {
-      CustomDiscs.warn("Invalid negative hologram distance {}; falling back to 16", this.hologramDistance);
+    if (this.hologramDistance <= 0 || this.hologramDistance > 64) {
+      CustomDiscs.warn("hologram distance is Invalid(zero/negative/above client's default tracking range (64)); falling back to 16");
       this.hologramDistance = 16;
     }
 
