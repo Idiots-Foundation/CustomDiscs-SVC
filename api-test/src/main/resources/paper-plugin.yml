@@ -1,7 +1,7 @@
 name: CDAPITEST
 version: ${version}
 main: "space.subkek.cdapitest.Main"
-api-version: "1.21"
+api-version: "1.21.6"
 folia-supported: true
 dependencies:
   server:

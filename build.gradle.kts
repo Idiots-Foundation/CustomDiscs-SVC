@@ -50,7 +50,7 @@ paper {
 
     authors = listOf("subkek", "yiski")
     website = "https://discord.gg/eRvwvmEXWz"
-    apiVersion = "1.21"
+    apiVersion = "1.21.6"
 
     foliaSupported = true
 
@@ -128,13 +128,6 @@ modrinth {
         "1.21.8",
         "1.21.7",
         "1.21.6",
-        "1.21.5",
-        "1.21.4",
-        "1.21.3",
-        "1.21.2",
-        "1.21.1",
-        "1.21",
-        "1.20.6"
     )
     loaders.addAll("paper", "purpur", "folia")
     uploadFile.set(tasks.shadowJar)

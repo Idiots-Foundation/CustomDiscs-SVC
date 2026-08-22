@@ -1,18 +1,18 @@
 [versions]
-shadow = "9.4.1"
-paper-yml = "0.8.0"
+shadow = "9.6.1"
+paper-yml = "0.9.0"
 minotaur = "2.9.0"
 
-paper-api = "1.21.11-R0.1-SNAPSHOT"
-voicechat-api = "2.6.0"
-lavaplayer = "2.2.6"
-youtube-source = "1.18.1"
-commons-io = "2.21.0"
+paper-api = "1.21.6-R0.1-SNAPSHOT"
+voicechat-api = "2.6.20"
+lavaplayer = "2.2.7"
+youtube-source = "1.18.2"
+commons-io = "2.22.0"
 bstats = "3.2.1"
 simple-yaml = "1.8.4"
-lombok = "1.18.44"
-packetevents = "2.12.0"
-folialib = "0.5.1"
+lombok = "1.18.46"
+packetevents = "2.13.0"
+folialib = "0.5.2"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
